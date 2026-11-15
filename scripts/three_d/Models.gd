@@ -10,7 +10,11 @@ static func material(color: Color) -> StandardMaterial3D:
 	if not materials.has(key):
 		var result := StandardMaterial3D.new()
 		result.albedo_color = color.srgb_to_linear()
-		result.roughness = 0.88
+		result.roughness = 0.80
+		result.metallic = 0.04
+		result.specular = 0.35
+		result.ao_enabled = true
+		result.ao_light_affect = 0.25
 		materials[key] = result
 	return materials[key]
 
@@ -25,14 +29,16 @@ static func part(parent: Node3D, mesh: Mesh, pos: Vector3, color: Color, dimensi
 
 static func box(parent: Node3D, pos: Vector3, dimensions: Vector3, color: Color) -> MeshInstance3D:
 	if not meshes.has("box"):
-		meshes["box"] = BoxMesh.new()
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3.ONE
+		meshes["box"] = mesh
 	return part(parent, meshes["box"], pos, color, dimensions)
 
 static func ball(parent: Node3D, pos: Vector3, dimensions: Vector3, color: Color) -> MeshInstance3D:
 	if not meshes.has("ball"):
 		var mesh := SphereMesh.new()
-		mesh.radial_segments = 8
-		mesh.rings = 4
+		mesh.radial_segments = 12
+		mesh.rings = 6
 		meshes["ball"] = mesh
 	return part(parent, meshes["ball"], pos, color, dimensions)
 
@@ -43,7 +49,9 @@ static func cylinder(parent: Node3D, pos: Vector3, radius: float, height: float,
 		mesh.top_radius = radius if top < 0.0 else top
 		mesh.bottom_radius = radius
 		mesh.height = height
-		mesh.radial_segments = 8
+		mesh.radial_segments = 12
+		mesh.cap_top = true
+		mesh.cap_bottom = true
 		meshes[key] = mesh
 	return part(parent, meshes[key], pos, color)
 
@@ -81,20 +89,31 @@ static func hitbox(parent: Node3D, kind: String, id: String, center: Vector3, di
 
 static func tree(parent: Node3D, pos: Vector3, tint: Color = Color("#63864c"), fruit: bool = false) -> Node3D:
 	var node: Node3D = root(parent, pos)
-	cylinder(node, Vector3(0, 1.4, 0), 0.25, 2.8, Color("#79543b"), 0.15)
-	ball(node, Vector3(0, 3.0, 0), Vector3(3.1, 2.8, 3.0), tint)
-	ball(node, Vector3(-0.8, 2.7, 0.4), Vector3(2.0, 1.8, 2.0), tint.darkened(0.09))
+	cylinder(node, Vector3(0, 1.4, 0), 0.28, 2.8, Color("#79543b"), 0.18)
+	ball(node, Vector3(0, 3.1, 0), Vector3(3.2, 2.9, 3.1), tint)
+	ball(node, Vector3(-0.8, 2.8, 0.5), Vector3(2.1, 1.9, 2.2), tint.darkened(0.08))
+	ball(node, Vector3(0.9, 2.9, -0.5), Vector3(1.9, 1.7, 2.0), tint.lightened(0.06))
+	for i in range(4):
+		var a: float = i * TAU / 4.0
+		ball(node, Vector3(cos(a)*0.9, 2.5 + sin(a)*0.3, sin(a)*0.9), Vector3(1.0, 0.9, 1.0), tint.lightened(0.05))
 	if fruit:
-		for i in range(5):
-			var a: float = i * TAU / 5.0
-			ball(node, Vector3(cos(a)*1.3, 2.8+sin(a)*0.45, sin(a)*1.3), Vector3.ONE*0.32, Color("#d98948"))
+		for i in range(7):
+			var a: float = i * TAU / 7.0
+			ball(node, Vector3(cos(a)*1.5, 2.8+sin(a)*0.55, sin(a)*1.5), Vector3.ONE*0.34, Color("#d98948"))
 	return node
 
 static func pine(parent: Node3D, pos: Vector3, height: float = 5.0) -> void:
 	var node: Node3D = root(parent, pos)
 	cylinder(node, Vector3(0, 1, 0), 0.22, 2.0, Color("#70533c"))
-	for i in range(3):
-		cylinder(node, Vector3(0, height*(0.38+i*0.21), 0), height*(0.30-i*0.065), height*0.52, Color("#466b53").lightened(i*0.055), 0.0)
+	var tiers: Array = [
+		[0.36, 0.66, 0.75],
+		[0.50, 0.82, 1.00],
+		[0.68, 1.00, 1.30],
+		[0.86, 1.15, 1.55]
+	]
+	for i in range(tiers.size()):
+		var params: Array = tiers[i]
+		cylinder(node, Vector3(0, height*params[0], 0), height*params[1], height*params[2], Color("#4d7658").lightened(i*0.05), 0.0)
 
 static func fence(parent: Node3D, from: Vector3, to: Vector3) -> void:
 	var distance: float = from.distance_to(to)
@@ -110,10 +129,16 @@ static func roof_mesh() -> ArrayMesh:
 		return meshes["roof"]
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var vertices: Array[Vector3] = [Vector3(-0.5,0,-0.5),Vector3(0.5,0,-0.5),Vector3(0,0.65,-0.5),Vector3(-0.5,0,0.5),Vector3(0.5,0,0.5),Vector3(0,0.65,0.5)]
-	# Godot uses clockwise front faces.
-	for index in [0,1,2,3,5,4,0,5,3,0,2,5,1,5,2,1,4,5]:
-		st.add_vertex(vertices[index])
+	var vertices: Array[Vector3] = [
+		Vector3(-0.5,0,-0.5), Vector3(0.5,0,-0.5), Vector3(0,0.68,-0.5),
+		Vector3(-0.5,0,0.5), Vector3(0.5,0,0.5), Vector3(0,0.68,0.5),
+		Vector3(-0.5,0,-0.5), Vector3(0.5,0,0.5), Vector3(0,0.68,0.5),
+		Vector3(-0.5,0,-0.5), Vector3(0,0.68,-0.5), Vector3(-0.5,0,0.5),
+		Vector3(0.5,0,-0.5), Vector3(0.5,0,0.5), Vector3(0,0.68,0.5),
+		Vector3(0.5,0,-0.5), Vector3(0,0.68,-0.5), Vector3(0,0.68,0.5)
+	]
+	for vertex in vertices:
+		st.add_vertex(vertex)
 	st.generate_normals()
 	meshes["roof"] = st.commit()
 	return meshes["roof"]
@@ -134,21 +159,23 @@ static func building(parent: Node3D, kind: String) -> Node3D:
 		for i in range(5):
 			ball(node, Vector3(-1.8+i*0.9,0.35,0), Vector3(0.7,0.7,0.7), Color("#f0ca75") if kind == "flowers" else Color("#76a866"))
 		return node
-	box(node, Vector3(0,0.16,0), Vector3(5.6,0.32,4.4), Color("#a99a7d"))
-	box(node, Vector3(0,1.7,0), Vector3(5.0,3.0,3.8), wall)
-	part(node, roof_mesh(), Vector3(0,3.2,0), roof, Vector3(5.8,2.1,4.6))
-	box(node, Vector3(0,1.2,1.93), Vector3(0.95,2.0,0.12), Color("#694d38"))
+	box(node, Vector3(0,0.16,0), Vector3(5.8,0.32,4.6), Color("#a99a7d"))
+	box(node, Vector3(0,1.72,0), Vector3(5.1,3.1,3.9), wall)
+	part(node, roof_mesh(), Vector3(0,3.28,0), roof, Vector3(5.9,2.2,4.9))
+	box(node, Vector3(0,1.25,1.95), Vector3(0.95,2.05,0.12), Color("#694d38"))
 	for x in [-1.65, 1.65]:
-		box(node, Vector3(x,1.95,1.95), Vector3(0.95,0.95,0.15), Color("#fff0cc"))
-		box(node, Vector3(x,1.95,2.04), Vector3(0.73,0.72,0.04), Color("#78a9ad"))
-		box(node, Vector3(x,1.95,2.08), Vector3(0.055,0.76,0.04), Color("#eee0b9"))
-		box(node, Vector3(x,1.95,2.08), Vector3(0.76,0.055,0.04), Color("#eee0b9"))
+		box(node, Vector3(x,1.95,1.94), Vector3(0.95,0.92,0.15), Color("#fff1cd"))
+		box(node, Vector3(x,1.95,2.04), Vector3(0.74,0.72,0.04), Color("#78a9ad"))
+		box(node, Vector3(x,1.95,2.08), Vector3(0.055,0.76,0.04), Color("#e5d4b0"))
+		box(node, Vector3(x,1.95,2.08), Vector3(0.76,0.055,0.04), Color("#e5d4b0"))
+	box(node, Vector3(0,2.16,0), Vector3(0.2,0.18,0.18), Color("#e0c998"))
 	if kind == "farmhouse":
 		box(node, Vector3(1.5,4.0,-0.6), Vector3(0.65,2.1,0.7), Color("#ccad8d"))
 		box(node, Vector3(0,0.25,2.55), Vector3(2.6,0.35,1.2), Color("#d1bc94"))
+		box(node, Vector3(1.78,3.1,1.52), Vector3(0.45,0.62,0.1), Color("#7d5d4b"))
 	if kind == "greenhouse":
 		for x in [-2.0,-1.0,0.0,1.0,2.0]:
-			box(node, Vector3(x,1.8,1.96), Vector3(0.75,2.2,0.07), Color("#87b9ab"))
+			box(node, Vector3(x,1.75,1.98), Vector3(0.75,2.2,0.07), Color("#8ec1b1"))
 	if kind == "market":
 		for i in range(6):
 			box(node, Vector3(-2.25+i*0.9,2.5,2.65), Vector3(0.88,0.15,1.5), Color("#e3a85f") if i%2 else Color("#fff2d2"))
@@ -166,34 +193,38 @@ static func farmer(parent: Node3D, source: Dictionary) -> Node3D:
 	var skin := Color(str(look["skin"]))
 	var hair := Color(str(look["hair_color"]))
 	for side in [-1.0,1.0]:
-		box(node, Vector3(side*0.19,0.46,0), Vector3(0.29,0.68,0.34), Color(str(look["pants"])))
-		box(node, Vector3(side*0.19,0.14,0.08), Vector3(0.33,0.27,0.49), Color(str(look["boots"])))
-		ball(node, Vector3(side*0.5*width,1.16,0), Vector3(0.28,0.65,0.32), Color(str(look["outfit"])))
-		ball(node, Vector3(side*0.52*width,0.9,0.04), Vector3.ONE*0.27, skin)
-	box(node, Vector3(0,1.12,0), Vector3(0.78*width,0.83,0.44), Color(str(look["outfit"])))
-	box(node, Vector3(0,1.05,0.235), Vector3(0.48,0.54,0.04), Color(str(look["outfit"])).darkened(0.16))
-	ball(node, Vector3(0,1.9,0), Vector3(0.85,0.8,0.73), skin)
+		box(node, Vector3(side*0.19,0.46,0), Vector3(0.31,0.7,0.36), Color(str(look["pants"])))
+		box(node, Vector3(side*0.19,0.14,0.08), Vector3(0.35,0.27,0.52), Color(str(look["boots"])))
+		ball(node, Vector3(side*0.52*width,1.18,0), Vector3(0.27,0.68,0.32), Color(str(look["outfit"])))
+		ball(node, Vector3(side*0.54*width,0.9,0.06), Vector3.ONE*0.24, skin)
+	box(node, Vector3(0,1.15,0), Vector3(0.80*width,0.88,0.48), Color(str(look["outfit"])))
+	box(node, Vector3(0,1.03,0.25), Vector3(0.52,0.56,0.04), Color(str(look["outfit"])).darkened(0.18))
+	box(node, Vector3(0,1.36,0.12), Vector3(0.64,0.18,0.44), Color(str(look["outfit"]).lightened(0.05)))
+	ball(node, Vector3(0,1.92,0), Vector3(0.9,0.82,0.74), skin)
 	for side in [-1.0,1.0]:
-		ball(node, Vector3(side*0.15,1.94,0.35), Vector3.ONE*0.075, Color(str(look["eyes"])))
-	ball(node, Vector3(0,1.82,0.39), Vector3(0.12,0.13,0.1), skin.lightened(0.1))
+		ball(node, Vector3(side*0.16,1.95,0.35), Vector3.ONE*0.075, Color(str(look["eyes"])))
+	ball(node, Vector3(0,1.82,0.41), Vector3(0.12,0.13,0.1), skin.lightened(0.1))
+	box(node, Vector3(0,1.73,0.12), Vector3(0.12,0.18,0.18), Color(str(look["outfit"]).darkened(0.2)))
 	if look["hair"] != "bald":
-		ball(node, Vector3(0,2.16,-0.04), Vector3(0.88,0.40,0.77), hair)
+		ball(node, Vector3(0,2.19,-0.02), Vector3(0.95,0.42,0.80), hair)
 		if look["hair"] in ["long","braids"]:
 			for side in [-1.0,1.0]:
-				ball(node, Vector3(side*0.37,1.75,-0.13), Vector3(0.22,0.9,0.28), hair)
+				ball(node, Vector3(side*0.38,1.76,-0.13), Vector3(0.24,0.96,0.3), hair)
 		if look["hair"] in ["pony","bun"]:
-			ball(node, Vector3(0,2.05,-0.46), Vector3(0.34,0.42,0.40), hair)
+			ball(node, Vector3(0,2.06,-0.46), Vector3(0.36,0.45,0.42), hair)
 		if look["hair"] in ["waves","curly"]:
 			for i in range(6):
 				ball(node, Vector3(-0.34+i*0.14,2.2,-0.02), Vector3.ONE*0.27, hair)
 	if look["facial_hair"] != "none":
-		ball(node, Vector3(0,1.68,0.26), Vector3(0.48,0.3 if look["facial_hair"] == "beard" else 0.1,0.27), hair)
+		ball(node, Vector3(0,1.69,0.26), Vector3(0.5,0.33 if look["facial_hair"] == "beard" else 0.1,0.27), hair)
 	if look["hat"] != "none":
 		var hat_color := Color("#d9b677") if look["hat"] == "straw" else Color("#506e68")
-		cylinder(node, Vector3(0,2.24,0), 0.64 if look["hat"] in ["straw","ranger"] else 0.44, 0.09, hat_color)
-		cylinder(node, Vector3(0,2.40,-0.03), 0.36, 0.3, hat_color, 0.30)
+		cylinder(node, Vector3(0,2.26,0), 0.66 if look["hat"] in ["straw","ranger"] else 0.44, 0.10, hat_color)
+		cylinder(node, Vector3(0,2.40,-0.03), 0.36, 0.32, hat_color, 0.28)
+		if look["hat"] == "straw":
+			box(node, Vector3(0,2.22,0.18), Vector3(0.74,0.08,0.26), Color("#f1d79b"))
 	if look["accessory"] in ["scarf","bandana"]:
-		box(node, Vector3(0,1.56,0.07), Vector3(0.70,0.16,0.56), Color("#d5815d"))
+		box(node, Vector3(0,1.56,0.08), Vector3(0.74,0.18,0.58), Color("#d5815d"))
 	if look["accessory"] in ["flower","laurel"]:
 		ball(node, Vector3(0.36,2.2,0.15), Vector3.ONE*0.25, Color("#eba6ac") if look["accessory"] == "flower" else Color("#abc76e"))
 	if look["accessory"] == "glasses":
@@ -209,17 +240,21 @@ static func animal(parent: Node3D, species: String) -> Node3D:
 	if species == "pig": tint = Color("#e4aaa0")
 	if species == "goat": tint = Color("#d1b698")
 	var s: float = 0.65 if bird else 1.0
-	ball(node, Vector3(0,0.9,0), Vector3(1.0,0.95,1.7)*s, tint)
-	ball(node, Vector3(0,1.28,0.8)*s, Vector3(0.7,0.7,0.7)*s, tint)
+	ball(node, Vector3(0,0.92,0), Vector3(1.08,0.95,1.68)*s, tint)
+	ball(node, Vector3(0,1.30,0.78)*s, Vector3(0.78,0.72,0.76)*s, tint)
 	for side in [-1.0,1.0]:
-		ball(node, Vector3(side*0.23,1.38,1.08)*s, Vector3.ONE*0.09*s, Color("#2a3832"))
-		for z in [-0.5,0.5]:
-			box(node, Vector3(side*0.3,0.3,z)*s, Vector3(0.15,0.6,0.15)*s, Color("#775f40"))
+		ball(node, Vector3(side*0.24,1.40,1.08)*s, Vector3.ONE*0.09*s, Color("#2a3832"))
+		for z in [-0.6,0.6]:
+			box(node, Vector3(side*0.34,0.34,z)*s, Vector3(0.15,0.62,0.16)*s, Color("#775f40"))
 		if species in ["rabbit","horse","goat"]:
-			ball(node, Vector3(side*0.3,1.79,0.72)*s, Vector3(0.20,0.63,0.20)*s, tint)
+			ball(node, Vector3(side*0.32,1.78,0.72)*s, Vector3(0.18,0.65,0.18)*s, tint)
 	if bird:
-		ball(node, Vector3(0,1.25,1.18)*s, Vector3(0.28,0.18,0.35)*s, Color("#e3a74c"))
-		ball(node, Vector3(0,1.7,0.82)*s, Vector3(0.13,0.3,0.4)*s, Color("#c6604a"))
+		ball(node, Vector3(0,1.28,1.18)*s, Vector3(0.32,0.2,0.38)*s, Color("#e3a74c"))
+		ball(node, Vector3(0,1.7,0.82)*s, Vector3(0.15,0.32,0.42)*s, Color("#c6604a"))
+		ball(node, Vector3(0,0.96,1.35)*s, Vector3(0.24,0.14,0.26)*s, Color("#f1d6ab"))
+	else:
+		box(node, Vector3(0,0.76,1.32)*s, Vector3(0.45,0.35,0.22)*s, Color("#d8c2a2"))
+		ball(node, Vector3(0,1.62,1.20)*s, Vector3(0.26,0.24,0.22)*s, tint.lightened(0.08))
 	return node
 
 static func decoration(parent: Node3D, kind: String) -> Node3D:
