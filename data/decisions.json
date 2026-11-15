@@ -1,0 +1,1655 @@
+{
+  "dry_spell": {
+    "title": {
+      "en": "An unusually dry week",
+      "es": "Una semana especialmente seca"
+    },
+    "description": {
+      "en": "The soil is drying and the reservoir is finite.",
+      "es": "El suelo se seca y el depósito de agua es limitado."
+    },
+    "options": [
+      {
+        "id": "water",
+        "title": {
+          "en": "Buy 100 m³ of emergency water",
+          "es": "Comprar 100 m³ de agua de emergencia"
+        },
+        "effect": {
+          "en": "Costs €27; increases reservoir water.",
+          "es": "Cuesta 27 €; repone el depósito."
+        },
+        "risk": {
+          "en": "Costs cash now; plants still need irrigation.",
+          "es": "Cuesta dinero; los cultivos todavía necesitan riego."
+        }
+      },
+      {
+        "id": "mulch",
+        "title": {
+          "en": "Mulch the first field",
+          "es": "Acolchar la primera parcela"
+        },
+        "effect": {
+          "en": "Pays the normal mulch cost; reduces evaporation.",
+          "es": "Paga el acolchado; reduce evaporación."
+        },
+        "risk": {
+          "en": "Only protects the first field.",
+          "es": "Solo protege la primera parcela."
+        }
+      },
+      {
+        "id": "wait",
+        "title": {
+          "en": "Save cash and watch the forecast",
+          "es": "Ahorrar y vigilar el pronóstico"
+        },
+        "effect": {
+          "en": "No immediate charge.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "Dry soil can slow production.",
+          "es": "La sequedad puede frenar la producción."
+        }
+      }
+    ]
+  },
+  "insect_flight": {
+    "title": {
+      "en": "Insects on the wind",
+      "es": "Insectos arrastrados por el viento"
+    },
+    "description": {
+      "en": "Neighbours report a growing pest flight.",
+      "es": "Los vecinos alertan de una llegada de insectos."
+    },
+    "options": [
+      {
+        "id": "allies",
+        "title": {
+          "en": "Order ladybirds",
+          "es": "Encargar mariquitas"
+        },
+        "effect": {
+          "en": "Pays €45 for a delayed beneficial release.",
+          "es": "Paga 45 € para una suelta posterior."
+        },
+        "risk": {
+          "en": "The insects take one game day to arrive.",
+          "es": "Los insectos tardan un día de juego."
+        }
+      },
+      {
+        "id": "soap",
+        "title": {
+          "en": "Apply selective soap",
+          "es": "Aplicar jabón selectivo"
+        },
+        "effect": {
+          "en": "Pays the field treatment cost.",
+          "es": "Paga el tratamiento de la parcela."
+        },
+        "risk": {
+          "en": "May miss pests not susceptible to soap.",
+          "es": "Puede no controlar algunas plagas."
+        }
+      },
+      {
+        "id": "wait",
+        "title": {
+          "en": "Monitor and tolerate some damage",
+          "es": "Observar y tolerar parte del daño"
+        },
+        "effect": {
+          "en": "No immediate charge.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "Aphid pressure increases.",
+          "es": "Aumenta la presión de pulgón."
+        }
+      }
+    ]
+  },
+  "buyer": {
+    "title": {
+      "en": "A buyer at the gate",
+      "es": "Un comprador llega a la finca"
+    },
+    "description": {
+      "en": "A visitor offers a premium for stored produce.",
+      "es": "Un visitante ofrece una prima por producto almacenado."
+    },
+    "options": [
+      {
+        "id": "sell",
+        "title": {
+          "en": "Sell 15 kg at a premium",
+          "es": "Vender 15 kg con prima"
+        },
+        "effect": {
+          "en": "Sell 15 kg at 135% of the current price.",
+          "es": "Vende 15 kg al 135 % del precio actual."
+        },
+        "risk": {
+          "en": "Requires sufficient stored produce; future stock falls.",
+          "es": "Necesitas existencias; tendrás menos producto después."
+        }
+      },
+      {
+        "id": "invest",
+        "title": {
+          "en": "Pay €60 for a trade introduction",
+          "es": "Pagar 60 € por un contacto comercial"
+        },
+        "effect": {
+          "en": "Costs €60; gains 2 reputation.",
+          "es": "Cuesta 60 €; ganas 2 de reputación."
+        },
+        "risk": {
+          "en": "Cash is tied up without an immediate order.",
+          "es": "Inviertes sin conseguir un pedido inmediato."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Decline the offer",
+          "es": "Rechazar la oferta"
+        },
+        "effect": {
+          "en": "Keep your inventory.",
+          "es": "Conservas el inventario."
+        },
+        "risk": {
+          "en": "No immediate premium or reputation.",
+          "es": "Sin prima ni reputación extra."
+        }
+      }
+    ]
+  },
+  "flood": {
+    "title": {
+      "en": "The river is rising",
+      "es": "El río está creciendo"
+    },
+    "description": {
+      "en": "Waterlogged ground may encourage root disease.",
+      "es": "El terreno encharcado puede favorecer enfermedades."
+    },
+    "options": [
+      {
+        "id": "drain",
+        "title": {
+          "en": "Pay €75 for urgent drainage",
+          "es": "Pagar 75 € por drenaje urgente"
+        },
+        "effect": {
+          "en": "Spend €75 and remove standing field water.",
+          "es": "Gasta 75 € y retira agua del suelo."
+        },
+        "risk": {
+          "en": "The field could dry faster afterwards.",
+          "es": "La parcela puede secarse antes."
+        }
+      },
+      {
+        "id": "save",
+        "title": {
+          "en": "Organize volunteer field protection",
+          "es": "Organizar ayuda para proteger el campo"
+        },
+        "effect": {
+          "en": "Gain 1 reputation.",
+          "es": "Ganas 1 de reputación."
+        },
+        "risk": {
+          "en": "No paid drainage is performed.",
+          "es": "No se realiza drenaje profesional."
+        }
+      },
+      {
+        "id": "ignore",
+        "title": {
+          "en": "Let the flood recede naturally",
+          "es": "Dejar que el agua baje sola"
+        },
+        "effect": {
+          "en": "No immediate charge.",
+          "es": "Sin coste inmediato."
+        },
+        "risk": {
+          "en": "Root-rot pressure increases.",
+          "es": "Aumenta el riesgo de pudrición radicular."
+        }
+      }
+    ]
+  },
+  "animal_health": {
+    "title": {
+      "en": "An animal needs attention",
+      "es": "Un animal necesita atención"
+    },
+    "description": {
+      "en": "A farmer notices possible livestock stress.",
+      "es": "Un agricultor detecta estrés en el ganado."
+    },
+    "options": [
+      {
+        "id": "vet",
+        "title": {
+          "en": "Call a veterinarian (€85)",
+          "es": "Llamar al veterinario (85 €)"
+        },
+        "effect": {
+          "en": "All existing animal groups gain 30% condition.",
+          "es": "Los grupos de animales mejoran un 30 % de condición."
+        },
+        "risk": {
+          "en": "Expensive if you have few animals.",
+          "es": "Resulta caro si tienes pocos animales."
+        }
+      },
+      {
+        "id": "rest",
+        "title": {
+          "en": "Give the animals a quieter day",
+          "es": "Dar a los animales un día de descanso"
+        },
+        "effect": {
+          "en": "Animal condition improves slightly.",
+          "es": "El estado del ganado mejora ligeramente."
+        },
+        "risk": {
+          "en": "Smaller immediate benefit than veterinary care.",
+          "es": "Mejora menos que la visita veterinaria."
+        }
+      },
+      {
+        "id": "ignore",
+        "title": {
+          "en": "Continue as usual",
+          "es": "Continuar como siempre"
+        },
+        "effect": {
+          "en": "No immediate charge.",
+          "es": "Sin coste inmediato."
+        },
+        "risk": {
+          "en": "Animal condition decreases.",
+          "es": "Disminuye el bienestar animal."
+        }
+      }
+    ]
+  },
+  "water_rights": {
+    "title": {
+      "en": "A village water-sharing proposal",
+      "es": "Propuesta de reparto de agua"
+    },
+    "description": {
+      "en": "The cooperative wants to improve irrigation resilience.",
+      "es": "La cooperativa quiere reforzar el riego."
+    },
+    "options": [
+      {
+        "id": "share",
+        "title": {
+          "en": "Contribute €50 to the cooperative",
+          "es": "Aportar 50 € a la cooperativa"
+        },
+        "effect": {
+          "en": "Spend €50; gain 3 reputation.",
+          "es": "Gastas 50 €; ganas 3 de reputación."
+        },
+        "risk": {
+          "en": "Leaves less cash for immediate care.",
+          "es": "Queda menos efectivo para los cultivos."
+        }
+      },
+      {
+        "id": "buy",
+        "title": {
+          "en": "Purchase 80 m³ water (€24)",
+          "es": "Comprar 80 m³ de agua (24 €)"
+        },
+        "effect": {
+          "en": "Spend €24; refill the reservoir.",
+          "es": "Gastas 24 €; repones el depósito."
+        },
+        "risk": {
+          "en": "Does not improve social reputation.",
+          "es": "No mejoras tu reputación."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Keep the money",
+          "es": "Guardar el dinero"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "No water or reputation benefit.",
+          "es": "Sin beneficio de agua ni reputación."
+        }
+      }
+    ]
+  },
+  "festival": {
+    "title": {
+      "en": "Village harvest celebration",
+      "es": "Fiesta de la cosecha"
+    },
+    "description": {
+      "en": "The annual festival is looking for growers.",
+      "es": "La feria anual busca agricultores participantes."
+    },
+    "options": [
+      {
+        "id": "enter",
+        "title": {
+          "en": "Enter 10 kg of produce",
+          "es": "Presentar 10 kg de producto"
+        },
+        "effect": {
+          "en": "Uses the normal festival rules and rewards.",
+          "es": "Se aplican las reglas y premios de la feria."
+        },
+        "risk": {
+          "en": "Requires produce and may cost supplies.",
+          "es": "Requiere producto y puede consumir recursos."
+        }
+      },
+      {
+        "id": "sponsor",
+        "title": {
+          "en": "Sponsor the festival (€80)",
+          "es": "Patrocinar la feria (80 €)"
+        },
+        "effect": {
+          "en": "Spend €80; gain 5 reputation.",
+          "es": "Gastas 80 €; ganas 5 de reputación."
+        },
+        "risk": {
+          "en": "Expensive for a young farm.",
+          "es": "Es mucho gasto para una finca pequeña."
+        }
+      },
+      {
+        "id": "skip",
+        "title": {
+          "en": "Watch the celebration",
+          "es": "Disfrutar de la fiesta"
+        },
+        "effect": {
+          "en": "No immediate resource cost.",
+          "es": "Sin gasto de recursos."
+        },
+        "risk": {
+          "en": "Miss the reputation opportunity.",
+          "es": "Pierdes la oportunidad de reputación."
+        }
+      }
+    ]
+  },
+  "storm": {
+    "title": {
+      "en": "Storm on the horizon",
+      "es": "Tormenta en el horizonte"
+    },
+    "description": {
+      "en": "Winds may damage exposed crops.",
+      "es": "El viento puede dañar cultivos expuestos."
+    },
+    "options": [
+      {
+        "id": "repair",
+        "title": {
+          "en": "Pay €60 for protective repairs",
+          "es": "Pagar 60 € por reparaciones"
+        },
+        "effect": {
+          "en": "Spend €60 on prevention.",
+          "es": "Gastas 60 € en prevención."
+        },
+        "risk": {
+          "en": "The spending has no guaranteed profit.",
+          "es": "La inversión no garantiza ganancias."
+        }
+      },
+      {
+        "id": "cover",
+        "title": {
+          "en": "Protect the first field with nets",
+          "es": "Proteger la primera parcela con mallas"
+        },
+        "effect": {
+          "en": "Uses the normal nets treatment cost.",
+          "es": "Usa el coste habitual de las mallas."
+        },
+        "risk": {
+          "en": "Only protects one field.",
+          "es": "Solo protege una parcela."
+        }
+      },
+      {
+        "id": "wait",
+        "title": {
+          "en": "Accept the weather risk",
+          "es": "Aceptar el riesgo meteorológico"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "All planted fields lose some biomass.",
+          "es": "Los cultivos pierden parte de su biomasa."
+        }
+      }
+    ]
+  },
+  "soil_clinic": {
+    "title": {
+      "en": "The soil expert arrives",
+      "es": "Llega un especialista del suelo"
+    },
+    "description": {
+      "en": "A travelling consultant offers a soil review.",
+      "es": "Un técnico itinerante propone revisar el suelo."
+    },
+    "options": [
+      {
+        "id": "study",
+        "title": {
+          "en": "Pay €45 for soil advice",
+          "es": "Pagar 45 € por asesoramiento"
+        },
+        "effect": {
+          "en": "Adds 12 kg of nitrogen in the first field (game model).",
+          "es": "Añade 12 kg de N a la primera parcela (modelo de juego)."
+        },
+        "risk": {
+          "en": "Advice costs money; it is not real agronomic guidance.",
+          "es": "Cuesta dinero; no equivale a asesoramiento real."
+        }
+      },
+      {
+        "id": "compost",
+        "title": {
+          "en": "Apply compost to the first field",
+          "es": "Aplicar compost en la primera parcela"
+        },
+        "effect": {
+          "en": "Uses the game composting action and price.",
+          "es": "Usa la acción y el precio del compost del juego."
+        },
+        "risk": {
+          "en": "May require sufficient funds.",
+          "es": "Puede requerir saldo suficiente."
+        }
+      },
+      {
+        "id": "skip",
+        "title": {
+          "en": "Keep the present soil plan",
+          "es": "Mantener el plan actual"
+        },
+        "effect": {
+          "en": "No spending.",
+          "es": "Sin gasto."
+        },
+        "risk": {
+          "en": "Miss the soil improvement.",
+          "es": "Pierdes la mejora del suelo."
+        }
+      }
+    ]
+  },
+  "seed_exchange": {
+    "title": {
+      "en": "The seed exchange",
+      "es": "Intercambio de semillas"
+    },
+    "description": {
+      "en": "Local growers have seed available.",
+      "es": "Los agricultores locales ofrecen semillas."
+    },
+    "options": [
+      {
+        "id": "trade",
+        "title": {
+          "en": "Buy 30 kg barley for €23",
+          "es": "Comprar 30 kg de cebada por 23 €"
+        },
+        "effect": {
+          "en": "Stored barley rises by 30 kg.",
+          "es": "Añades 30 kg de cebada al almacén."
+        },
+        "risk": {
+          "en": "Requires spare storage.",
+          "es": "Requiere espacio en el almacén."
+        }
+      },
+      {
+        "id": "donate",
+        "title": {
+          "en": "Donate €25 to the network",
+          "es": "Donar 25 € a la red"
+        },
+        "effect": {
+          "en": "Gain 2 reputation.",
+          "es": "Ganas 2 de reputación."
+        },
+        "risk": {
+          "en": "Money is unavailable for other costs.",
+          "es": "El dinero no estará para otros gastos."
+        }
+      },
+      {
+        "id": "skip",
+        "title": {
+          "en": "Do not take part",
+          "es": "No participar"
+        },
+        "effect": {
+          "en": "No cost or stock change.",
+          "es": "Sin gasto ni cambio de inventario."
+        },
+        "risk": {
+          "en": "No new seeds or reputation.",
+          "es": "Sin semillas ni reputación extra."
+        }
+      }
+    ]
+  },
+  "frost": {
+    "title": {
+      "en": "A sudden cold snap",
+      "es": "Una helada inesperada"
+    },
+    "description": {
+      "en": "Cold weather threatens tender plants.",
+      "es": "El frío amenaza los cultivos delicados."
+    },
+    "options": [
+      {
+        "id": "cover",
+        "title": {
+          "en": "Buy frost covers for €65",
+          "es": "Comprar protección por 65 €"
+        },
+        "effect": {
+          "en": "Protect the first field for 72 game hours.",
+          "es": "Protege la primera parcela durante 72 horas de juego."
+        },
+        "risk": {
+          "en": "Only one field is protected.",
+          "es": "Solo queda protegida una parcela."
+        }
+      },
+      {
+        "id": "observe",
+        "title": {
+          "en": "Accept possible stress",
+          "es": "Aceptar un posible estrés"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "Exposed crop biomass may fall.",
+          "es": "La biomasa del cultivo puede reducirse."
+        }
+      },
+      {
+        "id": "wait",
+        "title": {
+          "en": "Do nothing",
+          "es": "No hacer nada"
+        },
+        "effect": {
+          "en": "Save the money.",
+          "es": "Conservas el dinero."
+        },
+        "risk": {
+          "en": "Exposed crop biomass may fall.",
+          "es": "La biomasa del cultivo puede reducirse."
+        }
+      }
+    ]
+  },
+  "neighbour_request": {
+    "title": {
+      "en": "A neighbour asks for help",
+      "es": "Un vecino pide ayuda"
+    },
+    "description": {
+      "en": "Helping costs resources but strengthens the village.",
+      "es": "Ayudar cuesta recursos, pero refuerza el pueblo."
+    },
+    "options": [
+      {
+        "id": "help",
+        "title": {
+          "en": "Bring supplies worth €40",
+          "es": "Llevar suministros por valor de 40 €"
+        },
+        "effect": {
+          "en": "Spend €40; gain 3 reputation.",
+          "es": "Gastas 40 €; ganas 3 de reputación."
+        },
+        "risk": {
+          "en": "Reduces money available to your farm.",
+          "es": "Reduce el dinero para tu finca."
+        }
+      },
+      {
+        "id": "gift",
+        "title": {
+          "en": "Donate 10 kg of stored goods",
+          "es": "Donar 10 kg de productos"
+        },
+        "effect": {
+          "en": "Consume 10 kg; gain 4 reputation.",
+          "es": "Consumes 10 kg; ganas 4 de reputación."
+        },
+        "risk": {
+          "en": "Requires enough inventory.",
+          "es": "Necesitas existencias suficientes."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Decline politely",
+          "es": "Rechazar con educación"
+        },
+        "effect": {
+          "en": "Keep cash and inventory.",
+          "es": "Conservas dinero y existencias."
+        },
+        "risk": {
+          "en": "Do not gain new reputation.",
+          "es": "No ganas reputación."
+        }
+      }
+    ]
+  },
+  "wildlife_alert": {
+    "title": {
+      "en": "Wildlife by the woodland trail",
+      "es": "Fauna en el sendero forestal"
+    },
+    "description": {
+      "en": "A ranger offers safe ways to observe wildlife.",
+      "es": "Un guarda propone observar fauna del bosque."
+    },
+    "options": [
+      {
+        "id": "scout",
+        "title": {
+          "en": "Hire a guide for €25",
+          "es": "Contratar guía por 25 €"
+        },
+        "effect": {
+          "en": "Add a wildlife observation; gain 1 reputation.",
+          "es": "Añades una observación y ganas 1 de reputación."
+        },
+        "risk": {
+          "en": "Spends cash.",
+          "es": "Cuesta dinero."
+        }
+      },
+      {
+        "id": "gear",
+        "title": {
+          "en": "Buy the outdoor kit (€120)",
+          "es": "Comprar equipo de campo (120 €)"
+        },
+        "effect": {
+          "en": "Purchases an equipment upgrade.",
+          "es": "Compras una mejora de equipo."
+        },
+        "risk": {
+          "en": "Requires funds and must not already be owned.",
+          "es": "Necesitas dinero y no tenerlo ya."
+        }
+      },
+      {
+        "id": "avoid",
+        "title": {
+          "en": "Avoid the route today",
+          "es": "Evitar el sendero hoy"
+        },
+        "effect": {
+          "en": "No direct risk or cost.",
+          "es": "Sin riesgo ni coste inmediato."
+        },
+        "risk": {
+          "en": "Miss potential exploration progress.",
+          "es": "Pierdes posibles avances de exploración."
+        }
+      }
+    ]
+  },
+  "lost_lamb": {
+    "title": {
+      "en": "A lamb has gone missing",
+      "es": "Se ha perdido un cordero"
+    },
+    "description": {
+      "en": "Someone at the farm needs help searching.",
+      "es": "Un agricultor necesita ayuda para buscarlo."
+    },
+    "options": [
+      {
+        "id": "search",
+        "title": {
+          "en": "Join the search (€30)",
+          "es": "Participar en la búsqueda (30 €)"
+        },
+        "effect": {
+          "en": "Spend €30; gain 3 reputation.",
+          "es": "Gastas 30 €; ganas 3 de reputación."
+        },
+        "risk": {
+          "en": "Time and money unavailable elsewhere.",
+          "es": "Tiempo y dinero no disponibles para otros fines."
+        }
+      },
+      {
+        "id": "supplies",
+        "title": {
+          "en": "Donate 10 kg feed",
+          "es": "Donar 10 kg de pienso"
+        },
+        "effect": {
+          "en": "Use feed; gain 2 reputation.",
+          "es": "Usas pienso; ganas 2 de reputación."
+        },
+        "risk": {
+          "en": "Requires enough feed.",
+          "es": "Necesitas suficiente pienso."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Stay with your own animals",
+          "es": "Cuidar de tus propios animales"
+        },
+        "effect": {
+          "en": "Keep available resources.",
+          "es": "Conservas los recursos."
+        },
+        "risk": {
+          "en": "No reputation gain.",
+          "es": "Sin aumento de reputación."
+        }
+      }
+    ]
+  },
+  "river_cleanup": {
+    "title": {
+      "en": "A riverside clean-up day",
+      "es": "Jornada de limpieza del río"
+    },
+    "description": {
+      "en": "Local growers are restoring river habitat.",
+      "es": "Los vecinos restauran la ribera."
+    },
+    "options": [
+      {
+        "id": "volunteer",
+        "title": {
+          "en": "Contribute €35 to restoration",
+          "es": "Aportar 35 € a la restauración"
+        },
+        "effect": {
+          "en": "Spend €35; gain 4 reputation.",
+          "es": "Gastas 35 €; ganas 4 de reputación."
+        },
+        "risk": {
+          "en": "Limited farm cash remains.",
+          "es": "Queda menos dinero para la finca."
+        }
+      },
+      {
+        "id": "donate",
+        "title": {
+          "en": "Donate 15 kg supplies",
+          "es": "Donar 15 kg de suministros"
+        },
+        "effect": {
+          "en": "Use 15 kg feed; gain 3 reputation.",
+          "es": "Consumo de 15 kg de pienso; ganas 3 de reputación."
+        },
+        "risk": {
+          "en": "Requires stock.",
+          "es": "Necesitas existencias."
+        }
+      },
+      {
+        "id": "skip",
+        "title": {
+          "en": "Keep the budget safe",
+          "es": "Proteger el presupuesto"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin coste inmediato."
+        },
+        "risk": {
+          "en": "Miss the social opportunity.",
+          "es": "Pierdes la oportunidad social."
+        }
+      }
+    ]
+  },
+  "soil_erosion": {
+    "title": {
+      "en": "Rain threatens the topsoil",
+      "es": "La lluvia amenaza el suelo fértil"
+    },
+    "description": {
+      "en": "An exposed plot may lose organic matter.",
+      "es": "Una parcela desnuda puede perder materia orgánica."
+    },
+    "options": [
+      {
+        "id": "cover",
+        "title": {
+          "en": "Protect exposed soil (€45)",
+          "es": "Proteger el suelo por 45 €"
+        },
+        "effect": {
+          "en": "Improves mulch cover on the first field.",
+          "es": "Mejora el acolchado de la primera parcela."
+        },
+        "risk": {
+          "en": "Spends money for a preventive benefit.",
+          "es": "Gastas dinero en prevención."
+        }
+      },
+      {
+        "id": "buffer",
+        "title": {
+          "en": "Build a living buffer (€70)",
+          "es": "Crear una franja vegetal (70 €)"
+        },
+        "effect": {
+          "en": "Adds bees and 1 reputation.",
+          "es": "Aumenta abejas y 1 de reputación."
+        },
+        "risk": {
+          "en": "Costs more than basic cover.",
+          "es": "Cuesta más que el acolchado."
+        }
+      },
+      {
+        "id": "watch",
+        "title": {
+          "en": "Take no action",
+          "es": "No intervenir"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "Lose some organic nitrogen.",
+          "es": "Pierdes parte del nitrógeno orgánico."
+        }
+      }
+    ]
+  },
+  "apiary_surge": {
+    "title": {
+      "en": "An unexpected pollinator migration",
+      "es": "Llegan polinizadores"
+    },
+    "description": {
+      "en": "The valley fills with helpful insects.",
+      "es": "El valle se llena de insectos beneficiosos."
+    },
+    "options": [
+      {
+        "id": "flowers",
+        "title": {
+          "en": "Fund flower strips (€55)",
+          "es": "Financiar franjas florales (55 €)"
+        },
+        "effect": {
+          "en": "Increases bees across owned fields.",
+          "es": "Aumenta las abejas de las parcelas propias."
+        },
+        "risk": {
+          "en": "Requires cash.",
+          "es": "Requiere dinero."
+        }
+      },
+      {
+        "id": "observe",
+        "title": {
+          "en": "Record the insects",
+          "es": "Registrar los insectos"
+        },
+        "effect": {
+          "en": "Gain a notebook observation and XP.",
+          "es": "Obtienes una observación y experiencia."
+        },
+        "risk": {
+          "en": "Less immediate ecological gain than planting flowers.",
+          "es": "Menor beneficio ecológico que plantar flores."
+        }
+      },
+      {
+        "id": "ignore",
+        "title": {
+          "en": "Continue normal work",
+          "es": "Continuar con el trabajo"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "Miss this ecological opportunity.",
+          "es": "Pierdes la oportunidad ecológica."
+        }
+      }
+    ]
+  },
+  "market_shortage": {
+    "title": {
+      "en": "Shortage at the market",
+      "es": "Escasez en el mercado"
+    },
+    "description": {
+      "en": "The village needs goods or can supply feed.",
+      "es": "El pueblo necesita producto y ofrece pienso."
+    },
+    "options": [
+      {
+        "id": "sell",
+        "title": {
+          "en": "Sell 20 kg at a premium",
+          "es": "Vender 20 kg con prima"
+        },
+        "effect": {
+          "en": "Earn 120% of the current price.",
+          "es": "Cobras el 120 % del precio actual."
+        },
+        "risk": {
+          "en": "Requires 20 kg in storage.",
+          "es": "Necesitas 20 kg almacenados."
+        }
+      },
+      {
+        "id": "feed",
+        "title": {
+          "en": "Buy 50 kg feed for €42",
+          "es": "Comprar 50 kg de pienso por 42 €"
+        },
+        "effect": {
+          "en": "Get feed at the event price.",
+          "es": "Obtienes pienso al precio del evento."
+        },
+        "risk": {
+          "en": "Requires space and cash.",
+          "es": "Necesitas espacio y dinero."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Keep current supplies",
+          "es": "Conservar el inventario"
+        },
+        "effect": {
+          "en": "No spending or sale.",
+          "es": "Sin gasto ni venta."
+        },
+        "risk": {
+          "en": "No special offer benefit.",
+          "es": "Sin ventajas de la oferta."
+        }
+      }
+    ]
+  },
+  "wetland_rescue": {
+    "title": {
+      "en": "A wetland rescue request",
+      "es": "Rescate en el humedal"
+    },
+    "description": {
+      "en": "A habitat restoration group requests assistance.",
+      "es": "Un grupo de conservación solicita ayuda."
+    },
+    "options": [
+      {
+        "id": "help",
+        "title": {
+          "en": "Pay €40 to help restore habitat",
+          "es": "Aportar 40 € para restauración"
+        },
+        "effect": {
+          "en": "Spend €40, gain reputation and observation.",
+          "es": "Gastas 40 €, ganas reputación y una observación."
+        },
+        "risk": {
+          "en": "Reduces available farm cash.",
+          "es": "Reduce el efectivo de la finca."
+        }
+      },
+      {
+        "id": "watch",
+        "title": {
+          "en": "Observe from the path",
+          "es": "Observar desde el camino"
+        },
+        "effect": {
+          "en": "Gain a wildlife observation.",
+          "es": "Ganas una observación de fauna."
+        },
+        "risk": {
+          "en": "No reputation gain.",
+          "es": "Sin reputación adicional."
+        }
+      },
+      {
+        "id": "avoid",
+        "title": {
+          "en": "Stay away today",
+          "es": "Evitar la zona hoy"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin coste inmediato."
+        },
+        "risk": {
+          "en": "Miss the observation.",
+          "es": "Pierdes la observación."
+        }
+      }
+    ]
+  },
+  "soil_research": {
+    "title": {
+      "en": "A soil scientist visits",
+      "es": "Visita de una científica del suelo"
+    },
+    "description": {
+      "en": "A research team offers two ways to improve fertility.",
+      "es": "Un equipo de investigación ofrece dos mejoras de fertilidad."
+    },
+    "options": [
+      {
+        "id": "lab",
+        "title": {
+          "en": "Pay €70 for soil sampling",
+          "es": "Pagar 70 € por análisis del suelo"
+        },
+        "effect": {
+          "en": "Adds N and P to your first field; protects nutrients for 9 days.",
+          "es": "Añade N y P; protege nutrientes durante 9 días."
+        },
+        "risk": {
+          "en": "Costs more than homemade compost.",
+          "es": "Cuesta más que el compost."
+        }
+      },
+      {
+        "id": "compost",
+        "title": {
+          "en": "Buy a compost delivery (€44)",
+          "es": "Comprar compost preparado (44 €)"
+        },
+        "effect": {
+          "en": "Adds organic reserves and minor nutrients.",
+          "es": "Aumenta reservas orgánicas y nutrientes."
+        },
+        "risk": {
+          "en": "No temporary anti-leaching effect.",
+          "es": "Sin protección temporal ante pérdidas."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Keep existing soil practices",
+          "es": "Mantener las prácticas actuales"
+        },
+        "effect": {
+          "en": "No cost or change.",
+          "es": "Sin coste ni cambios."
+        },
+        "risk": {
+          "en": "Misses an opportunity to improve soil.",
+          "es": "Pierdes la oportunidad de mejorar el suelo."
+        }
+      }
+    ]
+  },
+  "irrigation_cooperative": {
+    "title": {
+      "en": "A smart-irrigation pilot",
+      "es": "Prueba de riego eficiente"
+    },
+    "description": {
+      "en": "The cooperative has temporary equipment to share.",
+      "es": "La cooperativa ofrece equipos temporales de riego."
+    },
+    "options": [
+      {
+        "id": "join",
+        "title": {
+          "en": "Join the pilot (€95)",
+          "es": "Participar en la prueba (95 €)"
+        },
+        "effect": {
+          "en": "Save 16% irrigation water for 14 days; gain reputation.",
+          "es": "Ahorras un 16 % de agua durante 14 días; ganas reputación."
+        },
+        "risk": {
+          "en": "Pay now for savings that require future irrigation.",
+          "es": "Pagas ahora y ahorras al regar después."
+        }
+      },
+      {
+        "id": "water",
+        "title": {
+          "en": "Buy 180 m³ water (€40)",
+          "es": "Comprar 180 m³ de agua (40 €)"
+        },
+        "effect": {
+          "en": "Adds water immediately.",
+          "es": "Añade agua al depósito inmediatamente."
+        },
+        "risk": {
+          "en": "No lasting efficiency benefit.",
+          "es": "Sin mejora de eficiencia."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Decline the partnership",
+          "es": "Rechazar la cooperación"
+        },
+        "effect": {
+          "en": "No immediate spending.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "Lose one reputation point.",
+          "es": "Pierdes un punto de reputación."
+        }
+      }
+    ]
+  },
+  "cold_storage_offer": {
+    "title": {
+      "en": "A refrigerated trailer is available",
+      "es": "Hay un remolque frigorífico"
+    },
+    "description": {
+      "en": "A trader offers temporary cold storage for the harvest.",
+      "es": "Un comerciante ofrece almacenamiento refrigerado temporal."
+    },
+    "options": [
+      {
+        "id": "insulate",
+        "title": {
+          "en": "Rent cold storage (€110)",
+          "es": "Alquilar frío (110 €)"
+        },
+        "effect": {
+          "en": "Cut spoilage by 55% for 12 days.",
+          "es": "Reduce el deterioro un 55 % durante 12 días."
+        },
+        "risk": {
+          "en": "The rent is due even with little produce.",
+          "es": "Pagas el alquiler aunque tengas poca cosecha."
+        }
+      },
+      {
+        "id": "sell",
+        "title": {
+          "en": "Sell 15 kg immediately at a premium",
+          "es": "Vender 15 kg con prima"
+        },
+        "effect": {
+          "en": "Sell 15 kg at a premium now.",
+          "es": "Vendes 15 kg con prima ahora."
+        },
+        "risk": {
+          "en": "Requires stock; no future preservation.",
+          "es": "Requiere existencias y no conserva el resto."
+        }
+      },
+      {
+        "id": "skip",
+        "title": {
+          "en": "Keep your current storage",
+          "es": "Mantener el almacén actual"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin coste inmediato."
+        },
+        "risk": {
+          "en": "Produce continues to spoil normally.",
+          "es": "El producto sigue deteriorándose con normalidad."
+        }
+      }
+    ]
+  },
+  "livestock_inspection": {
+    "title": {
+      "en": "A livestock welfare inspection",
+      "es": "Inspección de bienestar animal"
+    },
+    "description": {
+      "en": "A specialist finds room to improve animal care.",
+      "es": "Un especialista propone mejorar el bienestar animal."
+    },
+    "options": [
+      {
+        "id": "vet",
+        "title": {
+          "en": "Arrange care for €60",
+          "es": "Contratar asistencia por 60 €"
+        },
+        "effect": {
+          "en": "Improves condition and supports welfare for 8 days.",
+          "es": "Mejora la condición y el bienestar durante 8 días."
+        },
+        "risk": {
+          "en": "Costs cash; more valuable with a larger herd.",
+          "es": "Cuesta dinero; aporta más con ganado numeroso."
+        }
+      },
+      {
+        "id": "feed",
+        "title": {
+          "en": "Purchase 40 kg high-quality feed (€38)",
+          "es": "Comprar 40 kg de pienso (38 €)"
+        },
+        "effect": {
+          "en": "Adds feed to inventory.",
+          "es": "Añade pienso al inventario."
+        },
+        "risk": {
+          "en": "Requires warehouse capacity.",
+          "es": "Necesitas capacidad de almacén."
+        }
+      },
+      {
+        "id": "delay",
+        "title": {
+          "en": "Postpone the inspection",
+          "es": "Aplazar la inspección"
+        },
+        "effect": {
+          "en": "No immediate spending.",
+          "es": "Sin gasto inmediato."
+        },
+        "risk": {
+          "en": "Animal condition drops slightly.",
+          "es": "Baja ligeramente el estado de los animales."
+        }
+      }
+    ]
+  },
+  "machinery_breakdown": {
+    "title": {
+      "en": "The workshop needs repairs",
+      "es": "Avería en el taller"
+    },
+    "description": {
+      "en": "Work will be harder until equipment is serviced.",
+      "es": "Las tareas costarán más hasta reparar herramientas."
+    },
+    "options": [
+      {
+        "id": "repair",
+        "title": {
+          "en": "Repair properly (€90)",
+          "es": "Reparar a fondo (90 €)"
+        },
+        "effect": {
+          "en": "Earn a 9-day labor efficiency bonus.",
+          "es": "Obtienes eficiencia laboral durante 9 días."
+        },
+        "risk": {
+          "en": "Large immediate expense.",
+          "es": "Gasto inicial elevado."
+        }
+      },
+      {
+        "id": "borrow",
+        "title": {
+          "en": "Borrow tools (€25)",
+          "es": "Pedir herramientas prestadas (25 €)"
+        },
+        "effect": {
+          "en": "Avoid the worst downtime.",
+          "es": "Evitas la peor parada."
+        },
+        "risk": {
+          "en": "Lose 1 reputation point for the favour.",
+          "es": "Pierdes 1 de reputación por el favor."
+        }
+      },
+      {
+        "id": "wait",
+        "title": {
+          "en": "Work with damaged tools",
+          "es": "Trabajar con herramientas dañadas"
+        },
+        "effect": {
+          "en": "No immediate charge.",
+          "es": "Sin coste inmediato."
+        },
+        "risk": {
+          "en": "Labor costs rise for 5 days.",
+          "es": "Los costes de mano de obra suben 5 días."
+        }
+      }
+    ]
+  },
+  "pest_hotspot": {
+    "title": {
+      "en": "Pest eggs found near the beds",
+      "es": "Huevos de plaga junto a las parcelas"
+    },
+    "description": {
+      "en": "An early warning could prevent a later outbreak.",
+      "es": "Una alerta temprana puede evitar un brote."
+    },
+    "options": [
+      {
+        "id": "scout",
+        "title": {
+          "en": "Hire a specialist (€34)",
+          "es": "Contratar especialista (34 €)"
+        },
+        "effect": {
+          "en": "Reduces pests and suppresses growth for 7 days.",
+          "es": "Reduce plagas y su crecimiento durante 7 días."
+        },
+        "risk": {
+          "en": "Targets active fields, but costs cash.",
+          "es": "Afecta a campos propios, pero cuesta dinero."
+        }
+      },
+      {
+        "id": "spray",
+        "title": {
+          "en": "Use broad spray on field one",
+          "es": "Aplicar tratamiento general a la parcela uno"
+        },
+        "effect": {
+          "en": "Immediately cuts several pests.",
+          "es": "Reduce varias plagas de inmediato."
+        },
+        "risk": {
+          "en": "Hurts beneficial organisms.",
+          "es": "Perjudica a insectos beneficiosos."
+        }
+      },
+      {
+        "id": "ignore",
+        "title": {
+          "en": "Leave the insects alone",
+          "es": "Dejar los insectos"
+        },
+        "effect": {
+          "en": "No cost.",
+          "es": "Sin gasto."
+        },
+        "risk": {
+          "en": "Pest populations grow.",
+          "es": "Aumentan las plagas."
+        }
+      }
+    ]
+  },
+  "flower_council": {
+    "title": {
+      "en": "The pollinator council",
+      "es": "El consejo de polinizadores"
+    },
+    "description": {
+      "en": "A neighbour proposes more flowering habitat.",
+      "es": "Un vecino propone crear hábitats florales."
+    },
+    "options": [
+      {
+        "id": "plant",
+        "title": {
+          "en": "Plant flower corridors (€45)",
+          "es": "Plantar corredores florales (45 €)"
+        },
+        "effect": {
+          "en": "Boost bees and pollination for 10 days.",
+          "es": "Aumenta abejas y polinización durante 10 días."
+        },
+        "risk": {
+          "en": "Requires cash before any harvest benefit.",
+          "es": "Inviertes antes de recibir cosecha."
+        }
+      },
+      {
+        "id": "donate",
+        "title": {
+          "en": "Donate 3 kg wildflowers",
+          "es": "Donar 3 kg de flores"
+        },
+        "effect": {
+          "en": "Use gathered flowers; gain 2 reputation.",
+          "es": "Usas flores recolectadas; ganas 2 de reputación."
+        },
+        "risk": {
+          "en": "Requires stored flower bundles.",
+          "es": "Necesitas flores en el almacén."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Keep your garden unchanged",
+          "es": "Mantener el jardín"
+        },
+        "effect": {
+          "en": "No immediate cost.",
+          "es": "Sin coste inmediato."
+        },
+        "risk": {
+          "en": "Miss the pollinator benefit.",
+          "es": "No obtienes la mejora de polinización."
+        }
+      }
+    ]
+  },
+  "soil_hardpan": {
+    "title": {
+      "en": "Compacted soil after heavy rain",
+      "es": "Suelo compactado tras las lluvias"
+    },
+    "description": {
+      "en": "The first field may need aeration or compost.",
+      "es": "La primera parcela necesita aireación o compost."
+    },
+    "options": [
+      {
+        "id": "aerate",
+        "title": {
+          "en": "Aerate the soil (€68)",
+          "es": "Airear el suelo (68 €)"
+        },
+        "effect": {
+          "en": "Improves organic reserves and short-term water retention.",
+          "es": "Mejora reservas orgánicas y retención de agua temporal."
+        },
+        "risk": {
+          "en": "Spends money on a single field.",
+          "es": "Gasto para una sola parcela."
+        }
+      },
+      {
+        "id": "compost",
+        "title": {
+          "en": "Apply 5 kg saved compost",
+          "es": "Aplicar 5 kg de compost guardado"
+        },
+        "effect": {
+          "en": "Uses existing compost and labor.",
+          "es": "Usa compost disponible y mano de obra."
+        },
+        "risk": {
+          "en": "Requires finished compost.",
+          "es": "Necesitas compost maduro."
+        }
+      },
+      {
+        "id": "ignore",
+        "title": {
+          "en": "Do not work wet soil",
+          "es": "No trabajar el suelo mojado"
+        },
+        "effect": {
+          "en": "No expense today.",
+          "es": "Sin gasto hoy."
+        },
+        "risk": {
+          "en": "Soil moisture availability falls.",
+          "es": "Se reduce el agua disponible en el suelo."
+        }
+      }
+    ]
+  },
+  "tourism_invite": {
+    "title": {
+      "en": "Open farm weekend",
+      "es": "Fin de semana de puertas abiertas"
+    },
+    "description": {
+      "en": "Visitors would like to learn about your valley farm.",
+      "es": "Los visitantes quieren conocer la finca."
+    },
+    "options": [
+      {
+        "id": "open",
+        "title": {
+          "en": "Host a guided visit (€40)",
+          "es": "Organizar visita guiada (40 €)"
+        },
+        "effect": {
+          "en": "Gain 3 reputation and 10 days of market trust.",
+          "es": "Ganas 3 de reputación y confianza comercial 10 días."
+        },
+        "risk": {
+          "en": "Costs money and reputation depends on upkeep.",
+          "es": "Cuesta dinero y exige mantener la finca."
+        }
+      },
+      {
+        "id": "workshop",
+        "title": {
+          "en": "Teach a local class (€75)",
+          "es": "Impartir un taller (75 €)"
+        },
+        "effect": {
+          "en": "Gain 4 reputation and 35 XP.",
+          "es": "Ganas 4 de reputación y 35 XP."
+        },
+        "risk": {
+          "en": "Higher immediate cost.",
+          "es": "Mayor coste inicial."
+        }
+      },
+      {
+        "id": "decline",
+        "title": {
+          "en": "Keep the farm private",
+          "es": "Mantener la finca privada"
+        },
+        "effect": {
+          "en": "No spending.",
+          "es": "Sin gasto."
+        },
+        "risk": {
+          "en": "No visitor rewards.",
+          "es": "Sin recompensas por visitas."
+        }
+      }
+    ]
+  },
+  "wildfire_smoke": {
+    "title": {
+      "en": "Smoke over the valley",
+      "es": "Humo sobre el valle"
+    },
+    "description": {
+      "en": "Dry winds bring an unusual environmental challenge.",
+      "es": "Los vientos secos traen un desafío ambiental."
+    },
+    "options": [
+      {
+        "id": "prepare",
+        "title": {
+          "en": "Prepare a water reserve (€65)",
+          "es": "Preparar reserva de agua (65 €)"
+        },
+        "effect": {
+          "en": "Save water for 8 days through better cover.",
+          "es": "Reduce pérdidas de agua durante 8 días."
+        },
+        "risk": {
+          "en": "Consumes cash, not a guarantee against weather.",
+          "es": "Cuesta dinero; no elimina todos los riesgos."
+        }
+      },
+      {
+        "id": "help",
+        "title": {
+          "en": "Help the village (€35)",
+          "es": "Ayudar al pueblo (35 €)"
+        },
+        "effect": {
+          "en": "Gain 3 reputation; spend 10 farmer energy.",
+          "es": "Ganas 3 de reputación; gastas 10 de energía."
+        },
+        "risk": {
+          "en": "You may need to rest after helping.",
+          "es": "Puede que necesites descansar."
+        }
+      },
+      {
+        "id": "ignore",
+        "title": {
+          "en": "Carry on with field work",
+          "es": "Seguir trabajando"
+        },
+        "effect": {
+          "en": "No cost.",
+          "es": "Sin coste."
+        },
+        "risk": {
+          "en": "Crop biomass drops slightly.",
+          "es": "Disminuye algo la biomasa de los cultivos."
+        }
+      }
+    ]
+  }
+}

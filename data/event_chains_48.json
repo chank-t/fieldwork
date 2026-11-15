@@ -1,0 +1,1039 @@
+{
+  "version": 1,
+  "arcs": {
+    "water": {
+      "root": "irrigation_cooperative",
+      "npc": "mateo",
+      "first": "water_vote",
+      "delay_hours": 72,
+      "name": {
+        "en": "The water agreement",
+        "es": "El acuerdo del agua"
+      },
+      "trust": {
+        "join": 2,
+        "water": 1,
+        "decline": -1
+      }
+    },
+    "soil": {
+      "root": "soil_research",
+      "npc": "ines",
+      "first": "soil_trial",
+      "delay_hours": 96,
+      "name": {
+        "en": "Living soil",
+        "es": "Suelo vivo"
+      },
+      "trust": {
+        "lab": 2,
+        "compost": 1,
+        "decline": -1
+      }
+    },
+    "pests": {
+      "root": "pest_hotspot",
+      "npc": "lila",
+      "first": "pest_count",
+      "delay_hours": 48,
+      "name": {
+        "en": "A balanced orchard",
+        "es": "Un huerto equilibrado"
+      },
+      "trust": {
+        "scout": 2,
+        "spray": -1,
+        "ignore": -1
+      }
+    },
+    "tools": {
+      "root": "machinery_breakdown",
+      "npc": "bruno",
+      "first": "tool_share",
+      "delay_hours": 72,
+      "name": {
+        "en": "Tools for the valley",
+        "es": "Herramientas del valle"
+      },
+      "trust": {
+        "repair": 1,
+        "borrow": 0,
+        "wait": -1
+      }
+    },
+    "livestock": {
+      "root": "livestock_inspection",
+      "npc": "rosa",
+      "first": "shelter_plan",
+      "delay_hours": 72,
+      "name": {
+        "en": "The herd and its keeper",
+        "es": "El rebaño y sus cuidados"
+      },
+      "trust": {
+        "vet": 2,
+        "feed": 1,
+        "delay": -2
+      }
+    },
+    "community": {
+      "root": "tourism_invite",
+      "npc": "clara",
+      "first": "festival_plan",
+      "delay_hours": 96,
+      "name": {
+        "en": "The village fair",
+        "es": "La feria del pueblo"
+      },
+      "trust": {
+        "open": 2,
+        "workshop": 2,
+        "decline": -1
+      }
+    }
+  },
+  "stages": {
+    "water_vote": {
+      "id": "water_vote",
+      "arc": "water",
+      "title": {
+        "en": "The river committee meets",
+        "es": "Se reúne la junta del río"
+      },
+      "description": {
+        "en": "Mateo asks whether you will invest in shared water monitoring or rely on private reserves. The earlier choice affected who trusts you.",
+        "es": "Mateo pregunta si invertirás en control compartido del agua o dependerás de tus reservas. Tu decisión anterior influye en la confianza."
+      },
+      "next": "water_audit",
+      "delay_hours": 120,
+      "options": [
+        {
+          "id": "sensors",
+          "title": {
+            "en": "Install cooperative sensors",
+            "es": "Instalar sensores comunitarios"
+          },
+          "effect": {
+            "en": "Water saving for eight days; trust grows.",
+            "es": "Ahorro de agua durante ocho días y mayor confianza."
+          },
+          "risk": {
+            "en": "Costs €80 now, but benefits future seasons.",
+            "es": "Cuesta 80 €; el beneficio llega más tarde."
+          },
+          "cost": 80,
+          "trust": 2,
+          "reputation": 1,
+          "modifier": {
+            "id": "water_saver",
+            "amount": 0.11,
+            "hours": 192
+          }
+        },
+        {
+          "id": "test",
+          "title": {
+            "en": "Test the old sluice gates",
+            "es": "Probar las compuertas antiguas"
+          },
+          "effect": {
+            "en": "Cheaper work may restore reservoir water.",
+            "es": "El trabajo barato puede recuperar agua."
+          },
+          "risk": {
+            "en": "65% chance; failure loses water and goodwill.",
+            "es": "65% de éxito; si falla pierdes agua y confianza."
+          },
+          "cost": 28,
+          "trust": 0,
+          "chance": 0.65,
+          "win": {
+            "water": 180,
+            "trust": 1
+          },
+          "lose": {
+            "water": -70,
+            "trust": -1
+          }
+        },
+        {
+          "id": "independent",
+          "title": {
+            "en": "Refuse the agreement",
+            "es": "Rechazar el acuerdo"
+          },
+          "effect": {
+            "en": "Preserve cash and work independently.",
+            "es": "Ahorras dinero y trabajas por tu cuenta."
+          },
+          "risk": {
+            "en": "Less cooperation; no water efficiency bonus.",
+            "es": "Menor cooperación y sin ahorro de agua."
+          },
+          "trust": -2,
+          "reputation": -1
+        }
+      ]
+    },
+    "water_audit": {
+      "id": "water_audit",
+      "arc": "water",
+      "title": {
+        "en": "Water use after the agreement",
+        "es": "Revisión del consumo de agua"
+      },
+      "description": {
+        "en": "Weeks of irrigation have revealed whether cooperation was worth the effort. Mateo offers a final improvement.",
+        "es": "Tras varias semanas de riego se conocen los resultados de la cooperación. Mateo propone una última mejora."
+      },
+      "next": "",
+      "delay_hours": 0,
+      "options": [
+        {
+          "id": "maintain",
+          "title": {
+            "en": "Fund seasonal maintenance",
+            "es": "Financiar el mantenimiento"
+          },
+          "effect": {
+            "en": "Extends water savings and improves village trust.",
+            "es": "Prolonga el ahorro de agua y aumenta la confianza."
+          },
+          "risk": {
+            "en": "Requires a new €62 investment.",
+            "es": "Requiere invertir otros 62 €."
+          },
+          "cost": 62,
+          "trust": 2,
+          "reputation": 1,
+          "modifier": {
+            "id": "water_saver",
+            "amount": 0.13,
+            "hours": 288
+          }
+        },
+        {
+          "id": "audit",
+          "title": {
+            "en": "Request a water audit",
+            "es": "Solicitar una auditoría del agua"
+          },
+          "effect": {
+            "en": "A cautious review can recover water.",
+            "es": "Una revisión puede recuperar agua."
+          },
+          "risk": {
+            "en": "70% chance of a gain; otherwise pay for nothing.",
+            "es": "70% de éxito; si falla no recuperas agua."
+          },
+          "cost": 24,
+          "chance": 0.7,
+          "win": {
+            "water": 130
+          },
+          "lose": {
+            "water": 0
+          },
+          "trust": 1
+        },
+        {
+          "id": "conclude",
+          "title": {
+            "en": "Close the project",
+            "es": "Dar por cerrado el proyecto"
+          },
+          "effect": {
+            "en": "No extra spending.",
+            "es": "Sin gastos adicionales."
+          },
+          "risk": {
+            "en": "Miss a chance to improve future efficiency.",
+            "es": "Pierdes una oportunidad de mejorar la eficiencia."
+          },
+          "trust": -1
+        }
+      ]
+    },
+    "soil_trial": {
+      "id": "soil_trial",
+      "arc": "soil",
+      "title": {
+        "en": "Inés proposes a soil trial",
+        "es": "Inés propone un ensayo de suelo"
+      },
+      "description": {
+        "en": "A neighbouring plot is recovering from exhaustion. You can compare methods before committing to a wider treatment.",
+        "es": "Una parcela vecina se recupera del agotamiento. Puedes comparar métodos antes de tratar toda la finca."
+      },
+      "next": "soil_results",
+      "delay_hours": 120,
+      "options": [
+        {
+          "id": "compost",
+          "title": {
+            "en": "Set up a compost comparison",
+            "es": "Organizar una prueba con compost"
+          },
+          "effect": {
+            "en": "Adds organic reserves to your first field and improves trust.",
+            "es": "Aumenta reservas orgánicas y mejora la confianza."
+          },
+          "risk": {
+            "en": "Costs €54; improvement is gradual.",
+            "es": "Cuesta 54 €; la mejora es gradual."
+          },
+          "cost": 54,
+          "trust": 2,
+          "soil_n": 9,
+          "organic_n": 40
+        },
+        {
+          "id": "fast",
+          "title": {
+            "en": "Try a quick mineral treatment",
+            "es": "Probar abonado mineral rápido"
+          },
+          "effect": {
+            "en": "Immediate nitrogen for the first field.",
+            "es": "Nitrógeno inmediato para la primera parcela."
+          },
+          "risk": {
+            "en": "65% chance of better uptake; possible nutrient loss.",
+            "es": "65% de mejor absorción; posible pérdida de nutrientes."
+          },
+          "cost": 35,
+          "chance": 0.65,
+          "win": {
+            "soil_n": 22
+          },
+          "lose": {
+            "soil_n": -6
+          },
+          "trust": 0
+        },
+        {
+          "id": "observe",
+          "title": {
+            "en": "Leave a comparison strip untreated",
+            "es": "Dejar una zona sin tratar"
+          },
+          "effect": {
+            "en": "Preserve cash and learn from the difference.",
+            "es": "Ahorras dinero y aprendes comparando."
+          },
+          "risk": {
+            "en": "Recovery may be slower in poor soils.",
+            "es": "La recuperación puede ser lenta en suelos pobres."
+          },
+          "trust": 1
+        }
+      ]
+    },
+    "soil_results": {
+      "id": "soil_results",
+      "arc": "soil",
+      "title": {
+        "en": "The soil readings are back",
+        "es": "Llegan los resultados del suelo"
+      },
+      "description": {
+        "en": "Inés has the next measurements. More work could improve resilience, but the budget is finite.",
+        "es": "Inés tiene nuevas mediciones. Más cuidados aumentarían la resiliencia, pero el presupuesto es limitado."
+      },
+      "next": "",
+      "delay_hours": 0,
+      "options": [
+        {
+          "id": "long_term",
+          "title": {
+            "en": "Commit to a soil improvement plan",
+            "es": "Aplicar un plan de mejora del suelo"
+          },
+          "effect": {
+            "en": "Protects nutrients for nine game days.",
+            "es": "Protege nutrientes durante nueve días."
+          },
+          "risk": {
+            "en": "Costs €80 and may delay other investments.",
+            "es": "Cuesta 80 € y puede retrasar otras inversiones."
+          },
+          "cost": 80,
+          "reputation": 1,
+          "trust": 2,
+          "modifier": {
+            "id": "nutrient_shield",
+            "amount": 0.32,
+            "hours": 216
+          }
+        },
+        {
+          "id": "practical",
+          "title": {
+            "en": "Implement only the essentials",
+            "es": "Aplicar solo lo esencial"
+          },
+          "effect": {
+            "en": "A modest nitrogen improvement at lower cost.",
+            "es": "Mejora moderada del nitrógeno por menos dinero."
+          },
+          "risk": {
+            "en": "No lasting protection.",
+            "es": "Sin protección duradera."
+          },
+          "cost": 26,
+          "soil_n": 11,
+          "trust": 1
+        },
+        {
+          "id": "drop",
+          "title": {
+            "en": "Postpone the plan",
+            "es": "Aplazar el plan"
+          },
+          "effect": {
+            "en": "Keep money in reserve.",
+            "es": "Mantienes dinero en reserva."
+          },
+          "risk": {
+            "en": "Inés loses confidence in future cooperation.",
+            "es": "Inés pierde confianza en la colaboración."
+          },
+          "trust": -2
+        }
+      ]
+    },
+    "pest_count": {
+      "id": "pest_count",
+      "arc": "pests",
+      "title": {
+        "en": "A pest survey in the hedgerow",
+        "es": "Recuento de plagas en el seto"
+      },
+      "description": {
+        "en": "Lila finds both pests and natural enemies near the crops. Should you favor fast control or a balanced approach?",
+        "es": "Lila observa plagas y enemigos naturales cerca de los cultivos. ¿Control rápido o equilibrio ecológico?"
+      },
+      "next": "pest_return",
+      "delay_hours": 96,
+      "options": [
+        {
+          "id": "allies",
+          "title": {
+            "en": "Release natural enemies",
+            "es": "Liberar insectos auxiliares"
+          },
+          "effect": {
+            "en": "Strengthens beneficial organisms and suppresses pests.",
+            "es": "Refuerza auxiliares y reduce plagas."
+          },
+          "risk": {
+            "en": "Costs €57; effects are not immediate everywhere.",
+            "es": "Cuesta 57 €; el efecto no es inmediato en toda la finca."
+          },
+          "cost": 57,
+          "trust": 2,
+          "aphid_delta": -4,
+          "modifier": {
+            "id": "pest_suppression",
+            "amount": 0.19,
+            "hours": 168
+          }
+        },
+        {
+          "id": "spray",
+          "title": {
+            "en": "Use broad treatment",
+            "es": "Aplicar un tratamiento general"
+          },
+          "effect": {
+            "en": "Immediate pest reduction.",
+            "es": "Reducción inmediata de plagas."
+          },
+          "risk": {
+            "en": "Costs €35 and harms pollinators.",
+            "es": "Cuesta 35 € y perjudica a polinizadores."
+          },
+          "cost": 35,
+          "trust": -2,
+          "aphid_delta": -9,
+          "bees_delta": -0.25
+        },
+        {
+          "id": "watch",
+          "title": {
+            "en": "Collect evidence for a few days",
+            "es": "Observar varios días"
+          },
+          "effect": {
+            "en": "No immediate spending.",
+            "es": "Sin gasto inmediato."
+          },
+          "risk": {
+            "en": "Pressure may grow while you wait.",
+            "es": "La presión puede aumentar mientras esperas."
+          },
+          "trust": 0,
+          "aphid_delta": 3
+        }
+      ]
+    },
+    "pest_return": {
+      "id": "pest_return",
+      "arc": "pests",
+      "title": {
+        "en": "The pests return with the wind",
+        "es": "Las plagas vuelven con el viento"
+      },
+      "description": {
+        "en": "A second wave arrives. Lila asks what you learned from the last response.",
+        "es": "Llega una segunda oleada. Lila te pregunta qué aprendiste de la respuesta anterior."
+      },
+      "next": "",
+      "delay_hours": 0,
+      "options": [
+        {
+          "id": "habitat",
+          "title": {
+            "en": "Plant habitat corridors",
+            "es": "Plantar corredores de biodiversidad"
+          },
+          "effect": {
+            "en": "Improves pollination and longer pest suppression.",
+            "es": "Mejora la polinización y reduce plagas durante más tiempo."
+          },
+          "risk": {
+            "en": "Costs €65 and takes patience.",
+            "es": "Cuesta 65 € y requiere paciencia."
+          },
+          "cost": 65,
+          "trust": 2,
+          "reputation": 1,
+          "modifier": {
+            "id": "pollinator_bonus",
+            "amount": 0.22,
+            "hours": 288
+          }
+        },
+        {
+          "id": "target",
+          "title": {
+            "en": "Use targeted follow-up treatment",
+            "es": "Aplicar tratamiento selectivo"
+          },
+          "effect": {
+            "en": "Reduces aphids while keeping more useful insects.",
+            "es": "Reduce pulgones y conserva más auxiliares."
+          },
+          "risk": {
+            "en": "Uses €29 with no lasting protection.",
+            "es": "Gasta 29 € sin protección duradera."
+          },
+          "cost": 29,
+          "aphid_delta": -6,
+          "trust": 1
+        },
+        {
+          "id": "ignore",
+          "title": {
+            "en": "Ignore the report",
+            "es": "Ignorar el informe"
+          },
+          "effect": {
+            "en": "Save money today.",
+            "es": "Ahorras dinero hoy."
+          },
+          "risk": {
+            "en": "Higher pest pressure and less village trust.",
+            "es": "Más plagas y menos confianza."
+          },
+          "aphid_delta": 6,
+          "trust": -2
+        }
+      ]
+    },
+    "tool_share": {
+      "id": "tool_share",
+      "arc": "tools",
+      "title": {
+        "en": "The repair workshop opens",
+        "es": "Abre el taller de reparación"
+      },
+      "description": {
+        "en": "Bruno offers shared repairs, a cheaper temporary fix, or the chance to avoid spending.",
+        "es": "Bruno ofrece reparación conjunta, arreglo temporal o la opción de no gastar."
+      },
+      "next": "harvest_window",
+      "delay_hours": 96,
+      "options": [
+        {
+          "id": "repair",
+          "title": {
+            "en": "Restore the tools properly",
+            "es": "Reparar bien las herramientas"
+          },
+          "effect": {
+            "en": "Labour stays efficient for eight days.",
+            "es": "El trabajo rinde mejor durante ocho días."
+          },
+          "risk": {
+            "en": "Costs €90 before the harvest.",
+            "es": "Cuesta 90 € antes de la cosecha."
+          },
+          "cost": 90,
+          "trust": 2,
+          "modifier": {
+            "id": "work_efficiency",
+            "amount": 0.09,
+            "hours": 192
+          }
+        },
+        {
+          "id": "patch",
+          "title": {
+            "en": "Patch the old tools",
+            "es": "Reparar provisionalmente"
+          },
+          "effect": {
+            "en": "Can save much of the investment.",
+            "es": "Puede ahorrar gran parte de la inversión."
+          },
+          "risk": {
+            "en": "60% success; failure slows work for three days.",
+            "es": "60% de éxito; si falla trabajas más lento tres días."
+          },
+          "cost": 25,
+          "trust": 0,
+          "chance": 0.6,
+          "win": {
+            "modifier": {
+              "id": "work_efficiency",
+              "amount": 0.06,
+              "hours": 96
+            }
+          },
+          "lose": {
+            "modifier": {
+              "id": "labor_slowdown",
+              "amount": 0.15,
+              "hours": 72
+            },
+            "trust": -1
+          }
+        },
+        {
+          "id": "rent",
+          "title": {
+            "en": "Rent equipment from a neighbour",
+            "es": "Alquilar equipo a un vecino"
+          },
+          "effect": {
+            "en": "Avoids a major investment.",
+            "es": "Evitas una inversión importante."
+          },
+          "risk": {
+            "en": "€45 cost; temporary solution with no long-term upgrade.",
+            "es": "Cuesta 45 €; solución temporal sin mejora permanente."
+          },
+          "cost": 45,
+          "trust": 1
+        }
+      ]
+    },
+    "harvest_window": {
+      "id": "harvest_window",
+      "arc": "tools",
+      "title": {
+        "en": "A harvest window opens",
+        "es": "Llega la ventana de cosecha"
+      },
+      "description": {
+        "en": "Good weather may not last. Bruno can help you prepare tools before your next harvest.",
+        "es": "El buen tiempo podría durar poco. Bruno puede ayudarte a preparar las herramientas."
+      },
+      "next": "",
+      "delay_hours": 0,
+      "options": [
+        {
+          "id": "service",
+          "title": {
+            "en": "Service every tool",
+            "es": "Revisar todas las herramientas"
+          },
+          "effect": {
+            "en": "Extends labour efficiency for ten days.",
+            "es": "Prolonga la eficiencia durante diez días."
+          },
+          "risk": {
+            "en": "An additional €75 commitment.",
+            "es": "Inversión adicional de 75 €."
+          },
+          "cost": 75,
+          "trust": 2,
+          "modifier": {
+            "id": "work_efficiency",
+            "amount": 0.11,
+            "hours": 240
+          }
+        },
+        {
+          "id": "basic",
+          "title": {
+            "en": "Inspect the most used tools",
+            "es": "Revisar herramientas principales"
+          },
+          "effect": {
+            "en": "Cheap inspection that may find problems.",
+            "es": "Revisión barata que puede detectar problemas."
+          },
+          "risk": {
+            "en": "75% chance of improved efficiency.",
+            "es": "75% de probabilidad de mejorar el trabajo."
+          },
+          "cost": 24,
+          "chance": 0.75,
+          "win": {
+            "modifier": {
+              "id": "work_efficiency",
+              "amount": 0.07,
+              "hours": 120
+            }
+          },
+          "lose": {
+            "modifier": {
+              "id": "labor_slowdown",
+              "amount": 0.08,
+              "hours": 48
+            }
+          }
+        },
+        {
+          "id": "wait",
+          "title": {
+            "en": "Work with the existing tools",
+            "es": "Trabajar con las herramientas actuales"
+          },
+          "effect": {
+            "en": "No extra expense.",
+            "es": "Sin gasto adicional."
+          },
+          "risk": {
+            "en": "Possible slowdown if maintenance was neglected.",
+            "es": "Posible lentitud por falta de mantenimiento."
+          },
+          "modifier": {
+            "id": "labor_slowdown",
+            "amount": 0.05,
+            "hours": 48
+          },
+          "trust": -1
+        }
+      ]
+    },
+    "shelter_plan": {
+      "id": "shelter_plan",
+      "arc": "livestock",
+      "title": {
+        "en": "Rosa visits the animals",
+        "es": "Rosa visita a los animales"
+      },
+      "description": {
+        "en": "The next season could be hard on livestock. Rosa offers a preventive plan, extra feed, or careful observation.",
+        "es": "La próxima estación puede ser dura para el ganado. Rosa propone prevención, pienso o vigilancia."
+      },
+      "next": "herd_review",
+      "delay_hours": 96,
+      "options": [
+        {
+          "id": "vet",
+          "title": {
+            "en": "Arrange preventive animal care",
+            "es": "Organizar atención veterinaria preventiva"
+          },
+          "effect": {
+            "en": "Improves animal condition and welfare support.",
+            "es": "Mejora la condición y el bienestar animal."
+          },
+          "risk": {
+            "en": "Costs €70, even if the herd is already healthy.",
+            "es": "Cuesta 70 €, aunque el ganado esté sano."
+          },
+          "cost": 70,
+          "trust": 2,
+          "animal_condition": 0.08,
+          "modifier": {
+            "id": "animal_welfare",
+            "amount": 0.015,
+            "hours": 192
+          }
+        },
+        {
+          "id": "feed",
+          "title": {
+            "en": "Stock up on feed",
+            "es": "Comprar reservas de pienso"
+          },
+          "effect": {
+            "en": "Gains 40 kg of feed and peace of mind.",
+            "es": "Consigues 40 kg de pienso y más seguridad."
+          },
+          "risk": {
+            "en": "Costs €38; storage must be available.",
+            "es": "Cuesta 38 € y requiere espacio de almacén."
+          },
+          "cost": 38,
+          "goods": {
+            "feed": 40
+          },
+          "trust": 1
+        },
+        {
+          "id": "check",
+          "title": {
+            "en": "Observe the herd",
+            "es": "Observar el rebaño"
+          },
+          "effect": {
+            "en": "No immediate expense.",
+            "es": "Sin gasto inmediato."
+          },
+          "risk": {
+            "en": "A hidden problem could reduce welfare.",
+            "es": "Un problema oculto puede reducir el bienestar."
+          },
+          "chance": 0.7,
+          "win": {
+            "animal_condition": 0.02
+          },
+          "lose": {
+            "animal_condition": -0.08
+          },
+          "trust": 0
+        }
+      ]
+    },
+    "herd_review": {
+      "id": "herd_review",
+      "arc": "livestock",
+      "title": {
+        "en": "The herd health follow-up",
+        "es": "Seguimiento sanitario del rebaño"
+      },
+      "description": {
+        "en": "The latest checks show how the animals handled the last few days.",
+        "es": "La última revisión muestra cómo han pasado los animales estos días."
+      },
+      "next": "",
+      "delay_hours": 0,
+      "options": [
+        {
+          "id": "shelter",
+          "title": {
+            "en": "Improve shelter and feeding",
+            "es": "Mejorar refugio y alimentación"
+          },
+          "effect": {
+            "en": "Longer welfare support and trust from Rosa.",
+            "es": "Apoyo más duradero y confianza de Rosa."
+          },
+          "risk": {
+            "en": "Costs €95 and 10 kg feed.",
+            "es": "Cuesta 95 € y 10 kg de pienso."
+          },
+          "cost": 95,
+          "goods": {
+            "feed": -10
+          },
+          "trust": 2,
+          "modifier": {
+            "id": "animal_welfare",
+            "amount": 0.018,
+            "hours": 264
+          }
+        },
+        {
+          "id": "monitor",
+          "title": {
+            "en": "Continue basic monitoring",
+            "es": "Continuar con seguimiento básico"
+          },
+          "effect": {
+            "en": "Modest condition improvement.",
+            "es": "Mejora moderada de condición."
+          },
+          "risk": {
+            "en": "Costs €25 with no long-term upgrade.",
+            "es": "Cuesta 25 € sin mejora duradera."
+          },
+          "cost": 25,
+          "animal_condition": 0.035,
+          "trust": 1
+        },
+        {
+          "id": "defer",
+          "title": {
+            "en": "Defer animal investments",
+            "es": "Aplazar inversiones en animales"
+          },
+          "effect": {
+            "en": "Preserve cash.",
+            "es": "Conservas dinero."
+          },
+          "risk": {
+            "en": "Conditions may slip and trust falls.",
+            "es": "Puede empeorar la condición y perder confianza."
+          },
+          "animal_condition": -0.035,
+          "trust": -2
+        }
+      ]
+    },
+    "festival_plan": {
+      "id": "festival_plan",
+      "arc": "community",
+      "title": {
+        "en": "Preparing the harvest fair",
+        "es": "Preparando la feria de la cosecha"
+      },
+      "description": {
+        "en": "Clara asks how your farm will contribute: by hosting visitors, supplying produce or staying out.",
+        "es": "Clara pregunta cómo contribuirá tu finca: recibiendo visitas, ofreciendo productos o quedándose al margen."
+      },
+      "next": "visitor_feedback",
+      "delay_hours": 120,
+      "options": [
+        {
+          "id": "open",
+          "title": {
+            "en": "Welcome visitors to your farm",
+            "es": "Recibir visitantes en tu finca"
+          },
+          "effect": {
+            "en": "More reputation and village trust; better market connections.",
+            "es": "Más reputación, confianza y relaciones comerciales."
+          },
+          "risk": {
+            "en": "Costs €70 to make the farm presentable.",
+            "es": "Cuesta 70 € preparar la finca."
+          },
+          "cost": 70,
+          "trust": 2,
+          "reputation": 2,
+          "modifier": {
+            "id": "market_trust",
+            "amount": 0.07,
+            "hours": 168
+          }
+        },
+        {
+          "id": "goods",
+          "title": {
+            "en": "Contribute 12 kg of produce",
+            "es": "Aportar 12 kg de productos"
+          },
+          "effect": {
+            "en": "Earn trust through your harvest.",
+            "es": "Ganas confianza aportando tu cosecha."
+          },
+          "risk": {
+            "en": "Requires 12 kg wheat in storage.",
+            "es": "Necesitas 12 kg de trigo almacenado."
+          },
+          "goods": {
+            "wheat": -12
+          },
+          "trust": 1,
+          "reputation": 1
+        },
+        {
+          "id": "skip",
+          "title": {
+            "en": "Stay focused on farm work",
+            "es": "Seguir trabajando en tu finca"
+          },
+          "effect": {
+            "en": "No expense or obligation.",
+            "es": "Sin gastos ni compromisos."
+          },
+          "risk": {
+            "en": "Some neighbours expected your participation.",
+            "es": "Algunos vecinos esperaban tu participación."
+          },
+          "trust": -1
+        }
+      ]
+    },
+    "visitor_feedback": {
+      "id": "visitor_feedback",
+      "arc": "community",
+      "title": {
+        "en": "The villagers respond",
+        "es": "Los vecinos responden"
+      },
+      "description": {
+        "en": "The community shares feedback after the fair. Clara offers another chance to build a good name.",
+        "es": "Tras la feria llegan opiniones. Clara ofrece otra oportunidad de mejorar tu reputación."
+      },
+      "next": "",
+      "delay_hours": 0,
+      "options": [
+        {
+          "id": "workshop",
+          "title": {
+            "en": "Host a free field workshop",
+            "es": "Organizar un taller gratuito"
+          },
+          "effect": {
+            "en": "Grow reputation, XP and village trust.",
+            "es": "Ganas reputación, experiencia y confianza."
+          },
+          "risk": {
+            "en": "Costs €65 and some preparation.",
+            "es": "Cuesta 65 € y requiere preparación."
+          },
+          "cost": 65,
+          "trust": 2,
+          "reputation": 3,
+          "xp": 32
+        },
+        {
+          "id": "market",
+          "title": {
+            "en": "Open a seasonal farm stall",
+            "es": "Abrir un puesto de temporada"
+          },
+          "effect": {
+            "en": "Improves trading terms for ten days.",
+            "es": "Mejora precios de venta durante diez días."
+          },
+          "risk": {
+            "en": "Costs €45, and buyers may not come.",
+            "es": "Cuesta 45 €; podrían venir pocos compradores."
+          },
+          "cost": 45,
+          "trust": 1,
+          "modifier": {
+            "id": "market_trust",
+            "amount": 0.09,
+            "hours": 240
+          }
+        },
+        {
+          "id": "private",
+          "title": {
+            "en": "Keep the farm private",
+            "es": "Mantener la finca privada"
+          },
+          "effect": {
+            "en": "No extra expense.",
+            "es": "Sin gastos adicionales."
+          },
+          "risk": {
+            "en": "Less community influence.",
+            "es": "Menor presencia en la comunidad."
+          },
+          "trust": -1
+        }
+      ]
+    }
+  }
+}

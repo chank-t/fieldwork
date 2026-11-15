@@ -1,0 +1,5434 @@
+{
+  "ui.walkTilesPerSecond": {
+    "default": 3,
+    "min": 0.5,
+    "max": 12,
+    "unit": "tiles/real second",
+    "description": "Walking speed at normal input",
+    "type": "number"
+  },
+  "time.sunriseHour": {
+    "default": 6,
+    "min": 0,
+    "max": 12,
+    "unit": "hour of day",
+    "description": "Daylight begins",
+    "type": "integer"
+  },
+  "time.sunsetHour": {
+    "default": 20,
+    "min": 13,
+    "max": 24,
+    "unit": "hour of day",
+    "description": "Daylight ends",
+    "type": "integer"
+  },
+  "time.seasonDays": {
+    "default": 12,
+    "min": 4,
+    "max": 90,
+    "unit": "days/season",
+    "description": "Length of each of four visual/climate seasons",
+    "type": "integer"
+  },
+  "time.realSecondsPerHour": {
+    "default": 5,
+    "min": 0.25,
+    "max": 60,
+    "unit": "real seconds/game hour",
+    "description": "UI1x clock conversion; simulation itself takes integer hour inputs",
+    "type": "number"
+  },
+  "farm.initialFields": {
+    "default": 3,
+    "min": 1,
+    "max": 6,
+    "unit": "fields",
+    "description": "Initially owned plots",
+    "type": "integer"
+  },
+  "farm.maxFields": {
+    "default": 12,
+    "min": 3,
+    "max": 12,
+    "unit": "fields",
+    "description": "Land purchase ceiling",
+    "type": "integer"
+  },
+  "farm.areaHa": {
+    "default": 0.25,
+    "min": 0.05,
+    "max": 2,
+    "unit": "ha/plot",
+    "description": "Area of a new plot",
+    "type": "number"
+  },
+  "initial.stewardOrganicN": {
+    "default": 100,
+    "min": 0,
+    "max": 1000,
+    "unit": "kgN/ha",
+    "description": "Soil steward initial organic nitrogen",
+    "type": "number"
+  },
+  "initial.naturalistLadybirds": {
+    "default": 0.6,
+    "min": 0,
+    "max": 5,
+    "unit": "individuals/m²",
+    "description": "Naturalist starting ladybird bonus",
+    "type": "number"
+  },
+  "initial.engineerWaterM3": {
+    "default": 500,
+    "min": 0,
+    "max": 10000,
+    "unit": "m³",
+    "description": "Water guardian starting reservoir bonus",
+    "type": "number"
+  },
+  "initial.cash": {
+    "default": 9000,
+    "min": 0,
+    "max": 1000000,
+    "unit": "EUR",
+    "description": "Starting working capital",
+    "type": "number"
+  },
+  "initial.waterMm": {
+    "default": 90,
+    "min": 0,
+    "max": 200,
+    "unit": "mm",
+    "description": "Initial available root-zone water",
+    "type": "number"
+  },
+  "initial.mineralN": {
+    "default": 90,
+    "min": 0,
+    "max": 500,
+    "unit": "kgN/ha",
+    "description": "Initial mineral nitrogen",
+    "type": "number"
+  },
+  "initial.organicN": {
+    "default": 1400,
+    "min": 0,
+    "max": 20000,
+    "unit": "kgN/ha",
+    "description": "Initial organic nitrogen",
+    "type": "number"
+  },
+  "initial.mineralP": {
+    "default": 55,
+    "min": 0,
+    "max": 500,
+    "unit": "kgP/ha",
+    "description": "Initial available phosphorus",
+    "type": "number"
+  },
+  "initial.organicP": {
+    "default": 220,
+    "min": 0,
+    "max": 5000,
+    "unit": "kgP/ha",
+    "description": "Initial organic phosphorus",
+    "type": "number"
+  },
+  "initial.mineralK": {
+    "default": 220,
+    "min": 0,
+    "max": 1000,
+    "unit": "kgK/ha",
+    "description": "Initial available potassium",
+    "type": "number"
+  },
+  "initial.organicK": {
+    "default": 500,
+    "min": 0,
+    "max": 10000,
+    "unit": "kgK/ha",
+    "description": "Initial residue potassium",
+    "type": "number"
+  },
+  "initial.ladybirds": {
+    "default": 0.6,
+    "min": 0,
+    "max": 20,
+    "unit": "individuals/m²",
+    "description": "Initial ladybird guild",
+    "type": "number"
+  },
+  "initial.parasitoids": {
+    "default": 0.15,
+    "min": 0,
+    "max": 10,
+    "unit": "individuals/m²",
+    "description": "Initial parasitoid guild",
+    "type": "number"
+  },
+  "initial.bees": {
+    "default": 0.8,
+    "min": 0,
+    "max": 10,
+    "unit": "visitation index",
+    "description": "Initial wild bee activity",
+    "type": "number"
+  },
+  "water.capacityMm": {
+    "default": 160,
+    "min": 40,
+    "max": 300,
+    "unit": "mm",
+    "description": "Available root-zone water capacity",
+    "type": "number"
+  },
+  "water.reservoirM3": {
+    "default": 3000,
+    "min": 0,
+    "max": 100000,
+    "unit": "m³",
+    "description": "Initial reservoir volume",
+    "type": "number"
+  },
+  "water.reservoirCapacityM3": {
+    "default": 5000,
+    "min": 100,
+    "max": 200000,
+    "unit": "m³",
+    "description": "Initial reservoir capacity",
+    "type": "number"
+  },
+  "water.catchmentM2": {
+    "default": 1000,
+    "min": 0,
+    "max": 100000,
+    "unit": "m²",
+    "description": "External rain catchment footprint",
+    "type": "number"
+  },
+  "water.collectionFraction": {
+    "default": 0.65,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Reservoir rain collection efficiency",
+    "type": "number"
+  },
+  "water.runoffFraction": {
+    "default": 0.08,
+    "min": 0,
+    "max": 0.8,
+    "unit": "fraction",
+    "description": "Rain runoff before root-zone infiltration",
+    "type": "number"
+  },
+  "water.etMmDaily": {
+    "default": 4.5,
+    "min": 0,
+    "max": 25,
+    "unit": "mm/day",
+    "description": "Reference daily evapotranspiration",
+    "type": "number"
+  },
+  "water.bareEvapFraction": {
+    "default": 0.35,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Bare soil demand relative to reference ET",
+    "type": "number"
+  },
+  "water.stressThreshold": {
+    "default": 0.55,
+    "min": 0.05,
+    "max": 1,
+    "unit": "fraction of water capacity",
+    "description": "Threshold for unstressed uptake",
+    "type": "number"
+  },
+  "water.mulchReduction": {
+    "default": 0.55,
+    "min": 0,
+    "max": 0.9,
+    "unit": "fraction",
+    "description": "Full-cover reduction in evaporation demand",
+    "type": "number"
+  },
+  "water.minimumTempETRatio": {
+    "default": 0.2,
+    "min": 0,
+    "max": 1,
+    "unit": "ratio",
+    "description": "Minimum cold-weather ET factor",
+    "type": "number"
+  },
+  "water.deliveryMaxM3": {
+    "default": 4000,
+    "min": 1,
+    "max": 100000,
+    "unit": "m³/action",
+    "description": "Maximum delivered water order",
+    "type": "number"
+  },
+  "water.maxIrrigateMm": {
+    "default": 60,
+    "min": 1,
+    "max": 120,
+    "unit": "mm/action",
+    "description": "Maximum manual irrigation dose",
+    "type": "number"
+  },
+  "soil.nMineralizationDaily": {
+    "default": 0.002,
+    "min": 0,
+    "max": 0.03,
+    "unit": "fraction/day",
+    "description": "Organic N release at reference conditions",
+    "type": "number"
+  },
+  "soil.pMineralizationDaily": {
+    "default": 0.001,
+    "min": 0,
+    "max": 0.02,
+    "unit": "fraction/day",
+    "description": "Organic P release",
+    "type": "number"
+  },
+  "soil.kMineralizationDaily": {
+    "default": 0.004,
+    "min": 0,
+    "max": 0.04,
+    "unit": "fraction/day",
+    "description": "Organic K release",
+    "type": "number"
+  },
+  "soil.gasLossDaily": {
+    "default": 0.001,
+    "min": 0,
+    "max": 0.03,
+    "unit": "fraction/day",
+    "description": "Mineral N gas loss",
+    "type": "number"
+  },
+  "soil.nLeachFraction": {
+    "default": 0.5,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Mobile N exposed to drainage",
+    "type": "number"
+  },
+  "soil.pLeachFraction": {
+    "default": 0.03,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Mobile P exposed to drainage",
+    "type": "number"
+  },
+  "soil.kLeachFraction": {
+    "default": 0.3,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Mobile K exposed to drainage",
+    "type": "number"
+  },
+  "soil.mulchDecayDaily": {
+    "default": 0.012,
+    "min": 0,
+    "max": 0.2,
+    "unit": "fraction/day",
+    "description": "Mulch loss",
+    "type": "number"
+  },
+  "soil.residueHalfLifeHours": {
+    "default": 48,
+    "min": 1,
+    "max": 720,
+    "unit": "hours",
+    "description": "Broad spray residue half life",
+    "type": "number"
+  },
+  "soil.referenceTempC": {
+    "default": 20,
+    "min": 1,
+    "max": 40,
+    "unit": "°C",
+    "description": "Mineralization reference temperature",
+    "type": "number"
+  },
+  "soil.q10": {
+    "default": 2,
+    "min": 1,
+    "max": 3,
+    "unit": "ratio/10°C",
+    "description": "Mineralization thermal response",
+    "type": "number"
+  },
+  "weather.rainHumidityBase": {
+    "default": 0.75,
+    "min": 0,
+    "max": 1,
+    "unit": "relative humidity fraction",
+    "description": "Rainy-day humidity baseline",
+    "type": "number"
+  },
+  "weather.rainHumidityRange": {
+    "default": 0.2,
+    "min": 0,
+    "max": 1,
+    "unit": "relative humidity fraction",
+    "description": "Rainy-day humidity variation",
+    "type": "number"
+  },
+  "weather.dryHumidityBase": {
+    "default": 0.35,
+    "min": 0,
+    "max": 1,
+    "unit": "relative humidity fraction",
+    "description": "Dry-day humidity baseline",
+    "type": "number"
+  },
+  "weather.dryHumidityRange": {
+    "default": 0.35,
+    "min": 0,
+    "max": 1,
+    "unit": "relative humidity fraction",
+    "description": "Dry-day humidity variation",
+    "type": "number"
+  },
+  "weather.heatHumidityRatio": {
+    "default": 0.65,
+    "min": 0,
+    "max": 1,
+    "unit": "ratio",
+    "description": "Heatwave humidity multiplier",
+    "type": "number"
+  },
+  "weather.heatEventFraction": {
+    "default": 0.5,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Share of regional events that are heatwaves",
+    "type": "number"
+  },
+  "weather.springC": {
+    "default": 18,
+    "min": -10,
+    "max": 40,
+    "unit": "°C",
+    "description": "Spring mean temperature",
+    "type": "number"
+  },
+  "weather.summerC": {
+    "default": 27,
+    "min": -10,
+    "max": 45,
+    "unit": "°C",
+    "description": "Summer mean temperature",
+    "type": "number"
+  },
+  "weather.autumnC": {
+    "default": 17,
+    "min": -10,
+    "max": 40,
+    "unit": "°C",
+    "description": "Autumn mean temperature",
+    "type": "number"
+  },
+  "weather.winterC": {
+    "default": 8,
+    "min": -20,
+    "max": 30,
+    "unit": "°C",
+    "description": "Winter mean temperature",
+    "type": "number"
+  },
+  "weather.tempNoiseC": {
+    "default": 5,
+    "min": 0,
+    "max": 15,
+    "unit": "°C",
+    "description": "Bounded daily temperature anomaly",
+    "type": "number"
+  },
+  "weather.rainChance": {
+    "default": 0.48,
+    "min": 0,
+    "max": 1,
+    "unit": "probability/day",
+    "description": "Rain-day chance before seasonal factor",
+    "type": "number"
+  },
+  "weather.rainMinMm": {
+    "default": 2,
+    "min": 0,
+    "max": 80,
+    "unit": "mm/day",
+    "description": "Minimum rainy-day precipitation",
+    "type": "number"
+  },
+  "weather.rainMaxMm": {
+    "default": 15,
+    "min": 0,
+    "max": 150,
+    "unit": "mm/day",
+    "description": "Maximum rainy-day precipitation",
+    "type": "number"
+  },
+  "weather.summerRainMultiplier": {
+    "default": 0.55,
+    "min": 0,
+    "max": 2,
+    "unit": "ratio",
+    "description": "Summer rain chance multiplier",
+    "type": "number"
+  },
+  "weather.winterRainMultiplier": {
+    "default": 1.3,
+    "min": 0,
+    "max": 2,
+    "unit": "ratio",
+    "description": "Winter rain chance multiplier",
+    "type": "number"
+  },
+  "weather.eventChance": {
+    "default": 0.12,
+    "min": 0,
+    "max": 1,
+    "unit": "probability/day",
+    "description": "Chance of a dry heatwave or locust flight",
+    "type": "number"
+  },
+  "weather.heatwaveC": {
+    "default": 7,
+    "min": 0,
+    "max": 15,
+    "unit": "°C",
+    "description": "Heatwave temperature increase",
+    "type": "number"
+  },
+  "ecology.protectionHazardDaily": {
+    "default": 1,
+    "min": 0,
+    "max": 5,
+    "unit": "per protection unit/day",
+    "description": "Mortality hazard from maintained compatible controls",
+    "type": "number"
+  },
+  "ecology.tempOptimumC": {
+    "default": 24,
+    "min": 5,
+    "max": 40,
+    "unit": "°C",
+    "description": "Guild thermal activity optimum",
+    "type": "number"
+  },
+  "ecology.tempWidthC": {
+    "default": 25,
+    "min": 5,
+    "max": 50,
+    "unit": "°C",
+    "description": "Thermal activity half-width",
+    "type": "number"
+  },
+  "ecology.greenhousePestBonusPerLevel": {
+    "default": 0.25,
+    "min": 0,
+    "max": 1,
+    "unit": "ratio/level",
+    "description": "Whitefly shelter growth bonus",
+    "type": "number"
+  },
+  "ecology.soilPestImmigrationFactor": {
+    "default": 0.08,
+    "min": 0,
+    "max": 1,
+    "unit": "ratio",
+    "description": "Nematode background immigration relative to insects",
+    "type": "number"
+  },
+  "ecology.rainBeeActivity": {
+    "default": 0.4,
+    "min": 0,
+    "max": 1,
+    "unit": "ratio",
+    "description": "Bee target activity during rain",
+    "type": "number"
+  },
+  "ecology.dryBlightFactor": {
+    "default": 0.2,
+    "min": 0,
+    "max": 1,
+    "unit": "ratio",
+    "description": "Blight exposure without rain",
+    "type": "number"
+  },
+  "ecology.otherBlightHostFactor": {
+    "default": 0.25,
+    "min": 0,
+    "max": 1,
+    "unit": "ratio",
+    "description": "Blight exposure of less susceptible crops",
+    "type": "number"
+  },
+  "ecology.waterloggedThreshold": {
+    "default": 0.8,
+    "min": 0.1,
+    "max": 0.99,
+    "unit": "fraction of capacity",
+    "description": "Root-rot wetness threshold",
+    "type": "number"
+  },
+  "ecology.diseaseInoculum": {
+    "default": 0.05,
+    "min": 0,
+    "max": 0.5,
+    "unit": "severity fraction",
+    "description": "Background disease inoculum",
+    "type": "number"
+  },
+  "ecology.ladybirdAttackDaily": {
+    "default": 22,
+    "min": 0,
+    "max": 150,
+    "unit": "prey/individual/day",
+    "description": "Maximum ladybird consumption across compatible prey",
+    "type": "number"
+  },
+  "ecology.parasitoidAttackDaily": {
+    "default": 12,
+    "min": 0,
+    "max": 100,
+    "unit": "hosts/individual/day",
+    "description": "Maximum parasitoid attack across compatible larvae",
+    "type": "number"
+  },
+  "ecology.preyHalf": {
+    "default": 45,
+    "min": 1,
+    "max": 500,
+    "unit": "individuals/m²",
+    "description": "Half-saturation prey density",
+    "type": "number"
+  },
+  "ecology.beneficialCapacity": {
+    "default": 12,
+    "min": 0.1,
+    "max": 50,
+    "unit": "individuals/m²",
+    "description": "Ladybird carrying capacity",
+    "type": "number"
+  },
+  "ecology.parasitoidCapacity": {
+    "default": 6,
+    "min": 0.1,
+    "max": 30,
+    "unit": "individuals/m²",
+    "description": "Parasitoid carrying capacity",
+    "type": "number"
+  },
+  "ecology.beeCapacity": {
+    "default": 8,
+    "min": 0.1,
+    "max": 20,
+    "unit": "visitation index",
+    "description": "Bee visitation cap",
+    "type": "number"
+  },
+  "ecology.beneficialMortalityDaily": {
+    "default": 0.08,
+    "min": 0,
+    "max": 0.8,
+    "unit": "fraction/day",
+    "description": "Baseline beneficial mortality",
+    "type": "number"
+  },
+  "ecology.beneficialImmigrationDaily": {
+    "default": 0.035,
+    "min": 0,
+    "max": 2,
+    "unit": "individuals/m²/day",
+    "description": "Wild beneficial immigration",
+    "type": "number"
+  },
+  "ecology.beneficialConversion": {
+    "default": 0.006,
+    "min": 0,
+    "max": 0.1,
+    "unit": "new beneficial/prey",
+    "description": "Recruitment from consumed prey",
+    "type": "number"
+  },
+  "ecology.beeReturnDaily": {
+    "default": 0.12,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "Relaxation toward habitat bee activity",
+    "type": "number"
+  },
+  "ecology.pestImmigrationDaily": {
+    "default": 0.7,
+    "min": 0,
+    "max": 30,
+    "unit": "individuals/m²/day",
+    "description": "Background pest immigration",
+    "type": "number"
+  },
+  "ecology.fallowSurvivalDaily": {
+    "default": 0.7,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "Nonsoil pest survival without crop",
+    "type": "number"
+  },
+  "ecology.residuePestHazardDaily": {
+    "default": 0.22,
+    "min": 0,
+    "max": 2,
+    "unit": "per residue/day",
+    "description": "Residual pest hazard",
+    "type": "number"
+  },
+  "ecology.residueBeneficialHazardDaily": {
+    "default": 0.38,
+    "min": 0,
+    "max": 2,
+    "unit": "per residue/day",
+    "description": "Residual beneficial hazard",
+    "type": "number"
+  },
+  "ecology.locustArrival": {
+    "default": 14,
+    "min": 0,
+    "max": 100,
+    "unit": "individuals/m²/event",
+    "description": "Regional locust flight size",
+    "type": "number"
+  },
+  "ecology.nematodeFallowSurvival": {
+    "default": 0.98,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "Persistent soil pest survival",
+    "type": "number"
+  },
+  "ecology.nightFeedingMultiplier": {
+    "default": 1.6,
+    "min": 1,
+    "max": 3,
+    "unit": "ratio",
+    "description": "Nocturnal slug/cutworm reproduction activity",
+    "type": "number"
+  },
+  "ecology.wetMulchBonus": {
+    "default": 0.5,
+    "min": 0,
+    "max": 2,
+    "unit": "ratio",
+    "description": "Slug support from mulch",
+    "type": "number"
+  },
+  "growth.maxThermalRate": {
+    "default": 1.5,
+    "min": 1,
+    "max": 3,
+    "unit": "ratio",
+    "description": "Maximum above-optimum development rate",
+    "type": "number"
+  },
+  "growth.ripeGraceHours": {
+    "default": 24,
+    "min": 0,
+    "max": 240,
+    "unit": "hours",
+    "description": "Grace period before standing ripe crops senesce",
+    "type": "number"
+  },
+  "growth.ripeLossDaily": {
+    "default": 0.04,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction/day",
+    "description": "Standing ripe biomass transferred to residues after grace",
+    "type": "number"
+  },
+  "growth.legumeFixationDaily": {
+    "default": 3,
+    "min": 0,
+    "max": 20,
+    "unit": "kgN/ha/day",
+    "description": "Maximum biological nitrogen fixation",
+    "type": "number"
+  },
+  "growth.fixationSuppressionN": {
+    "default": 90,
+    "min": 1,
+    "max": 500,
+    "unit": "kgN/ha",
+    "description": "Soil N inhibiting fixation",
+    "type": "number"
+  },
+  "growth.pollinationHalf": {
+    "default": 0.7,
+    "min": 0.01,
+    "max": 5,
+    "unit": "visitation index",
+    "description": "Half-saturation pollination activity",
+    "type": "number"
+  },
+  "growth.rotationBuild": {
+    "default": 0.28,
+    "min": 0,
+    "max": 0.8,
+    "unit": "fraction of remaining risk/harvest",
+    "description": "Family risk accumulation",
+    "type": "number"
+  },
+  "growth.rotationBreak": {
+    "default": 0.4,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/other harvest",
+    "description": "Non-host risk reduction",
+    "type": "number"
+  },
+  "growth.rotationPenalty": {
+    "default": 0.25,
+    "min": 0,
+    "max": 0.7,
+    "unit": "fraction",
+    "description": "Growth penalty at maximum host risk",
+    "type": "number"
+  },
+  "care.deliveredWaterPerM3": {
+    "default": 0.12,
+    "min": 0,
+    "max": 10,
+    "unit": "EUR/m³",
+    "description": "Delivered reservoir water cost",
+    "type": "number"
+  },
+  "care.laborHourly": {
+    "default": 18,
+    "min": 0,
+    "max": 200,
+    "unit": "EUR/hour",
+    "description": "Operator labor value actually debited",
+    "type": "number"
+  },
+  "care.irrigationLabor": {
+    "default": 0.25,
+    "min": 0,
+    "max": 10,
+    "unit": "hours/ha/action",
+    "description": "Irrigation labor",
+    "type": "number"
+  },
+  "care.waterPerM3": {
+    "default": 0.16,
+    "min": 0,
+    "max": 10,
+    "unit": "EUR/m³",
+    "description": "Irrigation pumping and distribution",
+    "type": "number"
+  },
+  "care.waterDeliveryLabor": {
+    "default": 0.5,
+    "min": 0,
+    "max": 10,
+    "unit": "hours/delivery",
+    "description": "Delivery handling labor",
+    "type": "number"
+  },
+  "care.fertilizeLabor": {
+    "default": 0.7,
+    "min": 0,
+    "max": 10,
+    "unit": "hours/ha/action",
+    "description": "Fertilizer application labor",
+    "type": "number"
+  },
+  "care.nPerKg": {
+    "default": 1.65,
+    "min": 0,
+    "max": 20,
+    "unit": "EUR/kgN",
+    "description": "Mineral N price",
+    "type": "number"
+  },
+  "care.pPerKg": {
+    "default": 2.6,
+    "min": 0,
+    "max": 30,
+    "unit": "EUR/kgP",
+    "description": "Mineral P price",
+    "type": "number"
+  },
+  "care.kPerKg": {
+    "default": 1.2,
+    "min": 0,
+    "max": 20,
+    "unit": "EUR/kgK",
+    "description": "Mineral K price",
+    "type": "number"
+  },
+  "care.maxN": {
+    "default": 80,
+    "min": 1,
+    "max": 200,
+    "unit": "kgN/ha/action",
+    "description": "Maximum N dose",
+    "type": "number"
+  },
+  "care.maxP": {
+    "default": 40,
+    "min": 1,
+    "max": 100,
+    "unit": "kgP/ha/action",
+    "description": "Maximum P dose",
+    "type": "number"
+  },
+  "care.maxK": {
+    "default": 80,
+    "min": 1,
+    "max": 200,
+    "unit": "kgK/ha/action",
+    "description": "Maximum K dose",
+    "type": "number"
+  },
+  "care.compostCost": {
+    "default": 115,
+    "min": 0,
+    "max": 2000,
+    "unit": "EUR/ha",
+    "description": "Compost materials",
+    "type": "number"
+  },
+  "care.compostLabor": {
+    "default": 1.5,
+    "min": 0,
+    "max": 15,
+    "unit": "hours/ha",
+    "description": "Compost labor",
+    "type": "number"
+  },
+  "care.compostN": {
+    "default": 60,
+    "min": 0,
+    "max": 300,
+    "unit": "kgN/ha",
+    "description": "Imported organic N",
+    "type": "number"
+  },
+  "care.compostP": {
+    "default": 12,
+    "min": 0,
+    "max": 100,
+    "unit": "kgP/ha",
+    "description": "Imported organic P",
+    "type": "number"
+  },
+  "care.compostK": {
+    "default": 35,
+    "min": 0,
+    "max": 200,
+    "unit": "kgK/ha",
+    "description": "Imported organic K",
+    "type": "number"
+  },
+  "care.compostMulch": {
+    "default": 0.2,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Compost cover added",
+    "type": "number"
+  },
+  "care.mulchCost": {
+    "default": 70,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Mulch material cost",
+    "type": "number"
+  },
+  "care.mulchLabor": {
+    "default": 1,
+    "min": 0,
+    "max": 10,
+    "unit": "hours/ha",
+    "description": "Mulching labor",
+    "type": "number"
+  },
+  "care.mulchAdded": {
+    "default": 0.6,
+    "min": 0.01,
+    "max": 1,
+    "unit": "cover fraction",
+    "description": "Cover per mulch action",
+    "type": "number"
+  },
+  "care.releaseLadybirds": {
+    "default": 1.5,
+    "min": 0.1,
+    "max": 10,
+    "unit": "individuals/m²",
+    "description": "Purchased effective ladybird release",
+    "type": "number"
+  },
+  "care.releaseParasitoids": {
+    "default": 0.7,
+    "min": 0.1,
+    "max": 5,
+    "unit": "individuals/m²",
+    "description": "Purchased effective parasitoid release",
+    "type": "number"
+  },
+  "care.releaseCost": {
+    "default": 90,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Beneficial order material cost",
+    "type": "number"
+  },
+  "care.releaseLabor": {
+    "default": 0.5,
+    "min": 0,
+    "max": 10,
+    "unit": "hours/ha",
+    "description": "Beneficial ordering labor",
+    "type": "number"
+  },
+  "care.releaseDelayHours": {
+    "default": 6,
+    "min": 1,
+    "max": 72,
+    "unit": "hours",
+    "description": "Delivery delay",
+    "type": "integer"
+  },
+  "care.treatmentLabor": {
+    "default": 0.75,
+    "min": 0,
+    "max": 10,
+    "unit": "hours/ha",
+    "description": "Treatment application labor",
+    "type": "number"
+  },
+  "care.soapCost": {
+    "default": 45,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Soap material cost",
+    "type": "number"
+  },
+  "care.btCost": {
+    "default": 55,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Selective Bt material cost",
+    "type": "number"
+  },
+  "care.trapCost": {
+    "default": 50,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Trap maintenance material cost",
+    "type": "number"
+  },
+  "care.netsCost": {
+    "default": 80,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Temporary nets material cost",
+    "type": "number"
+  },
+  "care.sprayCost": {
+    "default": 40,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Broad spray material cost",
+    "type": "number"
+  },
+  "care.fungicideCost": {
+    "default": 65,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Fungicide material cost",
+    "type": "number"
+  },
+  "care.solarizeCost": {
+    "default": 120,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/ha",
+    "description": "Solarization cover/care materials",
+    "type": "number"
+  },
+  "care.solarizeHours": {
+    "default": 36,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Abstract soil-disinfestation duration",
+    "type": "integer"
+  },
+  "care.soapKill": {
+    "default": 0.65,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Immediate compatible soft-bodied pest mortality",
+    "type": "number"
+  },
+  "care.btKill": {
+    "default": 0.72,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Immediate compatible larval mortality",
+    "type": "number"
+  },
+  "care.trapKill": {
+    "default": 0.55,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Immediate trapped pest mortality",
+    "type": "number"
+  },
+  "care.netsKill": {
+    "default": 0.25,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Immediate exclusion/removal of mobile pests",
+    "type": "number"
+  },
+  "care.sprayKill": {
+    "default": 0.84,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Broad spray compatible mortality",
+    "type": "number"
+  },
+  "care.beneficialSprayKill": {
+    "default": 0.6,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Immediate collateral mortality",
+    "type": "number"
+  },
+  "care.fungicideReduction": {
+    "default": 0.55,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Immediate mildew/blight severity reduction",
+    "type": "number"
+  },
+  "care.fungicideBeeKill": {
+    "default": 0.1,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Abstract pollinator disturbance",
+    "type": "number"
+  },
+  "care.solarizeKill": {
+    "default": 0.8,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Completed empty-field nematode reduction",
+    "type": "number"
+  },
+  "care.residueAdded": {
+    "default": 1,
+    "min": 0.05,
+    "max": 2,
+    "unit": "index/action",
+    "description": "Broad spray residue deposit",
+    "type": "number"
+  },
+  "care.residueMax": {
+    "default": 3,
+    "min": 0.1,
+    "max": 10,
+    "unit": "index",
+    "description": "Maximum treatment residue",
+    "type": "number"
+  },
+  "care.protectionDurationHours": {
+    "default": 48,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Exponential protection decay timescale",
+    "type": "number"
+  },
+  "progression.xpPerLevel": {
+    "default": 200,
+    "min": 1,
+    "max": 10000,
+    "unit": "XP/level",
+    "description": "Level interval",
+    "type": "integer"
+  },
+  "progression.initialPoints": {
+    "default": 1,
+    "min": 0,
+    "max": 9,
+    "unit": "points",
+    "description": "Starting talent points",
+    "type": "integer"
+  },
+  "progression.pointsPerLevel": {
+    "default": 1,
+    "min": 0,
+    "max": 9,
+    "unit": "points/level",
+    "description": "Additional points per level",
+    "type": "integer"
+  },
+  "progression.pointCap": {
+    "default": 15,
+    "min": 1,
+    "max": 24,
+    "unit": "points",
+    "description": "Maximum earned points",
+    "type": "integer"
+  },
+  "progression.harvestXP": {
+    "default": 35,
+    "min": 0,
+    "max": 200,
+    "unit": "XP/harvest",
+    "description": "Experience for a positive harvest",
+    "type": "integer"
+  },
+  "progression.inspectXP": {
+    "default": 0,
+    "min": 0,
+    "max": 0,
+    "unit": "XP",
+    "description": "Inspection never awards repeatable XP",
+    "type": "integer"
+  },
+  "difficulty.relaxed": {
+    "default": 0.65,
+    "min": 0.1,
+    "max": 1,
+    "unit": "ratio",
+    "description": "Relaxed pest and disease pressure",
+    "type": "number"
+  },
+  "difficulty.standard": {
+    "default": 1,
+    "min": 0.5,
+    "max": 2,
+    "unit": "ratio",
+    "description": "Standard pest and disease pressure",
+    "type": "number"
+  },
+  "difficulty.hard": {
+    "default": 1.5,
+    "min": 1,
+    "max": 3,
+    "unit": "ratio",
+    "description": "Hard pest and disease pressure",
+    "type": "number"
+  },
+  "economy.visitorLandChance": {
+    "default": 0.23,
+    "min": 0,
+    "max": 1,
+    "unit": "probability/visitor",
+    "description": "Economy coefficient: visitorLandChance",
+    "type": "number"
+  },
+  "economy.visitorSupplyChance": {
+    "default": 0.22,
+    "min": 0,
+    "max": 1,
+    "unit": "probability/visitor",
+    "description": "Economy coefficient: visitorSupplyChance",
+    "type": "number"
+  },
+  "economy.visitorStartHour": {
+    "default": 8,
+    "min": 0,
+    "max": 23,
+    "unit": "hour of day",
+    "description": "Economy coefficient: visitorStartHour",
+    "type": "integer"
+  },
+  "economy.visitorEndHour": {
+    "default": 18,
+    "min": 1,
+    "max": 24,
+    "unit": "hour of day",
+    "description": "Economy coefficient: visitorEndHour",
+    "type": "integer"
+  },
+  "economy.offerSupplyMinRatio": {
+    "default": 0.8,
+    "min": 0.1,
+    "max": 1.5,
+    "unit": "supply-price ratio",
+    "description": "Economy coefficient: offerSupplyMinRatio",
+    "type": "number"
+  },
+  "economy.offerSupplyRangeRatio": {
+    "default": 0.15,
+    "min": 0,
+    "max": 1,
+    "unit": "supply-price ratio",
+    "description": "Economy coefficient: offerSupplyRangeRatio",
+    "type": "number"
+  },
+  "economy.winterDemandBonus": {
+    "default": 0.35,
+    "min": 0,
+    "max": 1,
+    "unit": "price fraction",
+    "description": "Economy coefficient: winterDemandBonus",
+    "type": "number"
+  },
+  "economy.festivalGoldBeeIndex": {
+    "default": 1,
+    "min": 0,
+    "max": 8,
+    "unit": "bee visitation index",
+    "description": "Economy coefficient: festivalGoldBeeIndex",
+    "type": "number"
+  },
+  "economy.festivalGoldVariety": {
+    "default": 2,
+    "min": 1,
+    "max": 5,
+    "unit": "crop species",
+    "description": "Economy coefficient: festivalGoldVariety",
+    "type": "integer"
+  },
+  "economy.festivalGoldDecor": {
+    "default": 1,
+    "min": 0,
+    "max": 20,
+    "unit": "completed decoration levels",
+    "description": "Economy coefficient: festivalGoldDecor",
+    "type": "integer"
+  },
+  "economy.festivalSilverPrizeFraction": {
+    "default": 0.6,
+    "min": 0,
+    "max": 1,
+    "unit": "prize fraction",
+    "description": "Economy coefficient: festivalSilverPrizeFraction",
+    "type": "number"
+  },
+  "economy.festivalSilverReputationFraction": {
+    "default": 0.5,
+    "min": 0,
+    "max": 1,
+    "unit": "reputation fraction",
+    "description": "Economy coefficient: festivalSilverReputationFraction",
+    "type": "number"
+  },
+  "economy.honeyMinTempC": {
+    "default": 5,
+    "min": -10,
+    "max": 30,
+    "unit": "°C",
+    "description": "Economy coefficient: honeyMinTempC",
+    "type": "number"
+  },
+  "economy.honeyTempSpanC": {
+    "default": 15,
+    "min": 1,
+    "max": 40,
+    "unit": "°C",
+    "description": "Economy coefficient: honeyTempSpanC",
+    "type": "number"
+  },
+  "economy.honeyRainLimitMm": {
+    "default": 30,
+    "min": 1,
+    "max": 100,
+    "unit": "mm/day",
+    "description": "Economy coefficient: honeyRainLimitMm",
+    "type": "number"
+  },
+  "economy.honeyBeeSaturation": {
+    "default": 2,
+    "min": 0.1,
+    "max": 10,
+    "unit": "bee visitation index",
+    "description": "Economy coefficient: honeyBeeSaturation",
+    "type": "number"
+  },
+  "economy.activeContractCap": {
+    "default": 3,
+    "min": 1,
+    "max": 10,
+    "unit": "contracts",
+    "description": "Economy coefficient: activeContractCap",
+    "type": "integer"
+  },
+  "economy.openOfferCap": {
+    "default": 5,
+    "min": 1,
+    "max": 20,
+    "unit": "offers",
+    "description": "Economy coefficient: openOfferCap",
+    "type": "integer"
+  },
+  "economy.availableContractCap": {
+    "default": 3,
+    "min": 1,
+    "max": 10,
+    "unit": "contracts",
+    "description": "Economy coefficient: availableContractCap",
+    "type": "integer"
+  },
+  "economy.automationThresholdMm": {
+    "default": 55,
+    "min": 0,
+    "max": 300,
+    "unit": "mm",
+    "description": "Economy coefficient: automationThresholdMm",
+    "type": "number"
+  },
+  "economy.automationDoseMm": {
+    "default": 15,
+    "min": 1,
+    "max": 120,
+    "unit": "mm/action",
+    "description": "Economy coefficient: automationDoseMm",
+    "type": "number"
+  },
+  "economy.rootCellarStorageKg": {
+    "default": 2000,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg/level",
+    "description": "Economy coefficient: rootCellarStorageKg",
+    "type": "number"
+  },
+  "economy.rootCellarSpoilageReduction": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction/level",
+    "description": "Economy coefficient: rootCellarSpoilageReduction",
+    "type": "number"
+  },
+  "economy.wildGardenHabitatPerLevel": {
+    "default": 0.3,
+    "min": 0,
+    "max": 2,
+    "unit": "habitat index/level",
+    "description": "Economy coefficient: wildGardenHabitatPerLevel",
+    "type": "number"
+  },
+  "economy.landBaseCost": {
+    "default": 1500,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "Economy coefficient: landBaseCost",
+    "type": "number"
+  },
+  "economy.landCostGrowth": {
+    "default": 1.45,
+    "min": 1,
+    "max": 3,
+    "unit": "ratio/field",
+    "description": "Economy coefficient: landCostGrowth",
+    "type": "number"
+  },
+  "economy.landReputationStep": {
+    "default": 4,
+    "min": 0,
+    "max": 20,
+    "unit": "reputation points/field",
+    "description": "Economy coefficient: landReputationStep",
+    "type": "integer"
+  },
+  "economy.baseStorageKg": {
+    "default": 2500,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg",
+    "description": "Economy coefficient: baseStorageKg",
+    "type": "number"
+  },
+  "economy.warehouseStorageKg": {
+    "default": 5000,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg/level",
+    "description": "Economy coefficient: warehouseStorageKg",
+    "type": "number"
+  },
+  "economy.storageSpoilageReduction": {
+    "default": 0.35,
+    "min": 0,
+    "max": 0.9,
+    "unit": "fraction/level",
+    "description": "Economy coefficient: storageSpoilageReduction",
+    "type": "number"
+  },
+  "economy.marketVolatility": {
+    "default": 0.22,
+    "min": 0,
+    "max": 0.8,
+    "unit": "fraction/day",
+    "description": "Economy coefficient: marketVolatility",
+    "type": "number"
+  },
+  "economy.visitorIntervalHours": {
+    "default": 18,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Economy coefficient: visitorIntervalHours",
+    "type": "integer"
+  },
+  "economy.offerDurationHours": {
+    "default": 20,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Economy coefficient: offerDurationHours",
+    "type": "integer"
+  },
+  "economy.contractDurationHours": {
+    "default": 120,
+    "min": 12,
+    "max": 2000,
+    "unit": "hours",
+    "description": "Economy coefficient: contractDurationHours",
+    "type": "integer"
+  },
+  "economy.contractDepositFraction": {
+    "default": 0.15,
+    "min": 0,
+    "max": 0.9,
+    "unit": "fraction of contract value",
+    "description": "Economy coefficient: contractDepositFraction",
+    "type": "number"
+  },
+  "economy.contractReputationGain": {
+    "default": 5,
+    "min": 0,
+    "max": 30,
+    "unit": "reputation points",
+    "description": "Economy coefficient: contractReputationGain",
+    "type": "integer"
+  },
+  "economy.contractFailureReputation": {
+    "default": 7,
+    "min": 0,
+    "max": 50,
+    "unit": "reputation points",
+    "description": "Economy coefficient: contractFailureReputation",
+    "type": "integer"
+  },
+  "economy.supplyMarkup": {
+    "default": 1.35,
+    "min": 1.01,
+    "max": 5,
+    "unit": "purchase/sale ratio",
+    "description": "Economy coefficient: supplyMarkup",
+    "type": "number"
+  },
+  "economy.farmhandDailyWage": {
+    "default": 35,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/day",
+    "description": "Economy coefficient: farmhandDailyWage",
+    "type": "number"
+  },
+  "economy.buildingUpgradeCostMultiplier": {
+    "default": 1.65,
+    "min": 1,
+    "max": 4,
+    "unit": "ratio/upgrade",
+    "description": "Economy coefficient: buildingUpgradeCostMultiplier",
+    "type": "number"
+  },
+  "economy.buildingUpgradeTimeMultiplier": {
+    "default": 1.4,
+    "min": 1,
+    "max": 4,
+    "unit": "ratio/upgrade",
+    "description": "Economy coefficient: buildingUpgradeTimeMultiplier",
+    "type": "number"
+  },
+  "economy.pondCapacityM3": {
+    "default": 1000,
+    "min": 0,
+    "max": 100000,
+    "unit": "m³/level",
+    "description": "Economy coefficient: pondCapacityM3",
+    "type": "number"
+  },
+  "economy.apiaryHoneyKgDaily": {
+    "default": 2,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/level/day",
+    "description": "Economy coefficient: apiaryHoneyKgDaily",
+    "type": "number"
+  },
+  "economy.festivalEveryDays": {
+    "default": 12,
+    "min": 2,
+    "max": 120,
+    "unit": "days",
+    "description": "Economy coefficient: festivalEveryDays",
+    "type": "integer"
+  },
+  "economy.festivalFee": {
+    "default": 40,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR",
+    "description": "Economy coefficient: festivalFee",
+    "type": "number"
+  },
+  "economy.festivalPrize": {
+    "default": 180,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "Economy coefficient: festivalPrize",
+    "type": "number"
+  },
+  "economy.questXP": {
+    "default": 60,
+    "min": 0,
+    "max": 1000,
+    "unit": "XP",
+    "description": "Economy coefficient: questXP",
+    "type": "integer"
+  },
+  "economy.questCash": {
+    "default": 100,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR",
+    "description": "Economy coefficient: questCash",
+    "type": "number"
+  },
+  "economy.growthPerGreenhouseLevel": {
+    "default": 0.08,
+    "min": 0,
+    "max": 0.3,
+    "unit": "fraction/level",
+    "description": "Economy coefficient: growthPerGreenhouseLevel",
+    "type": "number"
+  },
+  "economy.greenhouseTempPerLevel": {
+    "default": 3,
+    "min": 0,
+    "max": 8,
+    "unit": "°C/level",
+    "description": "Economy coefficient: greenhouseTempPerLevel",
+    "type": "number"
+  },
+  "economy.greenhouseRainFraction": {
+    "default": 0.15,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "Economy coefficient: greenhouseRainFraction",
+    "type": "number"
+  },
+  "economy.greenhouseHumidity": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.5,
+    "unit": "relative humidity fraction",
+    "description": "Economy coefficient: greenhouseHumidity",
+    "type": "number"
+  },
+  "economy.greenhouseVentilationPerLevel": {
+    "default": 0.025,
+    "min": 0,
+    "max": 0.2,
+    "unit": "humidity fraction/level",
+    "description": "Economy coefficient: greenhouseVentilationPerLevel",
+    "type": "number"
+  },
+  "economy.greenhousePollinationBase": {
+    "default": 0.65,
+    "min": 0,
+    "max": 1,
+    "unit": "ratio",
+    "description": "Economy coefficient: greenhousePollinationBase",
+    "type": "number"
+  },
+  "economy.greenhousePollinationPerLevel": {
+    "default": 0.1,
+    "min": 0,
+    "max": 0.3,
+    "unit": "ratio/level",
+    "description": "Economy coefficient: greenhousePollinationPerLevel",
+    "type": "number"
+  },
+  "economy.fenceImmigrationReduction": {
+    "default": 0.18,
+    "min": 0,
+    "max": 0.3,
+    "unit": "fraction/level",
+    "description": "Economy coefficient: fenceImmigrationReduction",
+    "type": "number"
+  },
+  "economy.flowerHabitatPerLevel": {
+    "default": 0.25,
+    "min": 0,
+    "max": 2,
+    "unit": "habitat index/level",
+    "description": "Economy coefficient: flowerHabitatPerLevel",
+    "type": "number"
+  },
+  "economy.apiaryHabitatPerLevel": {
+    "default": 0.15,
+    "min": 0,
+    "max": 2,
+    "unit": "habitat index/level",
+    "description": "Economy coefficient: apiaryHabitatPerLevel",
+    "type": "number"
+  },
+  "economy.irrigationCostReduction": {
+    "default": 0.08,
+    "min": 0,
+    "max": 0.25,
+    "unit": "fraction/level",
+    "description": "Economy coefficient: irrigationCostReduction",
+    "type": "number"
+  },
+  "economy.irrigationEvaporationReduction": {
+    "default": 0.06,
+    "min": 0,
+    "max": 0.25,
+    "unit": "fraction/level",
+    "description": "Economy coefficient: irrigationEvaporationReduction",
+    "type": "number"
+  },
+  "economy.pathMovementPerLevel": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction/level",
+    "description": "Economy coefficient: pathMovementPerLevel",
+    "type": "number"
+  },
+  "economy.farmhandFieldsPerLevel": {
+    "default": 4,
+    "min": 1,
+    "max": 12,
+    "unit": "fields/level",
+    "description": "Economy coefficient: farmhandFieldsPerLevel",
+    "type": "integer"
+  },
+  "economy.pondCatchmentM2": {
+    "default": 200,
+    "min": 0,
+    "max": 10000,
+    "unit": "m²/level",
+    "description": "Economy coefficient: pondCatchmentM2",
+    "type": "number"
+  },
+  "economy.reputationSaleBonus": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction at100reputation",
+    "description": "Economy coefficient: reputationSaleBonus",
+    "type": "number"
+  },
+  "economy.marketMeanReversion": {
+    "default": 0.45,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "Economy coefficient: marketMeanReversion",
+    "type": "number"
+  },
+  "economy.offerMinMultiplier": {
+    "default": 0.7,
+    "min": 0.1,
+    "max": 2,
+    "unit": "sale-price ratio",
+    "description": "Economy coefficient: offerMinMultiplier",
+    "type": "number"
+  },
+  "economy.offerMaxMultiplier": {
+    "default": 1.35,
+    "min": 0.2,
+    "max": 3,
+    "unit": "sale-price ratio",
+    "description": "Economy coefficient: offerMaxMultiplier",
+    "type": "number"
+  },
+  "economy.contractPremium": {
+    "default": 1.25,
+    "min": 1,
+    "max": 3,
+    "unit": "sale-price ratio",
+    "description": "Economy coefficient: contractPremium",
+    "type": "number"
+  },
+  "economy.contractQuantityMinKg": {
+    "default": 60,
+    "min": 1,
+    "max": 10000,
+    "unit": "kg",
+    "description": "Economy coefficient: contractQuantityMinKg",
+    "type": "number"
+  },
+  "economy.contractQuantityMaxKg": {
+    "default": 300,
+    "min": 1,
+    "max": 10000,
+    "unit": "kg",
+    "description": "Economy coefficient: contractQuantityMaxKg",
+    "type": "number"
+  },
+  "economy.initialFeedKg": {
+    "default": 25,
+    "min": 0,
+    "max": 1000,
+    "unit": "kg",
+    "description": "Economy coefficient: initialFeedKg",
+    "type": "number"
+  },
+  "economy.animalConditionRecovery": {
+    "default": 0.12,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "Economy coefficient: animalConditionRecovery",
+    "type": "number"
+  },
+  "economy.animalConditionLoss": {
+    "default": 0.25,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "Economy coefficient: animalConditionLoss",
+    "type": "number"
+  },
+  "economy.marketMinMultiplier": {
+    "default": 0.55,
+    "min": 0.05,
+    "max": 1,
+    "unit": "base-price ratio",
+    "description": "Economy coefficient: marketMinMultiplier",
+    "type": "number"
+  },
+  "economy.marketMaxMultiplier": {
+    "default": 1.65,
+    "min": 1,
+    "max": 5,
+    "unit": "base-price ratio",
+    "description": "Economy coefficient: marketMaxMultiplier",
+    "type": "number"
+  },
+  "economy.festivalDurationHours": {
+    "default": 24,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Economy coefficient: festivalDurationHours",
+    "type": "integer"
+  },
+  "economy.festivalRequiredKg": {
+    "default": 20,
+    "min": 1,
+    "max": 1000,
+    "unit": "kg",
+    "description": "Economy coefficient: festivalRequiredKg",
+    "type": "number"
+  },
+  "economy.festivalReputation": {
+    "default": 4,
+    "min": 0,
+    "max": 30,
+    "unit": "reputation points",
+    "description": "Economy coefficient: festivalReputation",
+    "type": "integer"
+  },
+  "economy.achievementXP": {
+    "default": 30,
+    "min": 0,
+    "max": 1000,
+    "unit": "XP",
+    "description": "Economy coefficient: achievementXP",
+    "type": "integer"
+  },
+  "economy.questReputation": {
+    "default": 3,
+    "min": 0,
+    "max": 30,
+    "unit": "reputation points",
+    "description": "Economy coefficient: questReputation",
+    "type": "integer"
+  },
+  "economy.processingXP": {
+    "default": 15,
+    "min": 0,
+    "max": 500,
+    "unit": "XP/100 kg output; floored per batch",
+    "description": "Economy coefficient: processingXP",
+    "type": "integer"
+  },
+  "recipes.flour.inputKg": {
+    "default": 100,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "flour processing: inputKg",
+    "type": "number"
+  },
+  "recipes.flour.outputKg": {
+    "default": 78,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "flour processing: outputKg",
+    "type": "number"
+  },
+  "recipes.flour.hours": {
+    "default": 8,
+    "min": 0.001,
+    "max": 240,
+    "unit": "hours",
+    "description": "flour processing: hours",
+    "type": "number"
+  },
+  "recipes.flour.costPerKg": {
+    "default": 0.12,
+    "min": 0.001,
+    "max": 100,
+    "unit": "EUR/kg input",
+    "description": "flour processing: costPerKg",
+    "type": "number"
+  },
+  "recipes.flour.capacityKg": {
+    "default": 1000,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "flour processing: capacityKg",
+    "type": "number"
+  },
+  "recipes.oil.inputKg": {
+    "default": 100,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "oil processing: inputKg",
+    "type": "number"
+  },
+  "recipes.oil.outputKg": {
+    "default": 35,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "oil processing: outputKg",
+    "type": "number"
+  },
+  "recipes.oil.hours": {
+    "default": 12,
+    "min": 0.001,
+    "max": 240,
+    "unit": "hours",
+    "description": "oil processing: hours",
+    "type": "number"
+  },
+  "recipes.oil.costPerKg": {
+    "default": 0.2,
+    "min": 0.001,
+    "max": 100,
+    "unit": "EUR/kg input",
+    "description": "oil processing: costPerKg",
+    "type": "number"
+  },
+  "recipes.oil.capacityKg": {
+    "default": 1000,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "oil processing: capacityKg",
+    "type": "number"
+  },
+  "recipes.cheese.inputKg": {
+    "default": 100,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "cheese processing: inputKg",
+    "type": "number"
+  },
+  "recipes.cheese.outputKg": {
+    "default": 20,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "cheese processing: outputKg",
+    "type": "number"
+  },
+  "recipes.cheese.hours": {
+    "default": 12,
+    "min": 0.001,
+    "max": 240,
+    "unit": "hours",
+    "description": "cheese processing: hours",
+    "type": "number"
+  },
+  "recipes.cheese.costPerKg": {
+    "default": 0.15,
+    "min": 0.001,
+    "max": 100,
+    "unit": "EUR/kg input",
+    "description": "cheese processing: costPerKg",
+    "type": "number"
+  },
+  "recipes.cheese.capacityKg": {
+    "default": 500,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "cheese processing: capacityKg",
+    "type": "number"
+  },
+  "recipes.jam.inputKg": {
+    "default": 100,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "jam processing: inputKg",
+    "type": "number"
+  },
+  "recipes.jam.outputKg": {
+    "default": 65,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "jam processing: outputKg",
+    "type": "number"
+  },
+  "recipes.jam.hours": {
+    "default": 10,
+    "min": 0.001,
+    "max": 240,
+    "unit": "hours",
+    "description": "jam processing: hours",
+    "type": "number"
+  },
+  "recipes.jam.costPerKg": {
+    "default": 0.3,
+    "min": 0.001,
+    "max": 100,
+    "unit": "EUR/kg input",
+    "description": "jam processing: costPerKg",
+    "type": "number"
+  },
+  "recipes.jam.capacityKg": {
+    "default": 500,
+    "min": 0.001,
+    "max": 100000,
+    "unit": "kg",
+    "description": "jam processing: capacityKg",
+    "type": "number"
+  },
+  "questTargets.firstHarvest": {
+    "default": 150,
+    "min": 1,
+    "max": 100000,
+    "unit": "kg harvested",
+    "description": "Quest target: firstHarvest",
+    "type": "number"
+  },
+  "questTargets.expansion": {
+    "default": 1,
+    "min": 1,
+    "max": 100000,
+    "unit": "fields purchased",
+    "description": "Quest target: expansion",
+    "type": "number"
+  },
+  "questTargets.artisan": {
+    "default": 100,
+    "min": 1,
+    "max": 100000,
+    "unit": "kg processed",
+    "description": "Quest target: artisan",
+    "type": "number"
+  },
+  "questTargets.herd": {
+    "default": 20,
+    "min": 1,
+    "max": 100000,
+    "unit": "kg animal produce",
+    "description": "Quest target: herd",
+    "type": "number"
+  },
+  "questTargets.trusted": {
+    "default": 3,
+    "min": 1,
+    "max": 100000,
+    "unit": "contracts delivered",
+    "description": "Quest target: trusted",
+    "type": "number"
+  },
+  "questTargets.builder": {
+    "default": 4,
+    "min": 1,
+    "max": 100000,
+    "unit": "construction completions",
+    "description": "Quest target: builder",
+    "type": "number"
+  },
+  "achievementTargets.firstTonne": {
+    "default": 1000,
+    "min": 1,
+    "max": 100000,
+    "unit": "kg harvested",
+    "description": "Achievement target: firstTonne",
+    "type": "number"
+  },
+  "achievementTargets.harvestMaster": {
+    "default": 10000,
+    "min": 1,
+    "max": 100000,
+    "unit": "kg harvested",
+    "description": "Achievement target: harvestMaster",
+    "type": "number"
+  },
+  "achievementTargets.estate": {
+    "default": 9,
+    "min": 1,
+    "max": 100000,
+    "unit": "fields purchased",
+    "description": "Achievement target: estate",
+    "type": "number"
+  },
+  "achievementTargets.artisan": {
+    "default": 500,
+    "min": 1,
+    "max": 100000,
+    "unit": "kg processed",
+    "description": "Achievement target: artisan",
+    "type": "number"
+  },
+  "achievementTargets.supplier": {
+    "default": 10,
+    "min": 1,
+    "max": 100000,
+    "unit": "contracts delivered",
+    "description": "Achievement target: supplier",
+    "type": "number"
+  },
+  "achievementTargets.rancher": {
+    "default": 200,
+    "min": 1,
+    "max": 100000,
+    "unit": "kg animal produce",
+    "description": "Achievement target: rancher",
+    "type": "number"
+  },
+  "achievementTargets.architect": {
+    "default": 12,
+    "min": 1,
+    "max": 100000,
+    "unit": "construction completions",
+    "description": "Achievement target: architect",
+    "type": "number"
+  },
+  "achievementTargets.reputation": {
+    "default": 60,
+    "min": 1,
+    "max": 100000,
+    "unit": "reputation points",
+    "description": "Achievement target: reputation",
+    "type": "number"
+  },
+  "crops.wheat.growHours": {
+    "default": 120,
+    "min": 1,
+    "max": 2000,
+    "unit": "hours",
+    "description": "wheat: growHours",
+    "type": "number"
+  },
+  "crops.wheat.biomassMax": {
+    "default": 15000,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg biomass/ha",
+    "description": "wheat: biomassMax",
+    "type": "number"
+  },
+  "crops.wheat.harvestIndex": {
+    "default": 0.46,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "wheat: harvestIndex",
+    "type": "number"
+  },
+  "crops.wheat.seedCost": {
+    "default": 160,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR/ha",
+    "description": "wheat: seedCost",
+    "type": "number"
+  },
+  "crops.wheat.plantLabor": {
+    "default": 2,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "wheat: plantLabor",
+    "type": "number"
+  },
+  "crops.wheat.harvestLabor": {
+    "default": 5,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "wheat: harvestLabor",
+    "type": "number"
+  },
+  "crops.wheat.nPerBiomass": {
+    "default": 0.017,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "wheat: nPerBiomass",
+    "type": "number"
+  },
+  "crops.wheat.pPerBiomass": {
+    "default": 0.0028,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "wheat: pPerBiomass",
+    "type": "number"
+  },
+  "crops.wheat.kPerBiomass": {
+    "default": 0.017,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "wheat: kPerBiomass",
+    "type": "number"
+  },
+  "crops.wheat.seedN": {
+    "default": 3,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "wheat: seedN",
+    "type": "number"
+  },
+  "crops.wheat.seedP": {
+    "default": 0.45,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "wheat: seedP",
+    "type": "number"
+  },
+  "crops.wheat.seedK": {
+    "default": 0.65,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "wheat: seedK",
+    "type": "number"
+  },
+  "crops.wheat.pollinationDependence": {
+    "default": 0,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "wheat: pollinationDependence",
+    "type": "number"
+  },
+  "crops.wheat.baseTempC": {
+    "default": 2,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "wheat: baseTempC",
+    "type": "number"
+  },
+  "crops.wheat.optimumTempC": {
+    "default": 20,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "wheat: optimumTempC",
+    "type": "number"
+  },
+  "crops.bean.growHours": {
+    "default": 96,
+    "min": 1,
+    "max": 2000,
+    "unit": "hours",
+    "description": "bean: growHours",
+    "type": "number"
+  },
+  "crops.bean.biomassMax": {
+    "default": 11000,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg biomass/ha",
+    "description": "bean: biomassMax",
+    "type": "number"
+  },
+  "crops.bean.harvestIndex": {
+    "default": 0.4,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "bean: harvestIndex",
+    "type": "number"
+  },
+  "crops.bean.seedCost": {
+    "default": 240,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR/ha",
+    "description": "bean: seedCost",
+    "type": "number"
+  },
+  "crops.bean.plantLabor": {
+    "default": 2.4,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "bean: plantLabor",
+    "type": "number"
+  },
+  "crops.bean.harvestLabor": {
+    "default": 6,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "bean: harvestLabor",
+    "type": "number"
+  },
+  "crops.bean.nPerBiomass": {
+    "default": 0.025,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "bean: nPerBiomass",
+    "type": "number"
+  },
+  "crops.bean.pPerBiomass": {
+    "default": 0.0035,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "bean: pPerBiomass",
+    "type": "number"
+  },
+  "crops.bean.kPerBiomass": {
+    "default": 0.02,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "bean: kPerBiomass",
+    "type": "number"
+  },
+  "crops.bean.seedN": {
+    "default": 6,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "bean: seedN",
+    "type": "number"
+  },
+  "crops.bean.seedP": {
+    "default": 0.7,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "bean: seedP",
+    "type": "number"
+  },
+  "crops.bean.seedK": {
+    "default": 1.1,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "bean: seedK",
+    "type": "number"
+  },
+  "crops.bean.pollinationDependence": {
+    "default": 0.12,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "bean: pollinationDependence",
+    "type": "number"
+  },
+  "crops.bean.baseTempC": {
+    "default": 6,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "bean: baseTempC",
+    "type": "number"
+  },
+  "crops.bean.optimumTempC": {
+    "default": 21,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "bean: optimumTempC",
+    "type": "number"
+  },
+  "crops.sunflower.growHours": {
+    "default": 144,
+    "min": 1,
+    "max": 2000,
+    "unit": "hours",
+    "description": "sunflower: growHours",
+    "type": "number"
+  },
+  "crops.sunflower.biomassMax": {
+    "default": 13000,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg biomass/ha",
+    "description": "sunflower: biomassMax",
+    "type": "number"
+  },
+  "crops.sunflower.harvestIndex": {
+    "default": 0.35,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "sunflower: harvestIndex",
+    "type": "number"
+  },
+  "crops.sunflower.seedCost": {
+    "default": 150,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR/ha",
+    "description": "sunflower: seedCost",
+    "type": "number"
+  },
+  "crops.sunflower.plantLabor": {
+    "default": 2,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "sunflower: plantLabor",
+    "type": "number"
+  },
+  "crops.sunflower.harvestLabor": {
+    "default": 5,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "sunflower: harvestLabor",
+    "type": "number"
+  },
+  "crops.sunflower.nPerBiomass": {
+    "default": 0.019,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "sunflower: nPerBiomass",
+    "type": "number"
+  },
+  "crops.sunflower.pPerBiomass": {
+    "default": 0.0032,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "sunflower: pPerBiomass",
+    "type": "number"
+  },
+  "crops.sunflower.kPerBiomass": {
+    "default": 0.022,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "sunflower: kPerBiomass",
+    "type": "number"
+  },
+  "crops.sunflower.seedN": {
+    "default": 2.5,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "sunflower: seedN",
+    "type": "number"
+  },
+  "crops.sunflower.seedP": {
+    "default": 0.5,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "sunflower: seedP",
+    "type": "number"
+  },
+  "crops.sunflower.seedK": {
+    "default": 0.9,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "sunflower: seedK",
+    "type": "number"
+  },
+  "crops.sunflower.pollinationDependence": {
+    "default": 0.4,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "sunflower: pollinationDependence",
+    "type": "number"
+  },
+  "crops.sunflower.baseTempC": {
+    "default": 8,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "sunflower: baseTempC",
+    "type": "number"
+  },
+  "crops.sunflower.optimumTempC": {
+    "default": 25,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "sunflower: optimumTempC",
+    "type": "number"
+  },
+  "crops.potato.growHours": {
+    "default": 120,
+    "min": 1,
+    "max": 2000,
+    "unit": "hours",
+    "description": "potato: growHours",
+    "type": "number"
+  },
+  "crops.potato.biomassMax": {
+    "default": 25000,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg biomass/ha",
+    "description": "potato: biomassMax",
+    "type": "number"
+  },
+  "crops.potato.harvestIndex": {
+    "default": 0.6,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "potato: harvestIndex",
+    "type": "number"
+  },
+  "crops.potato.seedCost": {
+    "default": 620,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR/ha",
+    "description": "potato: seedCost",
+    "type": "number"
+  },
+  "crops.potato.plantLabor": {
+    "default": 4,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "potato: plantLabor",
+    "type": "number"
+  },
+  "crops.potato.harvestLabor": {
+    "default": 9,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "potato: harvestLabor",
+    "type": "number"
+  },
+  "crops.potato.nPerBiomass": {
+    "default": 0.009,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "potato: nPerBiomass",
+    "type": "number"
+  },
+  "crops.potato.pPerBiomass": {
+    "default": 0.002,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "potato: pPerBiomass",
+    "type": "number"
+  },
+  "crops.potato.kPerBiomass": {
+    "default": 0.016,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "potato: kPerBiomass",
+    "type": "number"
+  },
+  "crops.potato.seedN": {
+    "default": 9,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "potato: seedN",
+    "type": "number"
+  },
+  "crops.potato.seedP": {
+    "default": 2,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "potato: seedP",
+    "type": "number"
+  },
+  "crops.potato.seedK": {
+    "default": 12,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "potato: seedK",
+    "type": "number"
+  },
+  "crops.potato.pollinationDependence": {
+    "default": 0,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "potato: pollinationDependence",
+    "type": "number"
+  },
+  "crops.potato.baseTempC": {
+    "default": 7,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "potato: baseTempC",
+    "type": "number"
+  },
+  "crops.potato.optimumTempC": {
+    "default": 20,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "potato: optimumTempC",
+    "type": "number"
+  },
+  "crops.strawberry.growHours": {
+    "default": 96,
+    "min": 1,
+    "max": 2000,
+    "unit": "hours",
+    "description": "strawberry: growHours",
+    "type": "number"
+  },
+  "crops.strawberry.biomassMax": {
+    "default": 9000,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg biomass/ha",
+    "description": "strawberry: biomassMax",
+    "type": "number"
+  },
+  "crops.strawberry.harvestIndex": {
+    "default": 0.55,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "strawberry: harvestIndex",
+    "type": "number"
+  },
+  "crops.strawberry.seedCost": {
+    "default": 760,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR/ha",
+    "description": "strawberry: seedCost",
+    "type": "number"
+  },
+  "crops.strawberry.plantLabor": {
+    "default": 5,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "strawberry: plantLabor",
+    "type": "number"
+  },
+  "crops.strawberry.harvestLabor": {
+    "default": 12,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "strawberry: harvestLabor",
+    "type": "number"
+  },
+  "crops.strawberry.nPerBiomass": {
+    "default": 0.014,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "strawberry: nPerBiomass",
+    "type": "number"
+  },
+  "crops.strawberry.pPerBiomass": {
+    "default": 0.0024,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "strawberry: pPerBiomass",
+    "type": "number"
+  },
+  "crops.strawberry.kPerBiomass": {
+    "default": 0.018,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "strawberry: kPerBiomass",
+    "type": "number"
+  },
+  "crops.strawberry.seedN": {
+    "default": 4,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "strawberry: seedN",
+    "type": "number"
+  },
+  "crops.strawberry.seedP": {
+    "default": 0.7,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "strawberry: seedP",
+    "type": "number"
+  },
+  "crops.strawberry.seedK": {
+    "default": 3,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "strawberry: seedK",
+    "type": "number"
+  },
+  "crops.strawberry.pollinationDependence": {
+    "default": 0.32,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "strawberry: pollinationDependence",
+    "type": "number"
+  },
+  "crops.strawberry.baseTempC": {
+    "default": 8,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "strawberry: baseTempC",
+    "type": "number"
+  },
+  "crops.strawberry.optimumTempC": {
+    "default": 21,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "strawberry: optimumTempC",
+    "type": "number"
+  },
+  "crops.barley.growHours": {
+    "default": 100,
+    "min": 1,
+    "max": 2000,
+    "unit": "hours",
+    "description": "barley: growHours",
+    "type": "number"
+  },
+  "crops.barley.biomassMax": {
+    "default": 11500,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg biomass/ha",
+    "description": "barley: biomassMax",
+    "type": "number"
+  },
+  "crops.barley.harvestIndex": {
+    "default": 0.45,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "barley: harvestIndex",
+    "type": "number"
+  },
+  "crops.barley.seedCost": {
+    "default": 120,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR/ha",
+    "description": "barley: seedCost",
+    "type": "number"
+  },
+  "crops.barley.plantLabor": {
+    "default": 1.8,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "barley: plantLabor",
+    "type": "number"
+  },
+  "crops.barley.harvestLabor": {
+    "default": 4.5,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "barley: harvestLabor",
+    "type": "number"
+  },
+  "crops.barley.nPerBiomass": {
+    "default": 0.015,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "barley: nPerBiomass",
+    "type": "number"
+  },
+  "crops.barley.pPerBiomass": {
+    "default": 0.0025,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "barley: pPerBiomass",
+    "type": "number"
+  },
+  "crops.barley.kPerBiomass": {
+    "default": 0.014,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "barley: kPerBiomass",
+    "type": "number"
+  },
+  "crops.barley.seedN": {
+    "default": 2.5,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "barley: seedN",
+    "type": "number"
+  },
+  "crops.barley.seedP": {
+    "default": 0.4,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "barley: seedP",
+    "type": "number"
+  },
+  "crops.barley.seedK": {
+    "default": 0.6,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "barley: seedK",
+    "type": "number"
+  },
+  "crops.barley.pollinationDependence": {
+    "default": 0,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "barley: pollinationDependence",
+    "type": "number"
+  },
+  "crops.barley.baseTempC": {
+    "default": 2,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "barley: baseTempC",
+    "type": "number"
+  },
+  "crops.barley.optimumTempC": {
+    "default": 20,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "barley: optimumTempC",
+    "type": "number"
+  },
+  "crops.carrot.growHours": {
+    "default": 112,
+    "min": 1,
+    "max": 2000,
+    "unit": "hours",
+    "description": "carrot: growHours",
+    "type": "number"
+  },
+  "crops.carrot.biomassMax": {
+    "default": 14500,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg biomass/ha",
+    "description": "carrot: biomassMax",
+    "type": "number"
+  },
+  "crops.carrot.harvestIndex": {
+    "default": 0.65,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "carrot: harvestIndex",
+    "type": "number"
+  },
+  "crops.carrot.seedCost": {
+    "default": 230,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR/ha",
+    "description": "carrot: seedCost",
+    "type": "number"
+  },
+  "crops.carrot.plantLabor": {
+    "default": 3,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "carrot: plantLabor",
+    "type": "number"
+  },
+  "crops.carrot.harvestLabor": {
+    "default": 7,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "carrot: harvestLabor",
+    "type": "number"
+  },
+  "crops.carrot.nPerBiomass": {
+    "default": 0.011,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "carrot: nPerBiomass",
+    "type": "number"
+  },
+  "crops.carrot.pPerBiomass": {
+    "default": 0.002,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "carrot: pPerBiomass",
+    "type": "number"
+  },
+  "crops.carrot.kPerBiomass": {
+    "default": 0.016,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "carrot: kPerBiomass",
+    "type": "number"
+  },
+  "crops.carrot.seedN": {
+    "default": 3,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "carrot: seedN",
+    "type": "number"
+  },
+  "crops.carrot.seedP": {
+    "default": 0.4,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "carrot: seedP",
+    "type": "number"
+  },
+  "crops.carrot.seedK": {
+    "default": 1,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "carrot: seedK",
+    "type": "number"
+  },
+  "crops.carrot.pollinationDependence": {
+    "default": 0,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "carrot: pollinationDependence",
+    "type": "number"
+  },
+  "crops.carrot.baseTempC": {
+    "default": 4,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "carrot: baseTempC",
+    "type": "number"
+  },
+  "crops.carrot.optimumTempC": {
+    "default": 21,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "carrot: optimumTempC",
+    "type": "number"
+  },
+  "crops.lettuce.growHours": {
+    "default": 70,
+    "min": 1,
+    "max": 2000,
+    "unit": "hours",
+    "description": "lettuce: growHours",
+    "type": "number"
+  },
+  "crops.lettuce.biomassMax": {
+    "default": 12000,
+    "min": 0,
+    "max": 100000,
+    "unit": "kg biomass/ha",
+    "description": "lettuce: biomassMax",
+    "type": "number"
+  },
+  "crops.lettuce.harvestIndex": {
+    "default": 0.72,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "lettuce: harvestIndex",
+    "type": "number"
+  },
+  "crops.lettuce.seedCost": {
+    "default": 170,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR/ha",
+    "description": "lettuce: seedCost",
+    "type": "number"
+  },
+  "crops.lettuce.plantLabor": {
+    "default": 3,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "lettuce: plantLabor",
+    "type": "number"
+  },
+  "crops.lettuce.harvestLabor": {
+    "default": 5,
+    "min": 0,
+    "max": 100,
+    "unit": "hours/ha",
+    "description": "lettuce: harvestLabor",
+    "type": "number"
+  },
+  "crops.lettuce.nPerBiomass": {
+    "default": 0.012,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "lettuce: nPerBiomass",
+    "type": "number"
+  },
+  "crops.lettuce.pPerBiomass": {
+    "default": 0.0026,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "lettuce: pPerBiomass",
+    "type": "number"
+  },
+  "crops.lettuce.kPerBiomass": {
+    "default": 0.017,
+    "min": 0,
+    "max": 1,
+    "unit": "kg element/kg biomass",
+    "description": "lettuce: kPerBiomass",
+    "type": "number"
+  },
+  "crops.lettuce.seedN": {
+    "default": 2,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "lettuce: seedN",
+    "type": "number"
+  },
+  "crops.lettuce.seedP": {
+    "default": 0.3,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "lettuce: seedP",
+    "type": "number"
+  },
+  "crops.lettuce.seedK": {
+    "default": 0.7,
+    "min": 0,
+    "max": 100,
+    "unit": "kg element/ha",
+    "description": "lettuce: seedK",
+    "type": "number"
+  },
+  "crops.lettuce.pollinationDependence": {
+    "default": 0,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "lettuce: pollinationDependence",
+    "type": "number"
+  },
+  "crops.lettuce.baseTempC": {
+    "default": 4,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "lettuce: baseTempC",
+    "type": "number"
+  },
+  "crops.lettuce.optimumTempC": {
+    "default": 18,
+    "min": 0,
+    "max": 50,
+    "unit": "°C",
+    "description": "lettuce: optimumTempC",
+    "type": "number"
+  },
+  "pests.aphids.capacity": {
+    "default": 350,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "aphids: capacity",
+    "type": "number"
+  },
+  "pests.aphids.growthDaily": {
+    "default": 0.75,
+    "min": 0,
+    "max": 3,
+    "unit": "per day",
+    "description": "aphids: growthDaily",
+    "type": "number"
+  },
+  "pests.aphids.initial": {
+    "default": 8,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "aphids: initial",
+    "type": "number"
+  },
+  "pests.aphids.damageMax": {
+    "default": 0.38,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "aphids: damageMax",
+    "type": "number"
+  },
+  "pests.aphids.halfDamage": {
+    "default": 90,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "aphids: halfDamage",
+    "type": "number"
+  },
+  "pests.caterpillars.capacity": {
+    "default": 80,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "caterpillars: capacity",
+    "type": "number"
+  },
+  "pests.caterpillars.growthDaily": {
+    "default": 0.52,
+    "min": 0,
+    "max": 3,
+    "unit": "per day",
+    "description": "caterpillars: growthDaily",
+    "type": "number"
+  },
+  "pests.caterpillars.initial": {
+    "default": 1.5,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "caterpillars: initial",
+    "type": "number"
+  },
+  "pests.caterpillars.damageMax": {
+    "default": 0.35,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "caterpillars: damageMax",
+    "type": "number"
+  },
+  "pests.caterpillars.halfDamage": {
+    "default": 18,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "caterpillars: halfDamage",
+    "type": "number"
+  },
+  "pests.slugs.capacity": {
+    "default": 45,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "slugs: capacity",
+    "type": "number"
+  },
+  "pests.slugs.growthDaily": {
+    "default": 0.32,
+    "min": 0,
+    "max": 3,
+    "unit": "per day",
+    "description": "slugs: growthDaily",
+    "type": "number"
+  },
+  "pests.slugs.initial": {
+    "default": 1,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "slugs: initial",
+    "type": "number"
+  },
+  "pests.slugs.damageMax": {
+    "default": 0.32,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "slugs: damageMax",
+    "type": "number"
+  },
+  "pests.slugs.halfDamage": {
+    "default": 12,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "slugs: halfDamage",
+    "type": "number"
+  },
+  "pests.mites.capacity": {
+    "default": 180,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "mites: capacity",
+    "type": "number"
+  },
+  "pests.mites.growthDaily": {
+    "default": 0.68,
+    "min": 0,
+    "max": 3,
+    "unit": "per day",
+    "description": "mites: growthDaily",
+    "type": "number"
+  },
+  "pests.mites.initial": {
+    "default": 1,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "mites: initial",
+    "type": "number"
+  },
+  "pests.mites.damageMax": {
+    "default": 0.28,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "mites: damageMax",
+    "type": "number"
+  },
+  "pests.mites.halfDamage": {
+    "default": 45,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "mites: halfDamage",
+    "type": "number"
+  },
+  "pests.whiteflies.capacity": {
+    "default": 160,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "whiteflies: capacity",
+    "type": "number"
+  },
+  "pests.whiteflies.growthDaily": {
+    "default": 0.61,
+    "min": 0,
+    "max": 3,
+    "unit": "per day",
+    "description": "whiteflies: growthDaily",
+    "type": "number"
+  },
+  "pests.whiteflies.initial": {
+    "default": 1,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "whiteflies: initial",
+    "type": "number"
+  },
+  "pests.whiteflies.damageMax": {
+    "default": 0.24,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "whiteflies: damageMax",
+    "type": "number"
+  },
+  "pests.whiteflies.halfDamage": {
+    "default": 40,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "whiteflies: halfDamage",
+    "type": "number"
+  },
+  "pests.cutworms.capacity": {
+    "default": 45,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "cutworms: capacity",
+    "type": "number"
+  },
+  "pests.cutworms.growthDaily": {
+    "default": 0.3,
+    "min": 0,
+    "max": 3,
+    "unit": "per day",
+    "description": "cutworms: growthDaily",
+    "type": "number"
+  },
+  "pests.cutworms.initial": {
+    "default": 0.4,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "cutworms: initial",
+    "type": "number"
+  },
+  "pests.cutworms.damageMax": {
+    "default": 0.38,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "cutworms: damageMax",
+    "type": "number"
+  },
+  "pests.cutworms.halfDamage": {
+    "default": 10,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "cutworms: halfDamage",
+    "type": "number"
+  },
+  "pests.locusts.capacity": {
+    "default": 70,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "locusts: capacity",
+    "type": "number"
+  },
+  "pests.locusts.growthDaily": {
+    "default": 0.2,
+    "min": 0,
+    "max": 3,
+    "unit": "per day",
+    "description": "locusts: growthDaily",
+    "type": "number"
+  },
+  "pests.locusts.initial": {
+    "default": 0,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "locusts: initial",
+    "type": "number"
+  },
+  "pests.locusts.damageMax": {
+    "default": 0.4,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "locusts: damageMax",
+    "type": "number"
+  },
+  "pests.locusts.halfDamage": {
+    "default": 20,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "locusts: halfDamage",
+    "type": "number"
+  },
+  "pests.nematodes.capacity": {
+    "default": 120,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "nematodes: capacity",
+    "type": "number"
+  },
+  "pests.nematodes.growthDaily": {
+    "default": 0.18,
+    "min": 0,
+    "max": 3,
+    "unit": "per day",
+    "description": "nematodes: growthDaily",
+    "type": "number"
+  },
+  "pests.nematodes.initial": {
+    "default": 2,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "nematodes: initial",
+    "type": "number"
+  },
+  "pests.nematodes.damageMax": {
+    "default": 0.32,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "nematodes: damageMax",
+    "type": "number"
+  },
+  "pests.nematodes.halfDamage": {
+    "default": 35,
+    "min": 0,
+    "max": 2000,
+    "unit": "individuals/m²",
+    "description": "nematodes: halfDamage",
+    "type": "number"
+  },
+  "diseases.mildew.growthDaily": {
+    "default": 0.12,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "mildew: growthDaily",
+    "type": "number"
+  },
+  "diseases.mildew.recoveryDaily": {
+    "default": 0.035,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "mildew: recoveryDaily",
+    "type": "number"
+  },
+  "diseases.mildew.damageMax": {
+    "default": 0.23,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "mildew: damageMax",
+    "type": "number"
+  },
+  "diseases.blight.growthDaily": {
+    "default": 0.16,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "blight: growthDaily",
+    "type": "number"
+  },
+  "diseases.blight.recoveryDaily": {
+    "default": 0.025,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "blight: recoveryDaily",
+    "type": "number"
+  },
+  "diseases.blight.damageMax": {
+    "default": 0.35,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "blight: damageMax",
+    "type": "number"
+  },
+  "diseases.rootRot.growthDaily": {
+    "default": 0.18,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "rootRot: growthDaily",
+    "type": "number"
+  },
+  "diseases.rootRot.recoveryDaily": {
+    "default": 0.06,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "rootRot: recoveryDaily",
+    "type": "number"
+  },
+  "diseases.rootRot.damageMax": {
+    "default": 0.3,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction",
+    "description": "rootRot: damageMax",
+    "type": "number"
+  },
+  "buildings.warehouse.cost": {
+    "default": 950,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "warehouse: cost",
+    "type": "number"
+  },
+  "buildings.warehouse.buildHours": {
+    "default": 18,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "warehouse: buildHours",
+    "type": "number"
+  },
+  "buildings.warehouse.upkeepDaily": {
+    "default": 4,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "warehouse: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.warehouse.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "warehouse: maxLevel",
+    "type": "integer"
+  },
+  "buildings.warehouse.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "warehouse: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.coop.cost": {
+    "default": 650,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "coop: cost",
+    "type": "number"
+  },
+  "buildings.coop.buildHours": {
+    "default": 14,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "coop: buildHours",
+    "type": "number"
+  },
+  "buildings.coop.upkeepDaily": {
+    "default": 3,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "coop: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.coop.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "coop: maxLevel",
+    "type": "integer"
+  },
+  "buildings.coop.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "coop: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.barn.cost": {
+    "default": 1250,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "barn: cost",
+    "type": "number"
+  },
+  "buildings.barn.buildHours": {
+    "default": 24,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "barn: buildHours",
+    "type": "number"
+  },
+  "buildings.barn.upkeepDaily": {
+    "default": 6,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "barn: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.barn.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "barn: maxLevel",
+    "type": "integer"
+  },
+  "buildings.barn.unlockReputation": {
+    "default": 4,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "barn: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.mill.cost": {
+    "default": 1100,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "mill: cost",
+    "type": "number"
+  },
+  "buildings.mill.buildHours": {
+    "default": 24,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "mill: buildHours",
+    "type": "number"
+  },
+  "buildings.mill.upkeepDaily": {
+    "default": 5,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "mill: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.mill.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "mill: maxLevel",
+    "type": "integer"
+  },
+  "buildings.mill.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "mill: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.press.cost": {
+    "default": 1450,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "press: cost",
+    "type": "number"
+  },
+  "buildings.press.buildHours": {
+    "default": 30,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "press: buildHours",
+    "type": "number"
+  },
+  "buildings.press.upkeepDaily": {
+    "default": 6,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "press: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.press.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "press: maxLevel",
+    "type": "integer"
+  },
+  "buildings.press.unlockReputation": {
+    "default": 4,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "press: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.dairy.cost": {
+    "default": 1550,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "dairy: cost",
+    "type": "number"
+  },
+  "buildings.dairy.buildHours": {
+    "default": 30,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "dairy: buildHours",
+    "type": "number"
+  },
+  "buildings.dairy.upkeepDaily": {
+    "default": 6,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "dairy: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.dairy.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "dairy: maxLevel",
+    "type": "integer"
+  },
+  "buildings.dairy.unlockReputation": {
+    "default": 8,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "dairy: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.kitchen.cost": {
+    "default": 1350,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "kitchen: cost",
+    "type": "number"
+  },
+  "buildings.kitchen.buildHours": {
+    "default": 24,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "kitchen: buildHours",
+    "type": "number"
+  },
+  "buildings.kitchen.upkeepDaily": {
+    "default": 5,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "kitchen: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.kitchen.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "kitchen: maxLevel",
+    "type": "integer"
+  },
+  "buildings.kitchen.unlockReputation": {
+    "default": 4,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "kitchen: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.greenhouse.cost": {
+    "default": 1700,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "greenhouse: cost",
+    "type": "number"
+  },
+  "buildings.greenhouse.buildHours": {
+    "default": 36,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "greenhouse: buildHours",
+    "type": "number"
+  },
+  "buildings.greenhouse.upkeepDaily": {
+    "default": 5,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "greenhouse: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.greenhouse.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "greenhouse: maxLevel",
+    "type": "integer"
+  },
+  "buildings.greenhouse.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "greenhouse: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.pond.cost": {
+    "default": 1000,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "pond: cost",
+    "type": "number"
+  },
+  "buildings.pond.buildHours": {
+    "default": 24,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "pond: buildHours",
+    "type": "number"
+  },
+  "buildings.pond.upkeepDaily": {
+    "default": 2,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "pond: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.pond.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "pond: maxLevel",
+    "type": "integer"
+  },
+  "buildings.pond.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "pond: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.apiary.cost": {
+    "default": 850,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "apiary: cost",
+    "type": "number"
+  },
+  "buildings.apiary.buildHours": {
+    "default": 16,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "apiary: buildHours",
+    "type": "number"
+  },
+  "buildings.apiary.upkeepDaily": {
+    "default": 3,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "apiary: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.apiary.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "apiary: maxLevel",
+    "type": "integer"
+  },
+  "buildings.apiary.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "apiary: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.farmhouse.cost": {
+    "default": 1850,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "farmhouse: cost",
+    "type": "number"
+  },
+  "buildings.farmhouse.buildHours": {
+    "default": 30,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "farmhouse: buildHours",
+    "type": "number"
+  },
+  "buildings.farmhouse.upkeepDaily": {
+    "default": 4,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "farmhouse: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.farmhouse.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "farmhouse: maxLevel",
+    "type": "integer"
+  },
+  "buildings.farmhouse.unlockReputation": {
+    "default": 8,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "farmhouse: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.irrigation.cost": {
+    "default": 600,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "irrigation: cost",
+    "type": "number"
+  },
+  "buildings.irrigation.buildHours": {
+    "default": 12,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "irrigation: buildHours",
+    "type": "number"
+  },
+  "buildings.irrigation.upkeepDaily": {
+    "default": 2,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "irrigation: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.irrigation.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "irrigation: maxLevel",
+    "type": "integer"
+  },
+  "buildings.irrigation.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "irrigation: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.fence.cost": {
+    "default": 320,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "fence: cost",
+    "type": "number"
+  },
+  "buildings.fence.buildHours": {
+    "default": 8,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "fence: buildHours",
+    "type": "number"
+  },
+  "buildings.fence.upkeepDaily": {
+    "default": 1,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "fence: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.fence.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "fence: maxLevel",
+    "type": "integer"
+  },
+  "buildings.fence.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "fence: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.path.cost": {
+    "default": 260,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "path: cost",
+    "type": "number"
+  },
+  "buildings.path.buildHours": {
+    "default": 6,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "path: buildHours",
+    "type": "number"
+  },
+  "buildings.path.upkeepDaily": {
+    "default": 0.5,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "path: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.path.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "path: maxLevel",
+    "type": "integer"
+  },
+  "buildings.path.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "path: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.academy.cost": {
+    "default": 680,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "academy: cost",
+    "type": "number"
+  },
+  "buildings.academy.buildHours": {
+    "default": 16,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "academy: buildHours",
+    "type": "number"
+  },
+  "buildings.academy.upkeepDaily": {
+    "default": 2,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "academy: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.academy.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "academy: maxLevel",
+    "type": "integer"
+  },
+  "buildings.academy.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "academy: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.rootCellar.cost": {
+    "default": 820,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "rootCellar: cost",
+    "type": "number"
+  },
+  "buildings.rootCellar.buildHours": {
+    "default": 19,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "rootCellar: buildHours",
+    "type": "number"
+  },
+  "buildings.rootCellar.upkeepDaily": {
+    "default": 2,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "rootCellar: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.rootCellar.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "rootCellar: maxLevel",
+    "type": "integer"
+  },
+  "buildings.rootCellar.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "rootCellar: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.hutch.cost": {
+    "default": 460,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "hutch: cost",
+    "type": "number"
+  },
+  "buildings.hutch.buildHours": {
+    "default": 10,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "hutch: buildHours",
+    "type": "number"
+  },
+  "buildings.hutch.upkeepDaily": {
+    "default": 2,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "hutch: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.hutch.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "hutch: maxLevel",
+    "type": "integer"
+  },
+  "buildings.hutch.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "hutch: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.wildGarden.cost": {
+    "default": 290,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "wildGarden: cost",
+    "type": "number"
+  },
+  "buildings.wildGarden.buildHours": {
+    "default": 9,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "wildGarden: buildHours",
+    "type": "number"
+  },
+  "buildings.wildGarden.upkeepDaily": {
+    "default": 1,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "wildGarden: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.wildGarden.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "wildGarden: maxLevel",
+    "type": "integer"
+  },
+  "buildings.wildGarden.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "wildGarden: unlockReputation",
+    "type": "integer"
+  },
+  "buildings.flowers.cost": {
+    "default": 220,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR",
+    "description": "flowers: cost",
+    "type": "number"
+  },
+  "buildings.flowers.buildHours": {
+    "default": 6,
+    "min": 1,
+    "max": 1000,
+    "unit": "hours",
+    "description": "flowers: buildHours",
+    "type": "number"
+  },
+  "buildings.flowers.upkeepDaily": {
+    "default": 1,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/day",
+    "description": "flowers: upkeepDaily",
+    "type": "number"
+  },
+  "buildings.flowers.maxLevel": {
+    "default": 3,
+    "min": 1,
+    "max": 3,
+    "unit": "levels",
+    "description": "flowers: maxLevel",
+    "type": "integer"
+  },
+  "buildings.flowers.unlockReputation": {
+    "default": 0,
+    "min": 0,
+    "max": 100,
+    "unit": "reputation points",
+    "description": "flowers: unlockReputation",
+    "type": "integer"
+  },
+  "goods.wheat.basePrice": {
+    "default": 0.55,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "wheat: basePrice",
+    "type": "number"
+  },
+  "goods.wheat.spoilageDaily": {
+    "default": 0.002,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "wheat: spoilageDaily",
+    "type": "number"
+  },
+  "goods.bean.basePrice": {
+    "default": 1.05,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "bean: basePrice",
+    "type": "number"
+  },
+  "goods.bean.spoilageDaily": {
+    "default": 0.003,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "bean: spoilageDaily",
+    "type": "number"
+  },
+  "goods.sunflower.basePrice": {
+    "default": 0.85,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "sunflower: basePrice",
+    "type": "number"
+  },
+  "goods.sunflower.spoilageDaily": {
+    "default": 0.002,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "sunflower: spoilageDaily",
+    "type": "number"
+  },
+  "goods.potato.basePrice": {
+    "default": 0.75,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "potato: basePrice",
+    "type": "number"
+  },
+  "goods.potato.spoilageDaily": {
+    "default": 0.012,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "potato: spoilageDaily",
+    "type": "number"
+  },
+  "goods.strawberry.basePrice": {
+    "default": 3.8,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "strawberry: basePrice",
+    "type": "number"
+  },
+  "goods.strawberry.spoilageDaily": {
+    "default": 0.12,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "strawberry: spoilageDaily",
+    "type": "number"
+  },
+  "goods.barley.basePrice": {
+    "default": 0.62,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "barley: basePrice",
+    "type": "number"
+  },
+  "goods.barley.spoilageDaily": {
+    "default": 0.003,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "barley: spoilageDaily",
+    "type": "number"
+  },
+  "goods.carrot.basePrice": {
+    "default": 1.25,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "carrot: basePrice",
+    "type": "number"
+  },
+  "goods.carrot.spoilageDaily": {
+    "default": 0.023,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "carrot: spoilageDaily",
+    "type": "number"
+  },
+  "goods.lettuce.basePrice": {
+    "default": 2.2,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "lettuce: basePrice",
+    "type": "number"
+  },
+  "goods.lettuce.spoilageDaily": {
+    "default": 0.09,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "lettuce: spoilageDaily",
+    "type": "number"
+  },
+  "goods.feed.basePrice": {
+    "default": 0.6,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "feed: basePrice",
+    "type": "number"
+  },
+  "goods.feed.spoilageDaily": {
+    "default": 0.002,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "feed: spoilageDaily",
+    "type": "number"
+  },
+  "goods.eggs.basePrice": {
+    "default": 5.2,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "eggs: basePrice",
+    "type": "number"
+  },
+  "goods.eggs.spoilageDaily": {
+    "default": 0.025,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "eggs: spoilageDaily",
+    "type": "number"
+  },
+  "goods.milk.basePrice": {
+    "default": 2.1,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "milk: basePrice",
+    "type": "number"
+  },
+  "goods.milk.spoilageDaily": {
+    "default": 0.12,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "milk: spoilageDaily",
+    "type": "number"
+  },
+  "goods.honey.basePrice": {
+    "default": 9,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "honey: basePrice",
+    "type": "number"
+  },
+  "goods.honey.spoilageDaily": {
+    "default": 0.001,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "honey: spoilageDaily",
+    "type": "number"
+  },
+  "goods.flour.basePrice": {
+    "default": 1.35,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "flour: basePrice",
+    "type": "number"
+  },
+  "goods.flour.spoilageDaily": {
+    "default": 0.006,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "flour: spoilageDaily",
+    "type": "number"
+  },
+  "goods.oil.basePrice": {
+    "default": 4.2,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "oil: basePrice",
+    "type": "number"
+  },
+  "goods.oil.spoilageDaily": {
+    "default": 0.002,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "oil: spoilageDaily",
+    "type": "number"
+  },
+  "goods.cheese.basePrice": {
+    "default": 12,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "cheese: basePrice",
+    "type": "number"
+  },
+  "goods.cheese.spoilageDaily": {
+    "default": 0.012,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "cheese: spoilageDaily",
+    "type": "number"
+  },
+  "goods.jam.basePrice": {
+    "default": 7.4,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "jam: basePrice",
+    "type": "number"
+  },
+  "goods.jam.spoilageDaily": {
+    "default": 0.004,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "jam: spoilageDaily",
+    "type": "number"
+  },
+  "goods.wool.basePrice": {
+    "default": 5.8,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "wool: basePrice",
+    "type": "number"
+  },
+  "goods.wool.spoilageDaily": {
+    "default": 0.001,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "wool: spoilageDaily",
+    "type": "number"
+  },
+  "goods.fiber.basePrice": {
+    "default": 13,
+    "min": 0,
+    "max": 1000,
+    "unit": "EUR/kg",
+    "description": "fiber: basePrice",
+    "type": "number"
+  },
+  "goods.fiber.spoilageDaily": {
+    "default": 0.001,
+    "min": 0,
+    "max": 1,
+    "unit": "fraction/day",
+    "description": "fiber: spoilageDaily",
+    "type": "number"
+  },
+  "animals.hen.price": {
+    "default": 28,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/animal",
+    "description": "hen: price",
+    "type": "number"
+  },
+  "animals.hen.feedKgDaily": {
+    "default": 0.12,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "hen: feedKgDaily",
+    "type": "number"
+  },
+  "animals.hen.produceKgDaily": {
+    "default": 0.055,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "hen: produceKgDaily",
+    "type": "number"
+  },
+  "animals.hen.capacityPerLevel": {
+    "default": 12,
+    "min": 0,
+    "max": 100,
+    "unit": "animals/level",
+    "description": "hen: capacityPerLevel",
+    "type": "integer"
+  },
+  "animals.hen.waterM3Daily": {
+    "default": 0.00025,
+    "min": 0,
+    "max": 100,
+    "unit": "m³/animal/day",
+    "description": "hen: waterM3Daily",
+    "type": "number"
+  },
+  "animals.goat.price": {
+    "default": 210,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/animal",
+    "description": "goat: price",
+    "type": "number"
+  },
+  "animals.goat.feedKgDaily": {
+    "default": 1.2,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "goat: feedKgDaily",
+    "type": "number"
+  },
+  "animals.goat.produceKgDaily": {
+    "default": 2.4,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "goat: produceKgDaily",
+    "type": "number"
+  },
+  "animals.goat.capacityPerLevel": {
+    "default": 5,
+    "min": 0,
+    "max": 100,
+    "unit": "animals/level",
+    "description": "goat: capacityPerLevel",
+    "type": "integer"
+  },
+  "animals.goat.waterM3Daily": {
+    "default": 0.01,
+    "min": 0,
+    "max": 100,
+    "unit": "m³/animal/day",
+    "description": "goat: waterM3Daily",
+    "type": "number"
+  },
+  "animals.duck.price": {
+    "default": 34,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/animal",
+    "description": "duck: price",
+    "type": "number"
+  },
+  "animals.duck.feedKgDaily": {
+    "default": 0.18,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "duck: feedKgDaily",
+    "type": "number"
+  },
+  "animals.duck.produceKgDaily": {
+    "default": 0.075,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "duck: produceKgDaily",
+    "type": "number"
+  },
+  "animals.duck.capacityPerLevel": {
+    "default": 12,
+    "min": 0,
+    "max": 100,
+    "unit": "animals/level",
+    "description": "duck: capacityPerLevel",
+    "type": "integer"
+  },
+  "animals.duck.waterM3Daily": {
+    "default": 0.0008,
+    "min": 0,
+    "max": 100,
+    "unit": "m³/animal/day",
+    "description": "duck: waterM3Daily",
+    "type": "number"
+  },
+  "animals.sheep.price": {
+    "default": 165,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/animal",
+    "description": "sheep: price",
+    "type": "number"
+  },
+  "animals.sheep.feedKgDaily": {
+    "default": 0.95,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "sheep: feedKgDaily",
+    "type": "number"
+  },
+  "animals.sheep.produceKgDaily": {
+    "default": 0.055,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "sheep: produceKgDaily",
+    "type": "number"
+  },
+  "animals.sheep.capacityPerLevel": {
+    "default": 5,
+    "min": 0,
+    "max": 100,
+    "unit": "animals/level",
+    "description": "sheep: capacityPerLevel",
+    "type": "integer"
+  },
+  "animals.sheep.waterM3Daily": {
+    "default": 0.008,
+    "min": 0,
+    "max": 100,
+    "unit": "m³/animal/day",
+    "description": "sheep: waterM3Daily",
+    "type": "number"
+  },
+  "animals.rabbit.price": {
+    "default": 45,
+    "min": 0,
+    "max": 100000,
+    "unit": "EUR/animal",
+    "description": "rabbit: price",
+    "type": "number"
+  },
+  "animals.rabbit.feedKgDaily": {
+    "default": 0.13,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "rabbit: feedKgDaily",
+    "type": "number"
+  },
+  "animals.rabbit.produceKgDaily": {
+    "default": 0.028,
+    "min": 0,
+    "max": 100,
+    "unit": "kg/animal/day",
+    "description": "rabbit: produceKgDaily",
+    "type": "number"
+  },
+  "animals.rabbit.capacityPerLevel": {
+    "default": 10,
+    "min": 0,
+    "max": 100,
+    "unit": "animals/level",
+    "description": "rabbit: capacityPerLevel",
+    "type": "integer"
+  },
+  "animals.rabbit.waterM3Daily": {
+    "default": 0.00025,
+    "min": 0,
+    "max": 100,
+    "unit": "m³/animal/day",
+    "description": "rabbit: waterM3Daily",
+    "type": "number"
+  },
+  "talents.mulchMastery": {
+    "default": 0.15,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "mulchMastery: learned skill modifier",
+    "type": "number"
+  },
+  "talents.rainCapture": {
+    "default": 0.15,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "rainCapture: learned skill modifier",
+    "type": "number"
+  },
+  "talents.greenThumb": {
+    "default": 0.15,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "greenThumb: learned skill modifier",
+    "type": "number"
+  },
+  "talents.observation": {
+    "default": 0.2,
+    "min": 0,
+    "max": 2,
+    "unit": "fraction",
+    "description": "observation: learned skill modifier",
+    "type": "number"
+  },
+  "talents.gentleControl": {
+    "default": 0.4,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "gentleControl: learned skill modifier",
+    "type": "number"
+  },
+  "talents.rancher": {
+    "default": 0.15,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "rancher: learned skill modifier",
+    "type": "number"
+  },
+  "talents.efficientWork": {
+    "default": 0.1,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "efficientWork: learned skill modifier",
+    "type": "number"
+  },
+  "talents.seedSteward": {
+    "default": 0.15,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "seedSteward: learned skill modifier",
+    "type": "number"
+  },
+  "talents.builder": {
+    "default": 0.2,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "builder: learned skill modifier",
+    "type": "number"
+  },
+  "talents.moistureSense": {
+    "default": 0.08,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "moistureSense: learned skill modifier",
+    "type": "number"
+  },
+  "talents.hillGrower": {
+    "default": 0.1,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "hillGrower: learned skill modifier",
+    "type": "number"
+  },
+  "talents.rainPlanner": {
+    "default": 0.1,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "rainPlanner: learned skill modifier",
+    "type": "number"
+  },
+  "talents.pestScout": {
+    "default": 0.1,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "pestScout: learned skill modifier",
+    "type": "number"
+  },
+  "talents.diseaseReader": {
+    "default": 0.14,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "diseaseReader: learned skill modifier",
+    "type": "number"
+  },
+  "talents.habitatWarden": {
+    "default": 0.18,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "habitatWarden: learned skill modifier",
+    "type": "number"
+  },
+  "talents.fairTrader": {
+    "default": 0.08,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "fairTrader: learned skill modifier",
+    "type": "number"
+  },
+  "talents.storageCare": {
+    "default": 0.18,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "storageCare: learned skill modifier",
+    "type": "number"
+  },
+  "talents.artisanHands": {
+    "default": 0.15,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "artisanHands: learned skill modifier",
+    "type": "number"
+  },
+  "talents.happyHerd": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "happyHerd: learned skill modifier",
+    "type": "number"
+  },
+  "talents.feedPlanner": {
+    "default": 0.1,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "feedPlanner: learned skill modifier",
+    "type": "number"
+  },
+  "talents.gentleGrazing": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.75,
+    "unit": "fraction",
+    "description": "gentleGrazing: learned skill modifier",
+    "type": "number"
+  },
+  "courses.soil.cost": {
+    "default": 95,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR",
+    "description": "Vocational tuition cost",
+    "type": "number"
+  },
+  "courses.soil.hours": {
+    "default": 12,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Training duration",
+    "type": "integer"
+  },
+  "courses.soil.bonus": {
+    "default": 0.1,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction",
+    "description": "Course modifier",
+    "type": "number"
+  },
+  "courses.water.cost": {
+    "default": 120,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR",
+    "description": "Vocational tuition cost",
+    "type": "number"
+  },
+  "courses.water.hours": {
+    "default": 16,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Training duration",
+    "type": "integer"
+  },
+  "courses.water.bonus": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction",
+    "description": "Course modifier",
+    "type": "number"
+  },
+  "courses.ecology.cost": {
+    "default": 165,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR",
+    "description": "Vocational tuition cost",
+    "type": "number"
+  },
+  "courses.ecology.hours": {
+    "default": 20,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Training duration",
+    "type": "integer"
+  },
+  "courses.ecology.bonus": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction",
+    "description": "Course modifier",
+    "type": "number"
+  },
+  "courses.livestock.cost": {
+    "default": 195,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR",
+    "description": "Vocational tuition cost",
+    "type": "number"
+  },
+  "courses.livestock.hours": {
+    "default": 24,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Training duration",
+    "type": "integer"
+  },
+  "courses.livestock.bonus": {
+    "default": 0.1,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction",
+    "description": "Course modifier",
+    "type": "number"
+  },
+  "courses.craft.cost": {
+    "default": 215,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR",
+    "description": "Vocational tuition cost",
+    "type": "number"
+  },
+  "courses.craft.hours": {
+    "default": 24,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Training duration",
+    "type": "integer"
+  },
+  "courses.craft.bonus": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction",
+    "description": "Course modifier",
+    "type": "number"
+  },
+  "courses.trade.cost": {
+    "default": 175,
+    "min": 0,
+    "max": 10000,
+    "unit": "EUR",
+    "description": "Vocational tuition cost",
+    "type": "number"
+  },
+  "courses.trade.hours": {
+    "default": 18,
+    "min": 1,
+    "max": 240,
+    "unit": "hours",
+    "description": "Training duration",
+    "type": "integer"
+  },
+  "courses.trade.bonus": {
+    "default": 0.05,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction",
+    "description": "Course modifier",
+    "type": "number"
+  },
+  "terrain.loam.rain": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "loam land: rain",
+    "type": "number"
+  },
+  "terrain.loam.evap": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "loam land: evap",
+    "type": "number"
+  },
+  "terrain.loam.temp": {
+    "default": 0,
+    "min": -10,
+    "max": 10,
+    "unit": "°C offset",
+    "description": "loam land: temp",
+    "type": "number"
+  },
+  "terrain.loam.slugs": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "loam land: slugs",
+    "type": "number"
+  },
+  "terrain.loam.mites": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "loam land: mites",
+    "type": "number"
+  },
+  "terrain.loam.rootRot": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "loam land: rootRot",
+    "type": "number"
+  },
+  "terrain.loam.bees": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "loam land: bees",
+    "type": "number"
+  },
+  "terrain.stream.rain": {
+    "default": 1.18,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "stream land: rain",
+    "type": "number"
+  },
+  "terrain.stream.evap": {
+    "default": 0.9,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "stream land: evap",
+    "type": "number"
+  },
+  "terrain.stream.temp": {
+    "default": -1,
+    "min": -10,
+    "max": 10,
+    "unit": "°C offset",
+    "description": "stream land: temp",
+    "type": "number"
+  },
+  "terrain.stream.slugs": {
+    "default": 1.3,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "stream land: slugs",
+    "type": "number"
+  },
+  "terrain.stream.mites": {
+    "default": 0.85,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "stream land: mites",
+    "type": "number"
+  },
+  "terrain.stream.rootRot": {
+    "default": 1.1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "stream land: rootRot",
+    "type": "number"
+  },
+  "terrain.stream.bees": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "stream land: bees",
+    "type": "number"
+  },
+  "terrain.hill.rain": {
+    "default": 0.83,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "hill land: rain",
+    "type": "number"
+  },
+  "terrain.hill.evap": {
+    "default": 1.15,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "hill land: evap",
+    "type": "number"
+  },
+  "terrain.hill.temp": {
+    "default": 1.5,
+    "min": -10,
+    "max": 10,
+    "unit": "°C offset",
+    "description": "hill land: temp",
+    "type": "number"
+  },
+  "terrain.hill.slugs": {
+    "default": 0.8,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "hill land: slugs",
+    "type": "number"
+  },
+  "terrain.hill.mites": {
+    "default": 1.25,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "hill land: mites",
+    "type": "number"
+  },
+  "terrain.hill.rootRot": {
+    "default": 0.8,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "hill land: rootRot",
+    "type": "number"
+  },
+  "terrain.hill.bees": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "hill land: bees",
+    "type": "number"
+  },
+  "terrain.clay.rain": {
+    "default": 0.93,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "clay land: rain",
+    "type": "number"
+  },
+  "terrain.clay.evap": {
+    "default": 0.82,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "clay land: evap",
+    "type": "number"
+  },
+  "terrain.clay.temp": {
+    "default": -0.4,
+    "min": -10,
+    "max": 10,
+    "unit": "°C offset",
+    "description": "clay land: temp",
+    "type": "number"
+  },
+  "terrain.clay.slugs": {
+    "default": 1.25,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "clay land: slugs",
+    "type": "number"
+  },
+  "terrain.clay.mites": {
+    "default": 0.85,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "clay land: mites",
+    "type": "number"
+  },
+  "terrain.clay.rootRot": {
+    "default": 1.4,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "clay land: rootRot",
+    "type": "number"
+  },
+  "terrain.clay.bees": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "clay land: bees",
+    "type": "number"
+  },
+  "terrain.sand.rain": {
+    "default": 0.94,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "sand land: rain",
+    "type": "number"
+  },
+  "terrain.sand.evap": {
+    "default": 1.24,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "sand land: evap",
+    "type": "number"
+  },
+  "terrain.sand.temp": {
+    "default": 1,
+    "min": -10,
+    "max": 10,
+    "unit": "°C offset",
+    "description": "sand land: temp",
+    "type": "number"
+  },
+  "terrain.sand.slugs": {
+    "default": 0.65,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "sand land: slugs",
+    "type": "number"
+  },
+  "terrain.sand.mites": {
+    "default": 1.38,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "sand land: mites",
+    "type": "number"
+  },
+  "terrain.sand.rootRot": {
+    "default": 0.65,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "sand land: rootRot",
+    "type": "number"
+  },
+  "terrain.sand.bees": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "sand land: bees",
+    "type": "number"
+  },
+  "terrain.wild.rain": {
+    "default": 1.02,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "wild land: rain",
+    "type": "number"
+  },
+  "terrain.wild.evap": {
+    "default": 0.98,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "wild land: evap",
+    "type": "number"
+  },
+  "terrain.wild.temp": {
+    "default": 0,
+    "min": -10,
+    "max": 10,
+    "unit": "°C offset",
+    "description": "wild land: temp",
+    "type": "number"
+  },
+  "terrain.wild.slugs": {
+    "default": 1.12,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "wild land: slugs",
+    "type": "number"
+  },
+  "terrain.wild.mites": {
+    "default": 0.92,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "wild land: mites",
+    "type": "number"
+  },
+  "terrain.wild.rootRot": {
+    "default": 1,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "wild land: rootRot",
+    "type": "number"
+  },
+  "terrain.wild.bees": {
+    "default": 1.25,
+    "min": 0,
+    "max": 3,
+    "unit": "ratio",
+    "description": "wild land: bees",
+    "type": "number"
+  },
+  "courses.academyTuitionDiscount": {
+    "default": 0.12,
+    "min": 0,
+    "max": 0.5,
+    "unit": "fraction/level",
+    "description": "Tuition discount from learning cottage levels",
+    "type": "number"
+  }
+}

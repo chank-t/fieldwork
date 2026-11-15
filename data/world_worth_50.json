@@ -1,0 +1,769 @@
+{
+  "version": 1,
+  "npc_chapters": {
+    "ines": [
+      {
+        "title": {
+          "en": "The first grain sack",
+          "es": "El primer saco de grano"
+        },
+        "description": {
+          "en": "Help Inés reopen the community bakery.",
+          "es": "Ayuda a Inés a reabrir la panadería comunitaria."
+        },
+        "good": "wheat",
+        "kg": 12,
+        "cash": 78,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "Berries for breakfast",
+          "es": "Bayas para desayunar"
+        },
+        "description": {
+          "en": "Supply fresh berries for the morning market.",
+          "es": "Lleva bayas frescas para el mercado matinal."
+        },
+        "good": "berries",
+        "kg": 6,
+        "cash": 105,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "The harvest celebration",
+          "es": "La celebración de la cosecha"
+        },
+        "description": {
+          "en": "Bring flour for a neighbourhood bread day.",
+          "es": "Aporta harina para el día del pan del barrio."
+        },
+        "good": "flour",
+        "kg": 8,
+        "cash": 185,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "mateo": [
+      {
+        "title": {
+          "en": "A leaky channel",
+          "es": "Una acequia con fugas"
+        },
+        "description": {
+          "en": "Gather reeds to reinforce the irrigation ditch.",
+          "es": "Recoge juncos para reforzar la acequia."
+        },
+        "good": "reeds",
+        "kg": 5,
+        "cash": 90,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "Banks of the river",
+          "es": "Las orillas del río"
+        },
+        "description": {
+          "en": "Help repair a channel with local clay.",
+          "es": "Repara un canal con arcilla del valle."
+        },
+        "good": "clay",
+        "kg": 7,
+        "cash": 120,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "Shared irrigation",
+          "es": "Riego compartido"
+        },
+        "description": {
+          "en": "Contribute materials to the new irrigation junction.",
+          "es": "Aporta piedra al nuevo repartidor de riego."
+        },
+        "good": "stone",
+        "kg": 9,
+        "cash": 205,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "rosa": [
+      {
+        "title": {
+          "en": "Feed for winter",
+          "es": "Pienso para el invierno"
+        },
+        "description": {
+          "en": "Share feed while the co-operative shelter is repaired.",
+          "es": "Comparte pienso mientras reparan el refugio comunal."
+        },
+        "good": "feed",
+        "kg": 12,
+        "cash": 95,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "The village dairy",
+          "es": "La lechería del pueblo"
+        },
+        "description": {
+          "en": "Deliver milk to help keep the dairy running.",
+          "es": "Entrega leche para mantener la lechería."
+        },
+        "good": "milk",
+        "kg": 8,
+        "cash": 150,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "A new beginning",
+          "es": "Un nuevo comienzo"
+        },
+        "description": {
+          "en": "Bring cheese for the community animal fair.",
+          "es": "Lleva queso a la feria de animales del pueblo."
+        },
+        "good": "cheese",
+        "kg": 4,
+        "cash": 215,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "bruno": [
+      {
+        "title": {
+          "en": "The old fence",
+          "es": "La cerca antigua"
+        },
+        "description": {
+          "en": "Bring timber to fix the old path fence.",
+          "es": "Aporta madera para reparar la valla del camino."
+        },
+        "good": "timber",
+        "kg": 6,
+        "cash": 90,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "A safe bridge",
+          "es": "Un puente seguro"
+        },
+        "description": {
+          "en": "Help Bruno rebuild the footbridge with stone.",
+          "es": "Ayuda a Bruno a reconstruir la pasarela con piedra."
+        },
+        "good": "stone",
+        "kg": 9,
+        "cash": 130,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "The village oven",
+          "es": "El horno del pueblo"
+        },
+        "description": {
+          "en": "Supply flour for the communal oven opening.",
+          "es": "Aporta harina para inaugurar el horno comunitario."
+        },
+        "good": "flour",
+        "kg": 7,
+        "cash": 185,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "lila": [
+      {
+        "title": {
+          "en": "Wildflower corridor",
+          "es": "Corredor de flores"
+        },
+        "description": {
+          "en": "Protect pollinators by planting a flowering strip.",
+          "es": "Protege a los polinizadores con un corredor floral."
+        },
+        "good": "wildflowers",
+        "kg": 5,
+        "cash": 95,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "The herbal garden",
+          "es": "El jardín medicinal"
+        },
+        "description": {
+          "en": "Collect herbs for the community garden.",
+          "es": "Recoge hierbas para el jardín comunitario."
+        },
+        "good": "herbs",
+        "kg": 6,
+        "cash": 140,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "Honey for the valley",
+          "es": "Miel para el valle"
+        },
+        "description": {
+          "en": "Supply honey for a pollinator workshop.",
+          "es": "Aporta miel para un taller de polinizadores."
+        },
+        "good": "honey",
+        "kg": 5,
+        "cash": 210,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "clara": [
+      {
+        "title": {
+          "en": "Market breakfast",
+          "es": "Desayuno de mercado"
+        },
+        "description": {
+          "en": "Deliver wheat to Clara at the village market.",
+          "es": "Entrega trigo a Clara en el mercado."
+        },
+        "good": "wheat",
+        "kg": 16,
+        "cash": 100,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "The mill contract",
+          "es": "El contrato del molino"
+        },
+        "description": {
+          "en": "Bring flour for the weekend stalls.",
+          "es": "Lleva harina para los puestos del fin de semana."
+        },
+        "good": "flour",
+        "kg": 9,
+        "cash": 160,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "The preserve stand",
+          "es": "Puesto de conservas"
+        },
+        "description": {
+          "en": "Supply jam for the new artisan stall.",
+          "es": "Aporta mermelada al puesto artesanal."
+        },
+        "good": "jam",
+        "kg": 5,
+        "cash": 235,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "elena": [
+      {
+        "title": {
+          "en": "Seeds to share",
+          "es": "Semillas para compartir"
+        },
+        "description": {
+          "en": "Bring carrots for the school garden.",
+          "es": "Lleva zanahorias al huerto escolar."
+        },
+        "good": "carrot",
+        "kg": 12,
+        "cash": 105,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "A press demonstration",
+          "es": "Demostración de almazara"
+        },
+        "description": {
+          "en": "Supply sunflower oil for a farmers workshop.",
+          "es": "Aporta aceite de girasol a un taller agrícola."
+        },
+        "good": "oil",
+        "kg": 6,
+        "cash": 155,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "The craft kiln",
+          "es": "El horno de artesanía"
+        },
+        "description": {
+          "en": "Donate clay for the school craft kiln.",
+          "es": "Aporta arcilla al horno de artesanía escolar."
+        },
+        "good": "clay",
+        "kg": 10,
+        "cash": 205,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "paco": [
+      {
+        "title": {
+          "en": "The stone terrace",
+          "es": "La terraza de piedra"
+        },
+        "description": {
+          "en": "Help repair an old stone terrace.",
+          "es": "Ayuda a reparar una vieja terraza de piedra."
+        },
+        "good": "stone",
+        "kg": 8,
+        "cash": 100,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "Tomatoes for the square",
+          "es": "Tomates para la plaza"
+        },
+        "description": {
+          "en": "Supply tomatoes for the local food stall.",
+          "es": "Lleva tomates a un puesto de comida local."
+        },
+        "good": "tomato",
+        "kg": 12,
+        "cash": 165,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "A family recipe",
+          "es": "Una receta familiar"
+        },
+        "description": {
+          "en": "Prepare tomato sauce for the village kitchen.",
+          "es": "Prepara salsa de tomate para la cocina del pueblo."
+        },
+        "good": "tomato_sauce",
+        "kg": 5,
+        "cash": 235,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "omar": [
+      {
+        "title": {
+          "en": "Beans for the neighbours",
+          "es": "Judías para los vecinos"
+        },
+        "description": {
+          "en": "Share beans with families affected by a poor harvest.",
+          "es": "Comparte judías con familias afectadas por una mala cosecha."
+        },
+        "good": "bean",
+        "kg": 14,
+        "cash": 105,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "Reedwork tradition",
+          "es": "Tradición de juncos"
+        },
+        "description": {
+          "en": "Bring reeds to the village weaving workshop.",
+          "es": "Lleva juncos al taller de cestería del pueblo."
+        },
+        "good": "reeds",
+        "kg": 9,
+        "cash": 155,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "The harvest supper",
+          "es": "La cena de la cosecha"
+        },
+        "description": {
+          "en": "Supply cornmeal for the communal evening meal.",
+          "es": "Aporta harina de maíz a la cena comunitaria."
+        },
+        "good": "cornmeal",
+        "kg": 8,
+        "cash": 220,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ],
+    "sofia": [
+      {
+        "title": {
+          "en": "Berry trail",
+          "es": "Sendero de bayas"
+        },
+        "description": {
+          "en": "Bring berries for the walking club.",
+          "es": "Lleva bayas al club de senderismo."
+        },
+        "good": "berries",
+        "kg": 7,
+        "cash": 100,
+        "xp": 22,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "Lavender meadow",
+          "es": "Pradera de lavanda"
+        },
+        "description": {
+          "en": "Provide lavender for the seasonal walk.",
+          "es": "Aporta lavanda al paseo estacional."
+        },
+        "good": "lavender",
+        "kg": 9,
+        "cash": 150,
+        "xp": 34,
+        "trust": 1,
+        "cooldown_hours": 24
+      },
+      {
+        "title": {
+          "en": "A welcome table",
+          "es": "Una mesa de bienvenida"
+        },
+        "description": {
+          "en": "Supply jam to welcome new valley families.",
+          "es": "Lleva mermelada para recibir a nuevas familias."
+        },
+        "good": "jam",
+        "kg": 5,
+        "cash": 210,
+        "xp": 46,
+        "trust": 2,
+        "cooldown_hours": 24
+      }
+    ]
+  },
+  "certifications": {
+    "soil_specialist": {
+      "name": {
+        "en": "Soil specialist",
+        "es": "Especialista en suelos"
+      },
+      "description": {
+        "en": "Field scouting costs less.",
+        "es": "Los análisis de plagas cuestan menos."
+      },
+      "track": "ecology",
+      "xp": 100,
+      "stat": "inspections",
+      "target": 5,
+      "course": "ecology",
+      "fee": 125,
+      "xp_reward": 80
+    },
+    "water_engineer": {
+      "name": {
+        "en": "Water engineer",
+        "es": "Técnico de riego"
+      },
+      "description": {
+        "en": "Irrigation consumes less reservoir water.",
+        "es": "El riego consume menos agua del depósito."
+      },
+      "track": "farming",
+      "xp": 180,
+      "stat": "fields_bought",
+      "target": 1,
+      "course": "water",
+      "fee": 155,
+      "xp_reward": 80
+    },
+    "animal_carer": {
+      "name": {
+        "en": "Animal carer",
+        "es": "Cuidador de animales"
+      },
+      "description": {
+        "en": "Veterinary visits cost less.",
+        "es": "Las visitas veterinarias cuestan menos."
+      },
+      "track": "livestock",
+      "xp": 125,
+      "stat": "animal_kg",
+      "target": 8,
+      "course": "livestock",
+      "fee": 135,
+      "xp_reward": 80
+    },
+    "master_mechanic": {
+      "name": {
+        "en": "Master mechanic",
+        "es": "Maestro mecánico"
+      },
+      "description": {
+        "en": "Repair and servicing cost less.",
+        "es": "El mantenimiento de maquinaria cuesta menos."
+      },
+      "track": "crafting",
+      "xp": 160,
+      "stat": "buildings_completed",
+      "target": 2,
+      "course": "craft",
+      "fee": 170,
+      "xp_reward": 80
+    },
+    "market_mentor": {
+      "name": {
+        "en": "Market mentor",
+        "es": "Experto comercial"
+      },
+      "description": {
+        "en": "Real market sales receive a small premium.",
+        "es": "Las ventas reciben una pequeña prima."
+      },
+      "track": "trading",
+      "xp": 145,
+      "stat": "sold_kg",
+      "target": 60,
+      "course": "trade",
+      "fee": 185,
+      "xp_reward": 80
+    },
+    "artisan_master": {
+      "name": {
+        "en": "Artisan master",
+        "es": "Maestro artesano"
+      },
+      "description": {
+        "en": "Processing batches yield slightly more product.",
+        "es": "Los lotes elaborados producen un poco más."
+      },
+      "track": "crafting",
+      "xp": 200,
+      "stat": "processed_kg",
+      "target": 25,
+      "course": "craft",
+      "fee": 200,
+      "xp_reward": 80
+    }
+  },
+  "festivals": {
+    "spring": {
+      "name": {
+        "en": "Blossom Festival",
+        "es": "Festival de la Floración"
+      },
+      "theme": {
+        "en": "The village welcomes its first crops and wildflowers.",
+        "es": "El pueblo celebra sus primeros cultivos y flores silvestres."
+      },
+      "entries": {
+        "produce": {
+          "good": "lettuce",
+          "kg": 10
+        },
+        "artisan": {
+          "good": "cheese",
+          "kg": 4
+        },
+        "community": {
+          "good": "wildflowers",
+          "kg": 5
+        }
+      }
+    },
+    "summer": {
+      "name": {
+        "en": "Summer Fair",
+        "es": "Feria de Verano"
+      },
+      "theme": {
+        "en": "Show the valley what your farm has grown.",
+        "es": "Muestra al valle lo que ha producido tu finca."
+      },
+      "entries": {
+        "produce": {
+          "good": "tomato",
+          "kg": 12
+        },
+        "artisan": {
+          "good": "jam",
+          "kg": 5
+        },
+        "community": {
+          "good": "berries",
+          "kg": 6
+        }
+      }
+    },
+    "autumn": {
+      "name": {
+        "en": "Harvest Festival",
+        "es": "Festival de la Cosecha"
+      },
+      "theme": {
+        "en": "Celebrate the work of a changing season.",
+        "es": "Celebra el trabajo de una estación que termina."
+      },
+      "entries": {
+        "produce": {
+          "good": "pumpkin",
+          "kg": 12
+        },
+        "artisan": {
+          "good": "flour",
+          "kg": 8
+        },
+        "community": {
+          "good": "honey",
+          "kg": 5
+        }
+      }
+    },
+    "winter": {
+      "name": {
+        "en": "Hearth Gathering",
+        "es": "Encuentro de Invierno"
+      },
+      "theme": {
+        "en": "Share food and warmth with neighbours.",
+        "es": "Comparte comida y calor con tus vecinos."
+      },
+      "entries": {
+        "produce": {
+          "good": "potato",
+          "kg": 10
+        },
+        "artisan": {
+          "good": "cornmeal",
+          "kg": 7
+        },
+        "community": {
+          "good": "herbs",
+          "kg": 6
+        }
+      }
+    }
+  },
+  "season_goals": {
+    "spring": {
+      "stat": "inspections",
+      "target": 4,
+      "cash": 105,
+      "xp": 65,
+      "name": {
+        "en": "Inspect four fields",
+        "es": "Inspecciona cuatro parcelas"
+      }
+    },
+    "summer": {
+      "stat": "harvest_kg",
+      "target": 60,
+      "cash": 145,
+      "xp": 75,
+      "name": {
+        "en": "Harvest 60 kg",
+        "es": "Cosecha 60 kg"
+      }
+    },
+    "autumn": {
+      "stat": "processed_kg",
+      "target": 20,
+      "cash": 165,
+      "xp": 85,
+      "name": {
+        "en": "Process 20 kg",
+        "es": "Elabora 20 kg"
+      }
+    },
+    "winter": {
+      "stat": "sold_kg",
+      "target": 40,
+      "cash": 130,
+      "xp": 70,
+      "name": {
+        "en": "Sell 40 kg",
+        "es": "Vende 40 kg"
+      }
+    }
+  },
+  "season_order": [
+    "spring",
+    "summer",
+    "autumn",
+    "winter"
+  ],
+  "entry_labels": {
+    "produce": {
+      "en": "Produce exhibit",
+      "es": "Exposición de cosechas"
+    },
+    "artisan": {
+      "en": "Artisan exhibit",
+      "es": "Muestra artesanal"
+    },
+    "community": {
+      "en": "Community contribution",
+      "es": "Aportación comunitaria"
+    }
+  }
+}

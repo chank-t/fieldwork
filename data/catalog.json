@@ -1,0 +1,3192 @@
+{
+  "crops": {
+    "wheat": {
+      "name": {
+        "en": "Wheat",
+        "es": "Trigo"
+      },
+      "description": {
+        "en": "A dependable cereal. Cold tolerant; repeated cereal crops build root risk.",
+        "es": "Un cereal resistente al frío. Repetirlo aumenta el riesgo de raíces."
+      },
+      "family": "cereal",
+      "color": "#d7ad4e",
+      "growHours": 120,
+      "biomassMax": 15000,
+      "harvestIndex": 0.46,
+      "seedCost": 160,
+      "plantLabor": 2,
+      "harvestLabor": 5,
+      "nPerBiomass": 0.017,
+      "pPerBiomass": 0.0028,
+      "kPerBiomass": 0.017,
+      "seedN": 3,
+      "seedP": 0.45,
+      "seedK": 0.65,
+      "pollinationDependence": 0,
+      "baseTempC": 2,
+      "optimumTempC": 20
+    },
+    "bean": {
+      "name": {
+        "en": "Field beans",
+        "es": "Habas"
+      },
+      "description": {
+        "en": "Legumes can fix atmospheric nitrogen. A useful break from cereals.",
+        "es": "Las leguminosas fijan nitrógeno atmosférico y rompen la rotación de cereales."
+      },
+      "family": "legume",
+      "color": "#7cb36a",
+      "growHours": 96,
+      "biomassMax": 11000,
+      "harvestIndex": 0.4,
+      "seedCost": 240,
+      "plantLabor": 2.4,
+      "harvestLabor": 6,
+      "nPerBiomass": 0.025,
+      "pPerBiomass": 0.0035,
+      "kPerBiomass": 0.02,
+      "seedN": 6,
+      "seedP": 0.7,
+      "seedK": 1.1,
+      "pollinationDependence": 0.12,
+      "baseTempC": 6,
+      "optimumTempC": 21
+    },
+    "sunflower": {
+      "name": {
+        "en": "Sunflower",
+        "es": "Girasol"
+      },
+      "description": {
+        "en": "Bee visits help fill seeds. The press turns its harvest into oil.",
+        "es": "Las abejas ayudan a llenar las semillas. La prensa convierte la cosecha en aceite."
+      },
+      "family": "oilseed",
+      "color": "#eac62e",
+      "growHours": 144,
+      "biomassMax": 13000,
+      "harvestIndex": 0.35,
+      "seedCost": 150,
+      "plantLabor": 2,
+      "harvestLabor": 5,
+      "nPerBiomass": 0.019,
+      "pPerBiomass": 0.0032,
+      "kPerBiomass": 0.022,
+      "seedN": 2.5,
+      "seedP": 0.5,
+      "seedK": 0.9,
+      "pollinationDependence": 0.4,
+      "baseTempC": 8,
+      "optimumTempC": 25
+    },
+    "potato": {
+      "name": {
+        "en": "Potato",
+        "es": "Patata"
+      },
+      "description": {
+        "en": "A productive vegetable with high potassium demand and a blight risk.",
+        "es": "Hortaliza productiva con gran demanda de potasio y riesgo de mildiu."
+      },
+      "family": "vegetable",
+      "color": "#9db76d",
+      "growHours": 120,
+      "biomassMax": 25000,
+      "harvestIndex": 0.6,
+      "seedCost": 620,
+      "plantLabor": 4,
+      "harvestLabor": 9,
+      "nPerBiomass": 0.009,
+      "pPerBiomass": 0.002,
+      "kPerBiomass": 0.016,
+      "seedN": 9,
+      "seedP": 2,
+      "seedK": 12,
+      "pollinationDependence": 0,
+      "baseTempC": 7,
+      "optimumTempC": 20
+    },
+    "strawberry": {
+      "name": {
+        "en": "Strawberry",
+        "es": "Fresa"
+      },
+      "description": {
+        "en": "Valuable and perishable. Needs pollination, careful watering and rapid sale or jam making.",
+        "es": "Valiosa y perecedera. Necesita polinización, riego cuidadoso y venta rápida o mermelada."
+      },
+      "family": "berry",
+      "color": "#e96c61",
+      "growHours": 96,
+      "biomassMax": 9000,
+      "harvestIndex": 0.55,
+      "seedCost": 760,
+      "plantLabor": 5,
+      "harvestLabor": 12,
+      "nPerBiomass": 0.014,
+      "pPerBiomass": 0.0024,
+      "kPerBiomass": 0.018,
+      "seedN": 4,
+      "seedP": 0.7,
+      "seedK": 3,
+      "pollinationDependence": 0.32,
+      "baseTempC": 8,
+      "optimumTempC": 21
+    },
+    "barley": {
+      "name": {
+        "en": "Barley",
+        "es": "Cebada"
+      },
+      "description": {
+        "en": "Low-cost cereal for early rotation; the same cereal-family risks apply.",
+        "es": "Cereal económico para rotaciones; comparte riesgos con el trigo."
+      },
+      "family": "cereal",
+      "color": "#c3a05c",
+      "growHours": 100,
+      "biomassMax": 11500,
+      "harvestIndex": 0.45,
+      "seedCost": 120,
+      "plantLabor": 1.8,
+      "harvestLabor": 4.5,
+      "nPerBiomass": 0.015,
+      "pPerBiomass": 0.0025,
+      "kPerBiomass": 0.014,
+      "seedN": 2.5,
+      "seedP": 0.4,
+      "seedK": 0.6,
+      "pollinationDependence": 0,
+      "baseTempC": 2,
+      "optimumTempC": 20
+    },
+    "carrot": {
+      "name": {
+        "en": "Carrot",
+        "es": "Zanahoria"
+      },
+      "description": {
+        "en": "A valuable root crop. Needs steady soil moisture and careful harvest.",
+        "es": "Cultivo de raíz rentable; necesita humedad estable y una cosecha cuidadosa."
+      },
+      "family": "vegetable",
+      "color": "#d9a05c",
+      "growHours": 112,
+      "biomassMax": 14500,
+      "harvestIndex": 0.65,
+      "seedCost": 230,
+      "plantLabor": 3,
+      "harvestLabor": 7,
+      "nPerBiomass": 0.011,
+      "pPerBiomass": 0.002,
+      "kPerBiomass": 0.016,
+      "seedN": 3,
+      "seedP": 0.4,
+      "seedK": 1,
+      "pollinationDependence": 0,
+      "baseTempC": 4,
+      "optimumTempC": 21
+    },
+    "lettuce": {
+      "name": {
+        "en": "Lettuce",
+        "es": "Lechuga"
+      },
+      "description": {
+        "en": "Fast to grow, high-value and very perishable. Sell soon after harvest.",
+        "es": "Crece deprisa, tiene valor y se estropea rápido. Véndela pronto."
+      },
+      "family": "vegetable",
+      "color": "#9dbd74",
+      "growHours": 70,
+      "biomassMax": 12000,
+      "harvestIndex": 0.72,
+      "seedCost": 170,
+      "plantLabor": 3,
+      "harvestLabor": 5,
+      "nPerBiomass": 0.012,
+      "pPerBiomass": 0.0026,
+      "kPerBiomass": 0.017,
+      "seedN": 2,
+      "seedP": 0.3,
+      "seedK": 0.7,
+      "pollinationDependence": 0,
+      "baseTempC": 4,
+      "optimumTempC": 18
+    },
+    "maize": {
+      "name": {
+        "en": "Maize",
+        "es": "Maiz"
+      },
+      "description": {
+        "en": "Warm-season tall crop; high water demand.",
+        "es": "Cultivo alto de verano; exige riego."
+      },
+      "family": "cereal",
+      "color": "#d8b94e",
+      "growHours": 150,
+      "biomassMax": 15500,
+      "harvestIndex": 0.5,
+      "seedCost": 260,
+      "plantLabor": 3,
+      "harvestLabor": 6,
+      "nPerBiomass": 0.018,
+      "pPerBiomass": 0.0031,
+      "kPerBiomass": 0.019,
+      "seedN": 4,
+      "seedP": 0.6,
+      "seedK": 1.1,
+      "pollinationDependence": 0,
+      "baseTempC": 8,
+      "optimumTempC": 25
+    },
+    "tomato": {
+      "name": {
+        "en": "Tomato",
+        "es": "Tomate"
+      },
+      "description": {
+        "en": "High value; vulnerable to dry spells and pests.",
+        "es": "Muy valioso; sensible a sequia y plagas."
+      },
+      "family": "solanaceae",
+      "color": "#e85c4e",
+      "growHours": 138,
+      "biomassMax": 13500,
+      "harvestIndex": 0.56,
+      "seedCost": 460,
+      "plantLabor": 5,
+      "harvestLabor": 10,
+      "nPerBiomass": 0.017,
+      "pPerBiomass": 0.0033,
+      "kPerBiomass": 0.021,
+      "seedN": 4,
+      "seedP": 0.8,
+      "seedK": 1.8,
+      "pollinationDependence": 0.12,
+      "baseTempC": 9,
+      "optimumTempC": 24
+    },
+    "pumpkin": {
+      "name": {
+        "en": "Pumpkin",
+        "es": "Calabaza"
+      },
+      "description": {
+        "en": "Pollinator-dependent; resilient if water is steady.",
+        "es": "Necesita polinizadores y agua estable."
+      },
+      "family": "cucurbit",
+      "color": "#e79d41",
+      "growHours": 168,
+      "biomassMax": 17400,
+      "harvestIndex": 0.54,
+      "seedCost": 350,
+      "plantLabor": 4,
+      "harvestLabor": 8,
+      "nPerBiomass": 0.015,
+      "pPerBiomass": 0.0026,
+      "kPerBiomass": 0.022,
+      "seedN": 3,
+      "seedP": 0.7,
+      "seedK": 1.7,
+      "pollinationDependence": 0.58,
+      "baseTempC": 9,
+      "optimumTempC": 25
+    },
+    "lavender": {
+      "name": {
+        "en": "Lavender",
+        "es": "Lavanda"
+      },
+      "description": {
+        "en": "Slow herb; attracts pollinators, tolerates low water.",
+        "es": "Aromatica lenta; atrae polinizadores y tolera sequia."
+      },
+      "family": "herb",
+      "color": "#9c8bcf",
+      "growHours": 180,
+      "biomassMax": 6500,
+      "harvestIndex": 0.62,
+      "seedCost": 280,
+      "plantLabor": 2,
+      "harvestLabor": 6,
+      "nPerBiomass": 0.011,
+      "pPerBiomass": 0.002,
+      "kPerBiomass": 0.012,
+      "seedN": 1.5,
+      "seedP": 0.3,
+      "seedK": 0.4,
+      "pollinationDependence": 0.8,
+      "baseTempC": 5,
+      "optimumTempC": 22
+    },
+    "rye": {
+      "name": {
+        "en": "Rye",
+        "es": "Centeno"
+      },
+      "description": {
+        "en": "A hardy cereal for poorer soils.",
+        "es": "Cereal resistente para terrenos modestos."
+      },
+      "family": "cereal",
+      "color": "#c8ad65",
+      "growHours": 110,
+      "biomassMax": 13800,
+      "harvestIndex": 0.44,
+      "seedCost": 135,
+      "plantLabor": 2,
+      "harvestLabor": 5,
+      "nPerBiomass": 0.017,
+      "pPerBiomass": 0.0028,
+      "kPerBiomass": 0.017,
+      "seedN": 3,
+      "seedP": 0.45,
+      "seedK": 0.65,
+      "pollinationDependence": 0,
+      "baseTempC": 1,
+      "optimumTempC": 18,
+      "plotMode": "field"
+    },
+    "oats": {
+      "name": {
+        "en": "Oats",
+        "es": "Avena"
+      },
+      "description": {
+        "en": "Low-cost grain that prefers cool weather.",
+        "es": "Grano economico de clima fresco."
+      },
+      "family": "cereal",
+      "color": "#bca679",
+      "growHours": 105,
+      "biomassMax": 11600,
+      "harvestIndex": 0.47,
+      "seedCost": 115,
+      "plantLabor": 1.8,
+      "harvestLabor": 4.5,
+      "nPerBiomass": 0.015,
+      "pPerBiomass": 0.0025,
+      "kPerBiomass": 0.014,
+      "seedN": 2.5,
+      "seedP": 0.4,
+      "seedK": 0.6,
+      "pollinationDependence": 0,
+      "baseTempC": 1,
+      "optimumTempC": 18,
+      "plotMode": "field"
+    },
+    "chickpea": {
+      "name": {
+        "en": "Chickpeas",
+        "es": "Garbanzos"
+      },
+      "description": {
+        "en": "Legume crop suited to warmer conditions.",
+        "es": "Leguminosa para zonas calidas."
+      },
+      "family": "legume",
+      "color": "#a6bb68",
+      "growHours": 135,
+      "biomassMax": 12000,
+      "harvestIndex": 0.38,
+      "seedCost": 235,
+      "plantLabor": 2.4,
+      "harvestLabor": 6,
+      "nPerBiomass": 0.025,
+      "pPerBiomass": 0.0035,
+      "kPerBiomass": 0.02,
+      "seedN": 6,
+      "seedP": 0.7,
+      "seedK": 1.1,
+      "pollinationDependence": 0.12,
+      "baseTempC": 8,
+      "optimumTempC": 25,
+      "plotMode": "field"
+    },
+    "lentil": {
+      "name": {
+        "en": "Lentils",
+        "es": "Lentejas"
+      },
+      "description": {
+        "en": "Short legume rotation with moderate water needs.",
+        "es": "Leguminosa de rotacion con consumo moderado."
+      },
+      "family": "legume",
+      "color": "#93b77a",
+      "growHours": 120,
+      "biomassMax": 9400,
+      "harvestIndex": 0.42,
+      "seedCost": 195,
+      "plantLabor": 2.4,
+      "harvestLabor": 6,
+      "nPerBiomass": 0.025,
+      "pPerBiomass": 0.0035,
+      "kPerBiomass": 0.02,
+      "seedN": 6,
+      "seedP": 0.7,
+      "seedK": 1.1,
+      "pollinationDependence": 0.12,
+      "baseTempC": 5,
+      "optimumTempC": 21,
+      "plotMode": "field"
+    },
+    "beetroot": {
+      "name": {
+        "en": "Beetroot",
+        "es": "Remolacha"
+      },
+      "description": {
+        "en": "High-yield roots, best in uncompacted soil.",
+        "es": "Raices productivas si el suelo no se compacta."
+      },
+      "family": "vegetable",
+      "color": "#c45576",
+      "growHours": 108,
+      "biomassMax": 15400,
+      "harvestIndex": 0.66,
+      "seedCost": 235,
+      "plantLabor": 3,
+      "harvestLabor": 7,
+      "nPerBiomass": 0.011,
+      "pPerBiomass": 0.002,
+      "kPerBiomass": 0.016,
+      "seedN": 3,
+      "seedP": 0.4,
+      "seedK": 1,
+      "pollinationDependence": 0,
+      "baseTempC": 4,
+      "optimumTempC": 20,
+      "plotMode": "field"
+    },
+    "cucumber": {
+      "name": {
+        "en": "Cucumber",
+        "es": "Pepino"
+      },
+      "description": {
+        "en": "Fast warm-weather vines; watch pests and irrigation.",
+        "es": "Enredadera rapida; vigila las plagas y el riego."
+      },
+      "family": "cucurbit",
+      "color": "#5ba571",
+      "growHours": 115,
+      "biomassMax": 13700,
+      "harvestIndex": 0.62,
+      "seedCost": 290,
+      "plantLabor": 4,
+      "harvestLabor": 8,
+      "nPerBiomass": 0.015,
+      "pPerBiomass": 0.0026,
+      "kPerBiomass": 0.022,
+      "seedN": 3,
+      "seedP": 0.7,
+      "seedK": 1.7,
+      "pollinationDependence": 0.58,
+      "baseTempC": 10,
+      "optimumTempC": 26,
+      "plotMode": "field"
+    },
+    "aubergine": {
+      "name": {
+        "en": "Aubergine",
+        "es": "Berenjena"
+      },
+      "description": {
+        "en": "Warm-season fruit; costly labor, high sale value.",
+        "es": "Fruto de verano; requiere trabajo pero se vende bien."
+      },
+      "family": "solanaceae",
+      "color": "#785d9b",
+      "growHours": 150,
+      "biomassMax": 13000,
+      "harvestIndex": 0.56,
+      "seedCost": 475,
+      "plantLabor": 5,
+      "harvestLabor": 10,
+      "nPerBiomass": 0.017,
+      "pPerBiomass": 0.0033,
+      "kPerBiomass": 0.021,
+      "seedN": 4,
+      "seedP": 0.8,
+      "seedK": 1.8,
+      "pollinationDependence": 0.12,
+      "baseTempC": 11,
+      "optimumTempC": 27,
+      "plotMode": "field"
+    },
+    "basil": {
+      "name": {
+        "en": "Basil",
+        "es": "Albahaca"
+      },
+      "description": {
+        "en": "Quick aromatic harvest for small plots.",
+        "es": "Aromatica rapida para bancales pequenos."
+      },
+      "family": "herb",
+      "color": "#54a36d",
+      "growHours": 85,
+      "biomassMax": 7500,
+      "harvestIndex": 0.55,
+      "seedCost": 205,
+      "plantLabor": 2,
+      "harvestLabor": 6,
+      "nPerBiomass": 0.011,
+      "pPerBiomass": 0.002,
+      "kPerBiomass": 0.012,
+      "seedN": 1.5,
+      "seedP": 0.3,
+      "seedK": 0.4,
+      "pollinationDependence": 0.8,
+      "baseTempC": 8,
+      "optimumTempC": 23,
+      "plotMode": "field"
+    },
+    "raspberry": {
+      "name": {
+        "en": "Raspberry",
+        "es": "Frambuesa"
+      },
+      "description": {
+        "en": "Delicate soft fruit, valuable but spoils quickly.",
+        "es": "Fruta delicada y valiosa que se estropea rapido."
+      },
+      "family": "berry",
+      "color": "#d65b75",
+      "growHours": 145,
+      "biomassMax": 10500,
+      "harvestIndex": 0.52,
+      "seedCost": 875,
+      "plantLabor": 5,
+      "harvestLabor": 12,
+      "nPerBiomass": 0.014,
+      "pPerBiomass": 0.0024,
+      "kPerBiomass": 0.018,
+      "seedN": 4,
+      "seedP": 0.7,
+      "seedK": 3,
+      "pollinationDependence": 0.32,
+      "baseTempC": 6,
+      "optimumTempC": 21,
+      "plotMode": "field"
+    },
+    "blueberry": {
+      "name": {
+        "en": "Blueberry",
+        "es": "Arandano"
+      },
+      "description": {
+        "en": "Premium berry with careful watering requirements.",
+        "es": "Baya de alta calidad que requiere riego cuidadoso."
+      },
+      "family": "berry",
+      "color": "#6878b6",
+      "growHours": 165,
+      "biomassMax": 9000,
+      "harvestIndex": 0.5,
+      "seedCost": 990,
+      "plantLabor": 5,
+      "harvestLabor": 12,
+      "nPerBiomass": 0.014,
+      "pPerBiomass": 0.0024,
+      "kPerBiomass": 0.018,
+      "seedN": 4,
+      "seedP": 0.7,
+      "seedK": 3,
+      "pollinationDependence": 0.32,
+      "baseTempC": 5,
+      "optimumTempC": 21,
+      "plotMode": "field"
+    },
+    "rice": {
+      "name": {
+        "en": "Rice",
+        "es": "Arroz"
+      },
+      "description": {
+        "en": "Needs a dedicated flooded paddy and a steady water supply.",
+        "es": "Necesita un arrozal y suministro constante de agua."
+      },
+      "family": "cereal",
+      "color": "#c0b36e",
+      "growHours": 160,
+      "biomassMax": 16000,
+      "harvestIndex": 0.53,
+      "seedCost": 320,
+      "plantLabor": 3,
+      "harvestLabor": 8.0,
+      "nPerBiomass": 0.02,
+      "pPerBiomass": 0.0031,
+      "kPerBiomass": 0.019,
+      "seedN": 4,
+      "seedP": 0.6,
+      "seedK": 1.1,
+      "pollinationDependence": 0,
+      "baseTempC": 9,
+      "optimumTempC": 27,
+      "plotMode": "paddy"
+    },
+    "apple": {
+      "name": {
+        "en": "Apple",
+        "es": "Manzana"
+      },
+      "description": {
+        "en": "Perennial orchard: slow establishment, repeat harvests.",
+        "es": "Frutal perenne: crece lento y da varias cosechas."
+      },
+      "family": "tree",
+      "color": "#dd6e59",
+      "growHours": 290,
+      "biomassMax": 17600,
+      "harvestIndex": 0.42,
+      "seedCost": 1380,
+      "plantLabor": 5,
+      "harvestLabor": 10.0,
+      "nPerBiomass": 0.014,
+      "pPerBiomass": 0.0024,
+      "kPerBiomass": 0.018,
+      "seedN": 4,
+      "seedP": 0.7,
+      "seedK": 3,
+      "pollinationDependence": 0.48,
+      "baseTempC": 4,
+      "optimumTempC": 20,
+      "plotMode": "orchard",
+      "perennial": true,
+      "regrowHours": 210
+    },
+    "olive": {
+      "name": {
+        "en": "Olives",
+        "es": "Aceitunas"
+      },
+      "description": {
+        "en": "Drought-resilient tree with repeat seasonal production.",
+        "es": "Arbol resistente a sequia con cosechas repetidas."
+      },
+      "family": "tree",
+      "color": "#91a15d",
+      "growHours": 340,
+      "biomassMax": 15400,
+      "harvestIndex": 0.31,
+      "seedCost": 1470,
+      "plantLabor": 2,
+      "harvestLabor": 10.0,
+      "nPerBiomass": 0.011,
+      "pPerBiomass": 0.002,
+      "kPerBiomass": 0.012,
+      "seedN": 1.5,
+      "seedP": 0.3,
+      "seedK": 0.4,
+      "pollinationDependence": 0.2,
+      "baseTempC": 5,
+      "optimumTempC": 24,
+      "plotMode": "orchard",
+      "perennial": true,
+      "regrowHours": 230
+    },
+    "almond": {
+      "name": {
+        "en": "Almond",
+        "es": "Almendra"
+      },
+      "description": {
+        "en": "Pollinator-friendly nut tree with long investment horizon.",
+        "es": "Frutal de cascara que necesita polinizacion y tiempo."
+      },
+      "family": "tree",
+      "color": "#ba9b77",
+      "growHours": 330,
+      "biomassMax": 12800,
+      "harvestIndex": 0.33,
+      "seedCost": 1350,
+      "plantLabor": 2,
+      "harvestLabor": 10.0,
+      "nPerBiomass": 0.019,
+      "pPerBiomass": 0.0032,
+      "kPerBiomass": 0.022,
+      "seedN": 2.5,
+      "seedP": 0.5,
+      "seedK": 0.9,
+      "pollinationDependence": 0.75,
+      "baseTempC": 4,
+      "optimumTempC": 22,
+      "plotMode": "orchard",
+      "perennial": true,
+      "regrowHours": 245
+    },
+    "grape": {
+      "name": {
+        "en": "Grapes",
+        "es": "Uvas"
+      },
+      "description": {
+        "en": "Perennial vines for a sunny orchard or vineyard plot.",
+        "es": "Vides perennes para parcelas soleadas."
+      },
+      "family": "vine",
+      "color": "#8669ab",
+      "growHours": 275,
+      "biomassMax": 15700,
+      "harvestIndex": 0.49,
+      "seedCost": 1150,
+      "plantLabor": 5,
+      "harvestLabor": 10.0,
+      "nPerBiomass": 0.014,
+      "pPerBiomass": 0.0024,
+      "kPerBiomass": 0.018,
+      "seedN": 4,
+      "seedP": 0.7,
+      "seedK": 3,
+      "pollinationDependence": 0.26,
+      "baseTempC": 8,
+      "optimumTempC": 23,
+      "plotMode": "orchard",
+      "perennial": true,
+      "regrowHours": 195
+    }
+  },
+  "pests": {
+    "aphids": {
+      "name": {
+        "en": "Aphids",
+        "es": "Pulgones"
+      },
+      "description": {
+        "en": "Sap feeders on growing shoots.",
+        "es": "Chupadores de savia en brotes tiernos."
+      },
+      "behavior": {
+        "en": "Multiply in mild weather; ladybirds consume them.",
+        "es": "Se multiplican con clima suave; las mariquitas los consumen."
+      },
+      "counter": {
+        "en": "Ladybirds, soap; broad spray harms allies.",
+        "es": "Mariquitas, jabón; el insecticida general daña aliados."
+      },
+      "counterMethods": [
+        "soap",
+        "spray"
+      ],
+      "capacity": 350,
+      "growthDaily": 0.75,
+      "initial": 8,
+      "damageMax": 0.38,
+      "halfDamage": 90
+    },
+    "caterpillars": {
+      "name": {
+        "en": "Caterpillars",
+        "es": "Orugas"
+      },
+      "description": {
+        "en": "Chew leaves and reduce new growth.",
+        "es": "Comen hojas y reducen el crecimiento."
+      },
+      "behavior": {
+        "en": "Warm, planted fields support growth; parasitoids attack them.",
+        "es": "Prosperan en parcelas cálidas; los parasitoides las atacan."
+      },
+      "counter": {
+        "en": "Parasitoids, selective Bt or nets.",
+        "es": "Parasitoides, Bt selectivo o mallas."
+      },
+      "counterMethods": [
+        "bt",
+        "nets",
+        "spray"
+      ],
+      "capacity": 80,
+      "growthDaily": 0.52,
+      "initial": 1.5,
+      "damageMax": 0.35,
+      "halfDamage": 18
+    },
+    "slugs": {
+      "name": {
+        "en": "Slugs",
+        "es": "Babosas"
+      },
+      "description": {
+        "en": "Wet-soil feeders, especially damaging to seedlings.",
+        "es": "Comen en suelos húmedos y dañan especialmente las plántulas."
+      },
+      "behavior": {
+        "en": "Active at night and in wet mulch.",
+        "es": "Activas de noche y bajo acolchado húmedo."
+      },
+      "counter": {
+        "en": "Maintained traps; avoid unnecessary irrigation.",
+        "es": "Trampas mantenidas; evita riego innecesario."
+      },
+      "counterMethods": [
+        "trap"
+      ],
+      "capacity": 45,
+      "growthDaily": 0.32,
+      "initial": 1,
+      "damageMax": 0.32,
+      "halfDamage": 12
+    },
+    "mites": {
+      "name": {
+        "en": "Spider mites",
+        "es": "Ácaros"
+      },
+      "description": {
+        "en": "Tiny leaf feeders favored by heat and dry air.",
+        "es": "Pequeños ácaros de hojas favorecidos por calor y aire seco."
+      },
+      "behavior": {
+        "en": "Outbreaks accelerate in hot, dry weather.",
+        "es": "Los brotes se aceleran con calor y sequedad."
+      },
+      "counter": {
+        "en": "Soap, crop care and avoiding drought stress.",
+        "es": "Jabón, cuidado del cultivo y evitar estrés hídrico."
+      },
+      "counterMethods": [
+        "soap",
+        "spray"
+      ],
+      "capacity": 180,
+      "growthDaily": 0.68,
+      "initial": 1,
+      "damageMax": 0.28,
+      "halfDamage": 45
+    },
+    "whiteflies": {
+      "name": {
+        "en": "Whiteflies",
+        "es": "Mosca blanca"
+      },
+      "description": {
+        "en": "Sap feeders that particularly favor warm greenhouses.",
+        "es": "Chupadores de savia que favorecen los invernaderos cálidos."
+      },
+      "behavior": {
+        "en": "Greenhouses shelter them; ladybirds also feed on them.",
+        "es": "Los invernaderos las protegen; las mariquitas también las consumen."
+      },
+      "counter": {
+        "en": "Soap and ladybirds; greenhouse upgrades improve ventilation.",
+        "es": "Jabón y mariquitas; las mejoras del invernadero ventilan más."
+      },
+      "counterMethods": [
+        "soap",
+        "spray"
+      ],
+      "capacity": 160,
+      "growthDaily": 0.61,
+      "initial": 1,
+      "damageMax": 0.24,
+      "halfDamage": 40
+    },
+    "cutworms": {
+      "name": {
+        "en": "Cutworms",
+        "es": "Gusanos cortadores"
+      },
+      "description": {
+        "en": "Nocturnal larvae attack young stems.",
+        "es": "Larvas nocturnas que atacan tallos jóvenes."
+      },
+      "behavior": {
+        "en": "Damage is strongest early in crop development.",
+        "es": "El daño es mayor durante el desarrollo inicial."
+      },
+      "counter": {
+        "en": "Traps, selective Bt and parasitoids.",
+        "es": "Trampas, Bt selectivo y parasitoides."
+      },
+      "counterMethods": [
+        "trap",
+        "bt"
+      ],
+      "capacity": 45,
+      "growthDaily": 0.3,
+      "initial": 0.4,
+      "damageMax": 0.38,
+      "halfDamage": 10
+    },
+    "locusts": {
+      "name": {
+        "en": "Locusts",
+        "es": "Langostas"
+      },
+      "description": {
+        "en": "Mobile leaf feeders arriving in regional flights.",
+        "es": "Insectos móviles que llegan en vuelos regionales."
+      },
+      "behavior": {
+        "en": "Hot, windy days can bring sudden arrivals.",
+        "es": "Días cálidos y ventosos pueden traer llegadas repentinas."
+      },
+      "counter": {
+        "en": "Protective nets and maintained fences reduce entry.",
+        "es": "Mallas protectoras y cercas mantenidas reducen la entrada."
+      },
+      "counterMethods": [
+        "nets",
+        "trap",
+        "spray"
+      ],
+      "capacity": 70,
+      "growthDaily": 0.2,
+      "initial": 0,
+      "damageMax": 0.4,
+      "halfDamage": 20
+    },
+    "nematodes": {
+      "name": {
+        "en": "Root nematodes",
+        "es": "Nematodos de raíz"
+      },
+      "description": {
+        "en": "Persistent soil organisms associated with host-family risk.",
+        "es": "Organismos persistentes del suelo ligados al riesgo de familia."
+      },
+      "behavior": {
+        "en": "Repeated host families and moist soil increase pressure.",
+        "es": "Repetir familias y mantener humedad aumenta la presión."
+      },
+      "counter": {
+        "en": "Rotate crop families or solarize an empty field.",
+        "es": "Rota familias o solariza una parcela vacía."
+      },
+      "counterMethods": [
+        "solarize"
+      ],
+      "capacity": 120,
+      "growthDaily": 0.18,
+      "initial": 2,
+      "damageMax": 0.32,
+      "halfDamage": 35
+    }
+  },
+  "diseases": {
+    "mildew": {
+      "name": {
+        "en": "Powdery mildew",
+        "es": "Oídio"
+      },
+      "description": {
+        "en": "Dense, humid canopies favor infection.",
+        "es": "La vegetación densa y húmeda favorece la infección."
+      },
+      "counter": {
+        "en": "Fungicide and greenhouse ventilation.",
+        "es": "Fungicida y ventilación del invernadero."
+      },
+      "growthDaily": 0.12,
+      "recoveryDaily": 0.035,
+      "damageMax": 0.23
+    },
+    "blight": {
+      "name": {
+        "en": "Blight",
+        "es": "Mildiu"
+      },
+      "description": {
+        "en": "Rain and humidity particularly threaten potatoes and berries.",
+        "es": "La lluvia y humedad amenazan especialmente patatas y fresas."
+      },
+      "counter": {
+        "en": "Fungicide and diverse rotations.",
+        "es": "Fungicida y rotaciones diversas."
+      },
+      "growthDaily": 0.16,
+      "recoveryDaily": 0.025,
+      "damageMax": 0.35
+    },
+    "rootRot": {
+      "name": {
+        "en": "Root rot",
+        "es": "Podredumbre de raíz"
+      },
+      "description": {
+        "en": "Persistently saturated soil creates root stress.",
+        "es": "El suelo saturado de forma persistente crea estrés de raíces."
+      },
+      "counter": {
+        "en": "Stop excess irrigation; soil solarization needs an empty field.",
+        "es": "Evita exceso de riego; la solarización exige parcela vacía."
+      },
+      "growthDaily": 0.18,
+      "recoveryDaily": 0.06,
+      "damageMax": 0.3
+    }
+  },
+  "buildings": {
+    "warehouse": {
+      "name": {
+        "en": "Storehouse",
+        "es": "Almacén"
+      },
+      "description": {
+        "en": "Adds dry storage and reduces spoilage.",
+        "es": "Amplía el almacén y reduce las pérdidas."
+      },
+      "scope": "farm",
+      "cost": 950,
+      "buildHours": 18,
+      "upkeepDaily": 4,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "coop": {
+      "name": {
+        "en": "Chicken coop",
+        "es": "Gallinero"
+      },
+      "description": {
+        "en": "Houses hens that consume feed and lay eggs.",
+        "es": "Aloja gallinas que consumen pienso y producen huevos."
+      },
+      "scope": "farm",
+      "cost": 650,
+      "buildHours": 14,
+      "upkeepDaily": 3,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "barn": {
+      "name": {
+        "en": "Goat barn",
+        "es": "Establo"
+      },
+      "description": {
+        "en": "Houses goats that consume feed and produce milk.",
+        "es": "Aloja cabras que consumen pienso y producen leche."
+      },
+      "scope": "farm",
+      "cost": 1250,
+      "buildHours": 24,
+      "upkeepDaily": 6,
+      "maxLevel": 3,
+      "unlockReputation": 4
+    },
+    "mill": {
+      "name": {
+        "en": "Flour mill",
+        "es": "Molino"
+      },
+      "description": {
+        "en": "Processes wheat into flour over time.",
+        "es": "Transforma trigo en harina con el tiempo."
+      },
+      "scope": "farm",
+      "cost": 1100,
+      "buildHours": 24,
+      "upkeepDaily": 5,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "press": {
+      "name": {
+        "en": "Oil press",
+        "es": "Prensa de aceite"
+      },
+      "description": {
+        "en": "Processes sunflower seed into oil.",
+        "es": "Transforma semillas de girasol en aceite."
+      },
+      "scope": "farm",
+      "cost": 1450,
+      "buildHours": 30,
+      "upkeepDaily": 6,
+      "maxLevel": 3,
+      "unlockReputation": 4
+    },
+    "dairy": {
+      "name": {
+        "en": "Dairy",
+        "es": "Quesería"
+      },
+      "description": {
+        "en": "Turns milk into longer-lasting cheese.",
+        "es": "Convierte leche en queso de mayor duración."
+      },
+      "scope": "farm",
+      "cost": 1550,
+      "buildHours": 30,
+      "upkeepDaily": 6,
+      "maxLevel": 3,
+      "unlockReputation": 8
+    },
+    "kitchen": {
+      "name": {
+        "en": "Preserving kitchen",
+        "es": "Obrador"
+      },
+      "description": {
+        "en": "Turns strawberries into jam; less spoilage, more value.",
+        "es": "Convierte fresas en mermelada; menos pérdidas y más valor."
+      },
+      "scope": "farm",
+      "cost": 1350,
+      "buildHours": 24,
+      "upkeepDaily": 5,
+      "maxLevel": 3,
+      "unlockReputation": 4
+    },
+    "greenhouse": {
+      "name": {
+        "en": "Greenhouse",
+        "es": "Invernadero"
+      },
+      "description": {
+        "en": "Warms a field and speeds development, but needs irrigation and pest care.",
+        "es": "Calienta una parcela y acelera desarrollo, pero requiere riego y control de plagas."
+      },
+      "scope": "field",
+      "cost": 1700,
+      "buildHours": 36,
+      "upkeepDaily": 5,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "pond": {
+      "name": {
+        "en": "Water pond",
+        "es": "Estanque"
+      },
+      "description": {
+        "en": "Adds reservoir capacity and rain catchment without creating water.",
+        "es": "Añade capacidad y captación de lluvia sin crear agua."
+      },
+      "scope": "farm",
+      "cost": 1000,
+      "buildHours": 24,
+      "upkeepDaily": 2,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "apiary": {
+      "name": {
+        "en": "Apiary",
+        "es": "Colmenar"
+      },
+      "description": {
+        "en": "Supports pollination and harvests honey from surrounding forage.",
+        "es": "Favorece polinización y obtiene miel de la flora del entorno."
+      },
+      "scope": "farm",
+      "cost": 850,
+      "buildHours": 16,
+      "upkeepDaily": 3,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "farmhouse": {
+      "name": {
+        "en": "Farmhands lodge",
+        "es": "Casa de trabajadores"
+      },
+      "description": {
+        "en": "Hire paid farmhands to irrigate thirsty plots and collect ripe crops.",
+        "es": "Contrata trabajadores para regar parcelas secas y recoger cosechas maduras."
+      },
+      "scope": "farm",
+      "cost": 1850,
+      "buildHours": 30,
+      "upkeepDaily": 4,
+      "maxLevel": 3,
+      "unlockReputation": 8
+    },
+    "irrigation": {
+      "name": {
+        "en": "Efficient irrigation",
+        "es": "Riego eficiente"
+      },
+      "description": {
+        "en": "Reduces a field's evaporation and irrigation labor.",
+        "es": "Reduce evaporación y trabajo de riego en una parcela."
+      },
+      "scope": "field",
+      "cost": 600,
+      "buildHours": 12,
+      "upkeepDaily": 2,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "fence": {
+      "name": {
+        "en": "Living fence",
+        "es": "Cerca viva"
+      },
+      "description": {
+        "en": "Reduces incoming locusts and shelters beneficial insects.",
+        "es": "Reduce entrada de langostas y protege insectos auxiliares."
+      },
+      "scope": "field",
+      "cost": 320,
+      "buildHours": 8,
+      "upkeepDaily": 1,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "path": {
+      "name": {
+        "en": "Garden paths",
+        "es": "Caminos"
+      },
+      "description": {
+        "en": "Improves visitor appeal and cuts movement labor costs.",
+        "es": "Mejora el atractivo para visitantes y reduce costes de desplazamiento."
+      },
+      "scope": "farm",
+      "cost": 260,
+      "buildHours": 6,
+      "upkeepDaily": 0.5,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "academy": {
+      "name": {
+        "en": "Learning cottage",
+        "es": "Casita de aprendizaje"
+      },
+      "description": {
+        "en": "A classroom for advanced courses; each level reduces tuition by 12%.",
+        "es": "Espacio para cursos avanzados; cada nivel reduce la matrícula un 12%."
+      },
+      "scope": "farm",
+      "cost": 680,
+      "buildHours": 16,
+      "upkeepDaily": 2,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "rootCellar": {
+      "name": {
+        "en": "Root cellar",
+        "es": "Bodega bajo tierra"
+      },
+      "description": {
+        "en": "Cool storage protects your harvest and adds capacity.",
+        "es": "Almacén fresco que protege la cosecha y amplía la capacidad."
+      },
+      "scope": "farm",
+      "cost": 820,
+      "buildHours": 19,
+      "upkeepDaily": 2,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "hutch": {
+      "name": {
+        "en": "Rabbit hutch",
+        "es": "Conejera"
+      },
+      "description": {
+        "en": "Houses angora rabbits producing fiber; requires feed and water.",
+        "es": "Aloja conejos de angora productores de fibra; necesitan pienso y agua."
+      },
+      "scope": "farm",
+      "cost": 460,
+      "buildHours": 10,
+      "upkeepDaily": 2,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "wildGarden": {
+      "name": {
+        "en": "Native garden",
+        "es": "Jardín autóctono"
+      },
+      "description": {
+        "en": "Field habitat raises pollinator visits and natural-enemy recruitment.",
+        "es": "Hábitat que aumenta las visitas y llegada de insectos auxiliares."
+      },
+      "scope": "field",
+      "cost": 290,
+      "buildHours": 9,
+      "upkeepDaily": 1,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "flowers": {
+      "name": {
+        "en": "Flower borders",
+        "es": "Bordes florales"
+      },
+      "description": {
+        "en": "Decorative flowers support pollinators and natural enemies.",
+        "es": "Flores decorativas que favorecen polinizadores y enemigos naturales."
+      },
+      "scope": "field",
+      "cost": 220,
+      "buildHours": 6,
+      "upkeepDaily": 1,
+      "maxLevel": 3,
+      "unlockReputation": 0
+    },
+    "pasture": {
+      "name": {
+        "en": "Pasture and alpaca shelter",
+        "es": "Pradera ganadera"
+      },
+      "description": {
+        "en": "Shelter for grazing alpacas; visits include feeding grounds.",
+        "es": "Refugio para alpacas y pastos."
+      },
+      "scope": "farm",
+      "cost": 900,
+      "buildHours": 17,
+      "upkeepDaily": 3,
+      "maxLevel": 3,
+      "unlockReputation": 2
+    },
+    "stable": {
+      "name": {
+        "en": "Horse stable",
+        "es": "Cuadra"
+      },
+      "description": {
+        "en": "Keeps horses; horse care yields manure for the farm.",
+        "es": "Aloja caballos y facilita su cuidado."
+      },
+      "scope": "farm",
+      "cost": 1320,
+      "buildHours": 26,
+      "upkeepDaily": 5,
+      "maxLevel": 3,
+      "unlockReputation": 3
+    },
+    "pigsty": {
+      "name": {
+        "en": "Pigsty",
+        "es": "Pocilga"
+      },
+      "description": {
+        "en": "Keeps pigs; produces organic manure and needs daily feed.",
+        "es": "Aloja cerdos y produce estiercol."
+      },
+      "scope": "farm",
+      "cost": 850,
+      "buildHours": 20,
+      "upkeepDaily": 4,
+      "maxLevel": 3,
+      "unlockReputation": 2
+    },
+    "lookout": {
+      "name": {
+        "en": "Valley lookout",
+        "es": "Mirador"
+      },
+      "description": {
+        "en": "Expands travel safety and makes wildlife observation easier.",
+        "es": "Mejora la observacion de animales y los viajes."
+      },
+      "scope": "farm",
+      "cost": 620,
+      "buildHours": 14,
+      "upkeepDaily": 2,
+      "maxLevel": 3,
+      "unlockReputation": 3
+    },
+    "clinic": {
+      "name": {
+        "en": "Village aid post",
+        "es": "Botiquin del valle"
+      },
+      "description": {
+        "en": "In-game recovery from wildlife encounters. No medical realism.",
+        "es": "Ayuda ludica para recuperarse de encuentros."
+      },
+      "scope": "farm",
+      "cost": 780,
+      "buildHours": 16,
+      "upkeepDaily": 2,
+      "maxLevel": 3,
+      "unlockReputation": 4
+    }
+  },
+  "animals": {
+    "hen": {
+      "name": {
+        "en": "Hens",
+        "es": "Gallinas"
+      },
+      "building": "coop",
+      "price": 28,
+      "feedKgDaily": 0.12,
+      "produceGood": "eggs",
+      "produceKgDaily": 0.055,
+      "capacityPerLevel": 12,
+      "waterM3Daily": 0.00025
+    },
+    "goat": {
+      "name": {
+        "en": "Goats",
+        "es": "Cabras"
+      },
+      "building": "barn",
+      "price": 210,
+      "feedKgDaily": 1.2,
+      "produceGood": "milk",
+      "produceKgDaily": 2.4,
+      "capacityPerLevel": 5,
+      "waterM3Daily": 0.01
+    },
+    "duck": {
+      "name": {
+        "en": "Ducks",
+        "es": "Patos"
+      },
+      "building": "coop",
+      "price": 34,
+      "feedKgDaily": 0.18,
+      "produceGood": "eggs",
+      "produceKgDaily": 0.075,
+      "capacityPerLevel": 12,
+      "waterM3Daily": 0.0008
+    },
+    "sheep": {
+      "name": {
+        "en": "Sheep",
+        "es": "Ovejas"
+      },
+      "building": "barn",
+      "price": 165,
+      "feedKgDaily": 0.95,
+      "produceGood": "wool",
+      "produceKgDaily": 0.055,
+      "capacityPerLevel": 5,
+      "waterM3Daily": 0.008
+    },
+    "rabbit": {
+      "name": {
+        "en": "Angora rabbits",
+        "es": "Conejos de angora"
+      },
+      "building": "hutch",
+      "price": 45,
+      "feedKgDaily": 0.13,
+      "produceGood": "fiber",
+      "produceKgDaily": 0.028,
+      "capacityPerLevel": 10,
+      "waterM3Daily": 0.00025
+    },
+    "turkey": {
+      "name": {
+        "en": "Turkeys",
+        "es": "Pavos"
+      },
+      "building": "coop",
+      "price": 60,
+      "feedKgDaily": 0.3,
+      "produceGood": "eggs",
+      "produceKgDaily": 0.09,
+      "capacityPerLevel": 7,
+      "waterM3Daily": 0.0006
+    },
+    "goose": {
+      "name": {
+        "en": "Geese",
+        "es": "Gansos"
+      },
+      "building": "coop",
+      "price": 75,
+      "feedKgDaily": 0.38,
+      "produceGood": "eggs",
+      "produceKgDaily": 0.095,
+      "capacityPerLevel": 6,
+      "waterM3Daily": 0.0008
+    },
+    "cow": {
+      "name": {
+        "en": "Cows",
+        "es": "Vacas"
+      },
+      "building": "barn",
+      "price": 780,
+      "feedKgDaily": 5.8,
+      "produceGood": "milk",
+      "produceKgDaily": 3.8,
+      "capacityPerLevel": 2,
+      "waterM3Daily": 0.045
+    },
+    "alpaca": {
+      "name": {
+        "en": "Alpacas",
+        "es": "Alpacas"
+      },
+      "building": "pasture",
+      "price": 390,
+      "feedKgDaily": 2.5,
+      "produceGood": "wool",
+      "produceKgDaily": 0.14,
+      "capacityPerLevel": 4,
+      "waterM3Daily": 0.02
+    },
+    "horse": {
+      "name": {
+        "en": "Horses",
+        "es": "Caballos"
+      },
+      "building": "stable",
+      "price": 610,
+      "feedKgDaily": 3.4,
+      "produceGood": "manure",
+      "produceKgDaily": 0.55,
+      "capacityPerLevel": 2,
+      "waterM3Daily": 0.036
+    },
+    "pig": {
+      "name": {
+        "en": "Pigs",
+        "es": "Cerdos"
+      },
+      "building": "pigsty",
+      "price": 245,
+      "feedKgDaily": 2.8,
+      "produceGood": "manure",
+      "produceKgDaily": 0.43,
+      "capacityPerLevel": 4,
+      "waterM3Daily": 0.02
+    }
+  },
+  "goods": {
+    "wheat": {
+      "name": {
+        "en": "Wheat",
+        "es": "Trigo"
+      },
+      "basePrice": 0.55,
+      "spoilageDaily": 0.002
+    },
+    "bean": {
+      "name": {
+        "en": "Field beans",
+        "es": "Habas"
+      },
+      "basePrice": 1.05,
+      "spoilageDaily": 0.003
+    },
+    "sunflower": {
+      "name": {
+        "en": "Sunflower",
+        "es": "Girasol"
+      },
+      "basePrice": 0.85,
+      "spoilageDaily": 0.002
+    },
+    "potato": {
+      "name": {
+        "en": "Potato",
+        "es": "Patata"
+      },
+      "basePrice": 0.75,
+      "spoilageDaily": 0.012
+    },
+    "strawberry": {
+      "name": {
+        "en": "Strawberry",
+        "es": "Fresa"
+      },
+      "basePrice": 3.8,
+      "spoilageDaily": 0.12
+    },
+    "barley": {
+      "name": {
+        "en": "Barley",
+        "es": "Cebada"
+      },
+      "basePrice": 0.62,
+      "spoilageDaily": 0.003
+    },
+    "carrot": {
+      "name": {
+        "en": "Carrot",
+        "es": "Zanahoria"
+      },
+      "basePrice": 1.25,
+      "spoilageDaily": 0.023
+    },
+    "lettuce": {
+      "name": {
+        "en": "Lettuce",
+        "es": "Lechuga"
+      },
+      "basePrice": 2.2,
+      "spoilageDaily": 0.09
+    },
+    "feed": {
+      "name": {
+        "en": "Animal feed",
+        "es": "Pienso"
+      },
+      "basePrice": 0.6,
+      "spoilageDaily": 0.002
+    },
+    "eggs": {
+      "name": {
+        "en": "Eggs",
+        "es": "Huevos"
+      },
+      "basePrice": 5.2,
+      "spoilageDaily": 0.025
+    },
+    "milk": {
+      "name": {
+        "en": "Milk",
+        "es": "Leche"
+      },
+      "basePrice": 2.1,
+      "spoilageDaily": 0.12
+    },
+    "honey": {
+      "name": {
+        "en": "Honey",
+        "es": "Miel"
+      },
+      "basePrice": 9,
+      "spoilageDaily": 0.001
+    },
+    "flour": {
+      "name": {
+        "en": "Flour",
+        "es": "Harina"
+      },
+      "basePrice": 1.35,
+      "spoilageDaily": 0.006
+    },
+    "oil": {
+      "name": {
+        "en": "Sunflower oil",
+        "es": "Aceite de girasol"
+      },
+      "basePrice": 4.2,
+      "spoilageDaily": 0.002
+    },
+    "cheese": {
+      "name": {
+        "en": "Cheese",
+        "es": "Queso"
+      },
+      "basePrice": 12,
+      "spoilageDaily": 0.012
+    },
+    "jam": {
+      "name": {
+        "en": "Jam",
+        "es": "Mermelada"
+      },
+      "basePrice": 7.4,
+      "spoilageDaily": 0.004
+    },
+    "wool": {
+      "name": {
+        "en": "Wool",
+        "es": "Lana"
+      },
+      "basePrice": 5.8,
+      "spoilageDaily": 0.001
+    },
+    "fiber": {
+      "name": {
+        "en": "Angora fiber",
+        "es": "Fibra de angora"
+      },
+      "basePrice": 13,
+      "spoilageDaily": 0.001
+    },
+    "maize": {
+      "name": {
+        "en": "Maize",
+        "es": "Maiz"
+      },
+      "basePrice": 0.85,
+      "spoilageDaily": 0.008
+    },
+    "tomato": {
+      "name": {
+        "en": "Tomato",
+        "es": "Tomate"
+      },
+      "basePrice": 2.2,
+      "spoilageDaily": 0.065
+    },
+    "pumpkin": {
+      "name": {
+        "en": "Pumpkin",
+        "es": "Calabaza"
+      },
+      "basePrice": 1.4,
+      "spoilageDaily": 0.02
+    },
+    "lavender": {
+      "name": {
+        "en": "Lavender",
+        "es": "Lavanda"
+      },
+      "basePrice": 5,
+      "spoilageDaily": 0.001
+    },
+    "manure": {
+      "name": {
+        "en": "Organic manure",
+        "es": "Estiercol"
+      },
+      "basePrice": 0.28,
+      "spoilageDaily": 0.003
+    },
+    "herbs": {
+      "name": {
+        "en": "Wild herbs",
+        "es": "Hierbas silvestres"
+      },
+      "basePrice": 3.2,
+      "spoilageDaily": 0.035
+    },
+    "berries": {
+      "name": {
+        "en": "Forest berries",
+        "es": "Bayas"
+      },
+      "basePrice": 3,
+      "spoilageDaily": 0.12
+    },
+    "mushrooms": {
+      "name": {
+        "en": "Mushrooms",
+        "es": "Setas"
+      },
+      "basePrice": 4.5,
+      "spoilageDaily": 0.13
+    },
+    "cornmeal": {
+      "name": {
+        "en": "Cornmeal",
+        "es": "Harina de maiz"
+      },
+      "basePrice": 1.85,
+      "spoilageDaily": 0.007
+    },
+    "tomato_sauce": {
+      "name": {
+        "en": "Tomato sauce",
+        "es": "Salsa de tomate"
+      },
+      "basePrice": 3.6,
+      "spoilageDaily": 0.03
+    },
+    "lavender_oil": {
+      "name": {
+        "en": "Lavender oil",
+        "es": "Aceite de lavanda"
+      },
+      "basePrice": 18,
+      "spoilageDaily": 0.001
+    },
+    "timber": {
+      "name": {
+        "en": "Timber logs",
+        "es": "Troncos de madera"
+      },
+      "basePrice": 1.3,
+      "spoilageDaily": 0.0,
+      "category": "materials"
+    },
+    "stone": {
+      "name": {
+        "en": "Field stone",
+        "es": "Piedras de campo"
+      },
+      "basePrice": 0.75,
+      "spoilageDaily": 0.0,
+      "category": "materials"
+    },
+    "clay": {
+      "name": {
+        "en": "Natural clay",
+        "es": "Arcilla natural"
+      },
+      "basePrice": 1.15,
+      "spoilageDaily": 0.0,
+      "category": "materials"
+    },
+    "wildflowers": {
+      "name": {
+        "en": "Wildflower bundles",
+        "es": "Ramos silvestres"
+      },
+      "basePrice": 2.0,
+      "spoilageDaily": 0.0,
+      "category": "materials"
+    },
+    "reeds": {
+      "name": {
+        "en": "Wetland reeds",
+        "es": "Juncos del humedal"
+      },
+      "basePrice": 0.9,
+      "spoilageDaily": 0.0,
+      "category": "materials"
+    },
+    "compost": {
+      "name": {
+        "en": "Finished compost",
+        "es": "Compost maduro"
+      },
+      "basePrice": 1.65,
+      "spoilageDaily": 0.0,
+      "category": "materials"
+    },
+    "rye": {
+      "name": {
+        "en": "Rye",
+        "es": "Centeno"
+      },
+      "basePrice": 0.62,
+      "spoilageDaily": 0.003
+    },
+    "oats": {
+      "name": {
+        "en": "Oats",
+        "es": "Avena"
+      },
+      "basePrice": 0.69,
+      "spoilageDaily": 0.003
+    },
+    "chickpea": {
+      "name": {
+        "en": "Chickpeas",
+        "es": "Garbanzos"
+      },
+      "basePrice": 1.65,
+      "spoilageDaily": 0.003
+    },
+    "lentil": {
+      "name": {
+        "en": "Lentils",
+        "es": "Lentejas"
+      },
+      "basePrice": 1.8,
+      "spoilageDaily": 0.003
+    },
+    "beetroot": {
+      "name": {
+        "en": "Beetroot",
+        "es": "Remolacha"
+      },
+      "basePrice": 1.3,
+      "spoilageDaily": 0.035
+    },
+    "cucumber": {
+      "name": {
+        "en": "Cucumber",
+        "es": "Pepino"
+      },
+      "basePrice": 1.55,
+      "spoilageDaily": 0.11
+    },
+    "aubergine": {
+      "name": {
+        "en": "Aubergine",
+        "es": "Berenjena"
+      },
+      "basePrice": 2.55,
+      "spoilageDaily": 0.095
+    },
+    "basil": {
+      "name": {
+        "en": "Basil",
+        "es": "Albahaca"
+      },
+      "basePrice": 3.35,
+      "spoilageDaily": 0.1
+    },
+    "raspberry": {
+      "name": {
+        "en": "Raspberry",
+        "es": "Frambuesa"
+      },
+      "basePrice": 4.2,
+      "spoilageDaily": 0.15
+    },
+    "blueberry": {
+      "name": {
+        "en": "Blueberry",
+        "es": "Arandano"
+      },
+      "basePrice": 4.65,
+      "spoilageDaily": 0.12
+    },
+    "rice": {
+      "name": {
+        "en": "Rice",
+        "es": "Arroz"
+      },
+      "basePrice": 0.95,
+      "spoilageDaily": 0.006
+    },
+    "apple": {
+      "name": {
+        "en": "Apple",
+        "es": "Manzana"
+      },
+      "basePrice": 2.05,
+      "spoilageDaily": 0.065
+    },
+    "olive": {
+      "name": {
+        "en": "Olives",
+        "es": "Aceitunas"
+      },
+      "basePrice": 2.9,
+      "spoilageDaily": 0.015
+    },
+    "almond": {
+      "name": {
+        "en": "Almond",
+        "es": "Almendra"
+      },
+      "basePrice": 3.9,
+      "spoilageDaily": 0.004
+    },
+    "grape": {
+      "name": {
+        "en": "Grapes",
+        "es": "Uvas"
+      },
+      "basePrice": 2.65,
+      "spoilageDaily": 0.09
+    }
+  },
+  "talents": {
+    "mulchMastery": {
+      "name": {
+        "en": "Mulch mastery",
+        "es": "Dominio del acolchado"
+      },
+      "description": {
+        "en": "Mulch reduces remaining evaporation by another 15% at full cover.",
+        "es": "El acolchado reduce hasta otro 15% de la evaporación restante."
+      },
+      "branch": "water",
+      "requires": null,
+      "bonus": 0.15
+    },
+    "rainCapture": {
+      "name": {
+        "en": "Rain capture",
+        "es": "Captación de lluvia"
+      },
+      "description": {
+        "en": "Adds 15 percentage points to future catchment efficiency.",
+        "es": "Añade 15 puntos porcentuales a la eficiencia de captación futura."
+      },
+      "branch": "water",
+      "requires": "mulchMastery",
+      "bonus": 0.15
+    },
+    "greenThumb": {
+      "name": {
+        "en": "Green thumb",
+        "es": "Mano verde"
+      },
+      "description": {
+        "en": "Crops develop 15% faster; water and nutrient demand still apply.",
+        "es": "Los cultivos se desarrollan 15% más rápido; siguen necesitando agua y nutrientes."
+      },
+      "branch": "water",
+      "requires": "rainCapture",
+      "bonus": 0.15
+    },
+    "observation": {
+      "name": {
+        "en": "Field observation",
+        "es": "Observación de campo"
+      },
+      "description": {
+        "en": "Compatible beneficial attack rates increase 20%.",
+        "es": "Aumenta 20% el ataque de auxiliares compatibles."
+      },
+      "branch": "ecology",
+      "requires": null,
+      "bonus": 0.2
+    },
+    "gentleControl": {
+      "name": {
+        "en": "Gentle control",
+        "es": "Control cuidadoso"
+      },
+      "description": {
+        "en": "Reduces spray and residue mortality of beneficials 40%.",
+        "es": "Reduce 40% la mortalidad de auxiliares por insecticida y residuos."
+      },
+      "branch": "ecology",
+      "requires": "observation",
+      "bonus": 0.4
+    },
+    "rancher": {
+      "name": {
+        "en": "Careful rancher",
+        "es": "Buen ganadero"
+      },
+      "description": {
+        "en": "Well-fed animals produce 15% more without removing feed costs.",
+        "es": "Los animales bien alimentados producen 15% más y mantienen sus gastos de pienso."
+      },
+      "branch": "ecology",
+      "requires": "gentleControl",
+      "bonus": 0.15
+    },
+    "efficientWork": {
+      "name": {
+        "en": "Efficient work",
+        "es": "Trabajo eficiente"
+      },
+      "description": {
+        "en": "Reduces charged field labor 10%.",
+        "es": "Reduce 10% el trabajo cobrado en el campo."
+      },
+      "branch": "craft",
+      "requires": null,
+      "bonus": 0.1
+    },
+    "seedSteward": {
+      "name": {
+        "en": "Seed steward",
+        "es": "Gestión de semillas"
+      },
+      "description": {
+        "en": "Future seed material costs 15% less.",
+        "es": "Las futuras semillas cuestan 15% menos."
+      },
+      "branch": "craft",
+      "requires": "efficientWork",
+      "bonus": 0.15
+    },
+    "builder": {
+      "name": {
+        "en": "Master builder",
+        "es": "Maestro constructor"
+      },
+      "description": {
+        "en": "New construction and upgrade jobs finish 20% sooner.",
+        "es": "Las nuevas obras y mejoras terminan 20% antes."
+      },
+      "branch": "craft",
+      "requires": "seedSteward",
+      "bonus": 0.2
+    },
+    "moistureSense": {
+      "name": {
+        "en": "Moisture intuition",
+        "es": "Intuición hídrica"
+      },
+      "description": {
+        "en": "Reduces root-zone evaporation demand by 8%.",
+        "es": "Reduce la demanda de evaporación de la raíz un 8%."
+      },
+      "branch": "water",
+      "requires": "mulchMastery",
+      "course": "water",
+      "bonus": 0.08
+    },
+    "hillGrower": {
+      "name": {
+        "en": "Hillside gardener",
+        "es": "Horticultor de ladera"
+      },
+      "description": {
+        "en": "Crops develop 10% faster on sunny hills; water stress remains.",
+        "es": "Los cultivos avanzan un 10% más deprisa en laderas soleadas; el estrés hídrico se mantiene."
+      },
+      "branch": "water",
+      "requires": "greenThumb",
+      "course": "water",
+      "bonus": 0.1
+    },
+    "rainPlanner": {
+      "name": {
+        "en": "Rain planner",
+        "es": "Planificador de lluvia"
+      },
+      "description": {
+        "en": "Reduces irrigation labor by an additional 10%.",
+        "es": "Reduce el trabajo de riego un 10% adicional."
+      },
+      "branch": "water",
+      "requires": "rainCapture",
+      "course": "water",
+      "bonus": 0.1
+    },
+    "pestScout": {
+      "name": {
+        "en": "Pest scout",
+        "es": "Vigilante de plagas"
+      },
+      "description": {
+        "en": "Reduces pest damage to standing crops by 10%.",
+        "es": "Reduce un 10% los daños de las plagas en cultivos."
+      },
+      "branch": "ecology",
+      "requires": "observation",
+      "course": "ecology",
+      "bonus": 0.1
+    },
+    "diseaseReader": {
+      "name": {
+        "en": "Disease reader",
+        "es": "Experto en enfermedades"
+      },
+      "description": {
+        "en": "Reduces disease damage to crop growth by 14%.",
+        "es": "Reduce un 14% el daño de enfermedades al cultivo."
+      },
+      "branch": "ecology",
+      "requires": "gentleControl",
+      "course": "soil",
+      "bonus": 0.14
+    },
+    "habitatWarden": {
+      "name": {
+        "en": "Habitat warden",
+        "es": "Guardián del hábitat"
+      },
+      "description": {
+        "en": "Attracts 18% more immigrating beneficial insects.",
+        "es": "Atrae un 18% más de insectos auxiliares inmigrantes."
+      },
+      "branch": "ecology",
+      "requires": "observation",
+      "course": "ecology",
+      "bonus": 0.18
+    },
+    "fairTrader": {
+      "name": {
+        "en": "Fair trader",
+        "es": "Comerciante justo"
+      },
+      "description": {
+        "en": "Market sales earn 8% more with the same quantity of goods.",
+        "es": "Las ventas reciben un 8% más sin aumentar la mercancía vendida."
+      },
+      "branch": "craft",
+      "requires": "efficientWork",
+      "course": "trade",
+      "bonus": 0.08
+    },
+    "storageCare": {
+      "name": {
+        "en": "Harvest keeper",
+        "es": "Cuidador de cosechas"
+      },
+      "description": {
+        "en": "Reduces storehouse spoilage by 18%.",
+        "es": "Reduce un 18% las pérdidas de productos almacenados."
+      },
+      "branch": "craft",
+      "requires": "seedSteward",
+      "course": "craft",
+      "bonus": 0.18
+    },
+    "artisanHands": {
+      "name": {
+        "en": "Workshop hands",
+        "es": "Manos artesanas"
+      },
+      "description": {
+        "en": "Processing jobs finish 15% sooner, with the same ingredients.",
+        "es": "Las transformaciones terminan un 15% antes con los mismos ingredientes."
+      },
+      "branch": "craft",
+      "requires": "builder",
+      "course": "craft",
+      "bonus": 0.15
+    },
+    "happyHerd": {
+      "name": {
+        "en": "Happy herd",
+        "es": "Rebaño feliz"
+      },
+      "description": {
+        "en": "Well-fed animals produce 12% more; feed and water costs remain.",
+        "es": "Los animales bien alimentados producen un 12% más; mantienen sus costes."
+      },
+      "branch": "husbandry",
+      "requires": "rancher",
+      "course": "livestock",
+      "bonus": 0.12
+    },
+    "feedPlanner": {
+      "name": {
+        "en": "Feed planner",
+        "es": "Gestión del pienso"
+      },
+      "description": {
+        "en": "Reduces daily animal feed consumption by 10%.",
+        "es": "Reduce un 10% el consumo diario de pienso."
+      },
+      "branch": "husbandry",
+      "requires": "rancher",
+      "course": "livestock",
+      "bonus": 0.1
+    },
+    "gentleGrazing": {
+      "name": {
+        "en": "Gentle grazing",
+        "es": "Pastoreo cuidadoso"
+      },
+      "description": {
+        "en": "Animal condition recovers 12% faster when cared for.",
+        "es": "La condición de los animales mejora un 12% más rápido al cuidarlos."
+      },
+      "branch": "husbandry",
+      "requires": "happyHerd",
+      "course": "livestock",
+      "bonus": 0.12
+    },
+    "forager": {
+      "name": {
+        "en": "Trail forager",
+        "es": "Recolector de senderos"
+      },
+      "description": {
+        "en": "Find 20% more edible forage in the overworld.",
+        "es": "Recoge un 20% mas de recursos al explorar."
+      },
+      "branch": "ecology",
+      "requires": "habitatWarden",
+      "course": "ranger",
+      "bonus": 0.2
+    },
+    "wildlifeWatcher": {
+      "name": {
+        "en": "Wildlife watcher",
+        "es": "Observador de fauna"
+      },
+      "description": {
+        "en": "Wildlife encounter chance falls 25%.",
+        "es": "Reduce un 25% el riesgo de encuentros de fauna."
+      },
+      "branch": "ecology",
+      "requires": "pestScout",
+      "course": "ranger",
+      "bonus": 0.25
+    },
+    "animalWhisperer": {
+      "name": {
+        "en": "Animal whisperer",
+        "es": "Amigo de los animales"
+      },
+      "description": {
+        "en": "Animal care improves condition 30% more.",
+        "es": "Los cuidados mejoran la condicion un 30% mas."
+      },
+      "branch": "husbandry",
+      "requires": "happyHerd",
+      "course": "livestock",
+      "bonus": 0.3
+    },
+    "plotSurveyor": {
+      "name": {
+        "en": "Land surveyor",
+        "es": "Topografo rural"
+      },
+      "description": {
+        "en": "Purchasable fields cost 8% less.",
+        "es": "Las nuevas parcelas cuestan un 8% menos."
+      },
+      "branch": "craft",
+      "requires": "builder",
+      "course": "cartography",
+      "bonus": 0.08
+    }
+  },
+  "npcs": {
+    "ines": {
+      "name": {
+        "en": "Inés",
+        "es": "Inés"
+      },
+      "role": {
+        "en": "Neighbor and mentor",
+        "es": "Vecina y mentora"
+      },
+      "color": "#ba8467",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 7,
+          "place": "home",
+          "x": 8,
+          "y": 6
+        },
+        {
+          "from": 7,
+          "to": 12,
+          "place": "fields",
+          "x": 18,
+          "y": 14
+        },
+        {
+          "from": 12,
+          "to": 17,
+          "place": "market",
+          "x": 48,
+          "y": 8
+        },
+        {
+          "from": 17,
+          "to": 24,
+          "place": "home",
+          "x": 8,
+          "y": 6
+        }
+      ]
+    },
+    "mateo": {
+      "name": {
+        "en": "Mateo",
+        "es": "Mateo"
+      },
+      "role": {
+        "en": "Village chef",
+        "es": "Cocinero del pueblo"
+      },
+      "color": "#649d97",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 9,
+          "place": "home",
+          "x": 57,
+          "y": 5
+        },
+        {
+          "from": 9,
+          "to": 17,
+          "place": "market",
+          "x": 49,
+          "y": 9
+        },
+        {
+          "from": 17,
+          "to": 24,
+          "place": "home",
+          "x": 57,
+          "y": 5
+        }
+      ]
+    },
+    "rosa": {
+      "name": {
+        "en": "Rosa",
+        "es": "Rosa"
+      },
+      "role": {
+        "en": "Rancher",
+        "es": "Ganadera"
+      },
+      "color": "#d1ad66",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 6,
+          "place": "home",
+          "x": 57,
+          "y": 6
+        },
+        {
+          "from": 6,
+          "to": 13,
+          "place": "animals",
+          "x": 46,
+          "y": 24
+        },
+        {
+          "from": 13,
+          "to": 18,
+          "place": "market",
+          "x": 51,
+          "y": 10
+        },
+        {
+          "from": 18,
+          "to": 24,
+          "place": "home",
+          "x": 57,
+          "y": 6
+        }
+      ]
+    },
+    "bruno": {
+      "name": {
+        "en": "Bruno",
+        "es": "Bruno"
+      },
+      "role": {
+        "en": "Traveling trader",
+        "es": "Comerciante viajero"
+      },
+      "color": "#8f85b4",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 10,
+          "place": "road",
+          "x": 60,
+          "y": 11
+        },
+        {
+          "from": 10,
+          "to": 19,
+          "place": "market",
+          "x": 50,
+          "y": 8
+        },
+        {
+          "from": 19,
+          "to": 24,
+          "place": "road",
+          "x": 60,
+          "y": 11
+        }
+      ]
+    },
+    "lila": {
+      "name": {
+        "en": "Lila",
+        "es": "Lila"
+      },
+      "role": {
+        "en": "Builder and land agent",
+        "es": "Constructora y agente de tierras"
+      },
+      "color": "#cf8a53",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 8,
+          "place": "home",
+          "x": 58,
+          "y": 6
+        },
+        {
+          "from": 8,
+          "to": 18,
+          "place": "workshop",
+          "x": 47,
+          "y": 30
+        },
+        {
+          "from": 18,
+          "to": 24,
+          "place": "home",
+          "x": 58,
+          "y": 6
+        }
+      ]
+    },
+    "clara": {
+      "name": {
+        "en": "Clara",
+        "es": "Clara"
+      },
+      "role": {
+        "en": "Field ecologist",
+        "es": "Ecóloga de campo"
+      },
+      "color": "#6e9b60",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 8,
+          "place": "home",
+          "x": 57,
+          "y": 4
+        },
+        {
+          "from": 8,
+          "to": 16,
+          "place": "fields",
+          "x": 25,
+          "y": 21
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "place": "market",
+          "x": 52,
+          "y": 9
+        },
+        {
+          "from": 20,
+          "to": 24,
+          "place": "home",
+          "x": 57,
+          "y": 4
+        }
+      ]
+    },
+    "elena": {
+      "name": {
+        "en": "Elena",
+        "es": "Elena"
+      },
+      "role": {
+        "en": "Young orchardist",
+        "es": "Horticultora"
+      },
+      "color": "#d99681",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 9,
+          "place": "home",
+          "x": 10,
+          "y": 6
+        },
+        {
+          "from": 9,
+          "to": 17,
+          "place": "fields",
+          "x": 33,
+          "y": 17
+        },
+        {
+          "from": 17,
+          "to": 24,
+          "place": "village",
+          "x": 50,
+          "y": 8
+        }
+      ]
+    },
+    "paco": {
+      "name": {
+        "en": "Paco",
+        "es": "Paco"
+      },
+      "role": {
+        "en": "Mountain shepherd",
+        "es": "Pastor de montaña"
+      },
+      "color": "#d2b184",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 8,
+          "place": "hills",
+          "x": 55,
+          "y": 10
+        },
+        {
+          "from": 8,
+          "to": 19,
+          "place": "fields",
+          "x": 41,
+          "y": 25
+        },
+        {
+          "from": 19,
+          "to": 24,
+          "place": "home",
+          "x": 55,
+          "y": 10
+        }
+      ]
+    },
+    "omar": {
+      "name": {
+        "en": "Omar",
+        "es": "Omar"
+      },
+      "role": {
+        "en": "Woodland ranger",
+        "es": "Guarda forestal"
+      },
+      "color": "#849db2",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 10,
+          "place": "woods",
+          "x": 56,
+          "y": 16
+        },
+        {
+          "from": 10,
+          "to": 20,
+          "place": "river",
+          "x": 15,
+          "y": 33
+        },
+        {
+          "from": 20,
+          "to": 24,
+          "place": "home",
+          "x": 56,
+          "y": 16
+        }
+      ]
+    },
+    "sofia": {
+      "name": {
+        "en": "Sofia",
+        "es": "Sofia"
+      },
+      "role": {
+        "en": "Village botanist",
+        "es": "Botanica"
+      },
+      "color": "#aa8cc6",
+      "schedule": [
+        {
+          "from": 0,
+          "to": 7,
+          "place": "home",
+          "x": 8,
+          "y": 7
+        },
+        {
+          "from": 7,
+          "to": 16,
+          "place": "meadow",
+          "x": 24,
+          "y": 26
+        },
+        {
+          "from": 16,
+          "to": 24,
+          "place": "market",
+          "x": 50,
+          "y": 8
+        }
+      ]
+    }
+  },
+  "terrains": {
+    "loam": {
+      "name": {
+        "en": "Meadow loam",
+        "es": "Pradera fértil"
+      },
+      "benefit": {
+        "en": "Balanced water and fertility. A forgiving first field.",
+        "es": "Agua y fertilidad equilibradas. Una primera parcela agradable."
+      },
+      "risk": {
+        "en": "Average exposure to pests.",
+        "es": "Exposición normal a plagas."
+      },
+      "color": "#9f855f",
+      "rain": 1,
+      "evap": 1,
+      "temp": 0,
+      "slugs": 1,
+      "mites": 1,
+      "rootRot": 1,
+      "bees": 1
+    },
+    "stream": {
+      "name": {
+        "en": "Stream bank",
+        "es": "Ribera"
+      },
+      "benefit": {
+        "en": "More rain reaches the roots; cooler, moist soils.",
+        "es": "Más lluvia llega a las raíces; suelo húmedo y fresco."
+      },
+      "risk": {
+        "en": "Slugs thrive near the stream.",
+        "es": "Las babosas prosperan junto al arroyo."
+      },
+      "color": "#806f51",
+      "rain": 1.18,
+      "evap": 0.9,
+      "temp": -1,
+      "slugs": 1.3,
+      "mites": 0.85,
+      "rootRot": 1.1,
+      "bees": 1
+    },
+    "hill": {
+      "name": {
+        "en": "Sunny hillside",
+        "es": "Ladera soleada"
+      },
+      "benefit": {
+        "en": "Warm sunlight accelerates development in cool weather.",
+        "es": "El sol acelera el crecimiento cuando hace fresco."
+      },
+      "risk": {
+        "en": "More runoff and evaporation; drought can bite.",
+        "es": "Más escorrentía y evaporación; riesgo de sequía."
+      },
+      "color": "#b39a6e",
+      "rain": 0.83,
+      "evap": 1.15,
+      "temp": 1.5,
+      "slugs": 0.8,
+      "mites": 1.25,
+      "rootRot": 0.8,
+      "bees": 1
+    },
+    "clay": {
+      "name": {
+        "en": "Heavy clay",
+        "es": "Arcilla profunda"
+      },
+      "benefit": {
+        "en": "Retains water and helps during dry spells.",
+        "es": "Retiene agua y protege de la sequía."
+      },
+      "risk": {
+        "en": "Wet roots favor root rot and slugs.",
+        "es": "Las raíces húmedas favorecen la podredumbre y babosas."
+      },
+      "color": "#95724e",
+      "rain": 0.93,
+      "evap": 0.82,
+      "temp": -0.4,
+      "slugs": 1.25,
+      "mites": 0.85,
+      "rootRot": 1.4,
+      "bees": 1
+    },
+    "sand": {
+      "name": {
+        "en": "Sandy terrace",
+        "es": "Terraza arenosa"
+      },
+      "benefit": {
+        "en": "Drains freely and reduces root-rot pressure.",
+        "es": "Drena rápido y reduce problemas de raíz."
+      },
+      "risk": {
+        "en": "Loses water quickly and favors hot-weather mites.",
+        "es": "Pierde agua rápido y favorece ácaros con calor."
+      },
+      "color": "#c0a77b",
+      "rain": 0.94,
+      "evap": 1.24,
+      "temp": 1,
+      "slugs": 0.65,
+      "mites": 1.38,
+      "rootRot": 0.65,
+      "bees": 1
+    },
+    "wild": {
+      "name": {
+        "en": "Wildflower edge",
+        "es": "Linde florida"
+      },
+      "benefit": {
+        "en": "Nearby wildflowers increase visits by pollinators.",
+        "es": "Las flores silvestres atraen más polinizadores."
+      },
+      "risk": {
+        "en": "Sheltered edges can harbor aphids and slugs.",
+        "es": "Los bordes protegidos también acogen pulgones y babosas."
+      },
+      "color": "#8c865e",
+      "rain": 1.02,
+      "evap": 0.98,
+      "temp": 0,
+      "slugs": 1.12,
+      "mites": 0.92,
+      "rootRot": 1,
+      "bees": 1.25
+    },
+    "marsh": {
+      "name": {
+        "en": "Reed marsh",
+        "es": "Humedal"
+      },
+      "benefit": {
+        "en": "Deep moisture reserves. Excellent for moisture-loving crops.",
+        "es": "Deep moisture reserves. Excellent for moisture-loving crops."
+      },
+      "risk": {
+        "en": "Slugs and root rot spread fast.",
+        "es": "Slugs and root rot spread fast."
+      },
+      "color": "#708d7a",
+      "rain": 1.35,
+      "evap": 0.75,
+      "temp": -1.3,
+      "slugs": 1.7,
+      "mites": 0.75,
+      "rootRot": 1.65,
+      "bees": 1.15
+    },
+    "rocky": {
+      "name": {
+        "en": "Rocky ridge",
+        "es": "Loma rocosa"
+      },
+      "benefit": {
+        "en": "Less pest habitat and warm daytime sun.",
+        "es": "Less pest habitat and warm daytime sun."
+      },
+      "risk": {
+        "en": "Very fast drainage and low water capacity.",
+        "es": "Very fast drainage and low water capacity."
+      },
+      "color": "#b7a38f",
+      "rain": 0.78,
+      "evap": 1.35,
+      "temp": 1.8,
+      "slugs": 0.7,
+      "mites": 1.35,
+      "rootRot": 0.72,
+      "bees": 0.85
+    },
+    "forest": {
+      "name": {
+        "en": "Forest edge",
+        "es": "Borde del bosque"
+      },
+      "benefit": {
+        "en": "Wild pollinators and shade protect sensitive crops.",
+        "es": "Wild pollinators and shade protect sensitive crops."
+      },
+      "risk": {
+        "en": "Cooler growing days and a wetter insect habitat.",
+        "es": "Cooler growing days and a wetter insect habitat."
+      },
+      "color": "#798b62",
+      "rain": 1.13,
+      "evap": 0.86,
+      "temp": -1.1,
+      "slugs": 1.24,
+      "mites": 0.85,
+      "rootRot": 1.12,
+      "bees": 1.48
+    },
+    "terrace": {
+      "name": {
+        "en": "Stone terrace",
+        "es": "Bancal"
+      },
+      "benefit": {
+        "en": "Sheltered slope; retains water better than the ridge.",
+        "es": "Sheltered slope; retains water better than the ridge."
+      },
+      "risk": {
+        "en": "Construction and soil management need attention.",
+        "es": "Construction and soil management need attention."
+      },
+      "color": "#a99873",
+      "rain": 1.05,
+      "evap": 0.92,
+      "temp": 0.6,
+      "slugs": 0.9,
+      "mites": 1.0,
+      "rootRot": 0.86,
+      "bees": 1.17
+    }
+  },
+  "courses": {
+    "soil": {
+      "name": {
+        "en": "Reading the soil",
+        "es": "Leer el suelo"
+      },
+      "description": {
+        "en": "Understand N/P/K balances and spend 10% less on mineral fertilizer material.",
+        "es": "Aprende a interpretar N/P/K y gasta un 10% menos en material fertilizante."
+      },
+      "cost": 95,
+      "hours": 12,
+      "bonus": 0.1,
+      "building": null
+    },
+    "water": {
+      "name": {
+        "en": "Water-wise farming",
+        "es": "Cultivar con el agua justa"
+      },
+      "description": {
+        "en": "Learn irrigation planning; 12% lower irrigation labor costs.",
+        "es": "Planifica el riego; el trabajo de riego cuesta un 12% menos."
+      },
+      "cost": 120,
+      "hours": 16,
+      "bonus": 0.12,
+      "building": null
+    },
+    "ecology": {
+      "name": {
+        "en": "Living pest control",
+        "es": "Control biológico de plagas"
+      },
+      "description": {
+        "en": "Recognize insects and diseases; 12% less pest damage in future growth.",
+        "es": "Reconoce insectos y enfermedades; un 12% menos de daño por plagas."
+      },
+      "cost": 165,
+      "hours": 20,
+      "bonus": 0.12,
+      "building": null
+    },
+    "livestock": {
+      "name": {
+        "en": "Animal husbandry",
+        "es": "Bienestar animal"
+      },
+      "description": {
+        "en": "Learn humane husbandry; healthy animals produce 10% more.",
+        "es": "Aprende cuidados respetuosos; animales sanos producen un 10% más."
+      },
+      "cost": 195,
+      "hours": 24,
+      "bonus": 0.1,
+      "building": "academy"
+    },
+    "craft": {
+      "name": {
+        "en": "Artisan workshop",
+        "es": "Taller de artesanía"
+      },
+      "description": {
+        "en": "Learn practical scheduling; processing jobs finish 12% sooner.",
+        "es": "Aprende a organizar lotes; las transformaciones tardan un 12% menos."
+      },
+      "cost": 215,
+      "hours": 24,
+      "bonus": 0.12,
+      "building": "academy"
+    },
+    "trade": {
+      "name": {
+        "en": "Village market school",
+        "es": "Comercio local"
+      },
+      "description": {
+        "en": "Learn negotiation; sales earn 5% more at market rates.",
+        "es": "Aprende negociación; las ventas reciben un 5% más a precio de mercado."
+      },
+      "cost": 175,
+      "hours": 18,
+      "bonus": 0.05,
+      "building": "academy"
+    },
+    "ranger": {
+      "name": {
+        "en": "Wildlife & trail ecology",
+        "es": "Ecologia y senderos"
+      },
+      "description": {
+        "en": "Study habitats, navigation and ecological field observation.",
+        "es": "Aprende habitats, rutas y observacion de fauna."
+      },
+      "cost": 195,
+      "hours": 21,
+      "bonus": 0.06,
+      "building": "academy"
+    },
+    "cartography": {
+      "name": {
+        "en": "Landscape & cartography",
+        "es": "Paisaje y cartografia"
+      },
+      "description": {
+        "en": "Learn to compare terrain and assess land purchases.",
+        "es": "Aprende a evaluar terrenos y compras."
+      },
+      "cost": 220,
+      "hours": 22,
+      "bonus": 0.08,
+      "building": "academy"
+    }
+  },
+  "backgrounds": {
+    "balanced": {
+      "name": {
+        "en": "Independent grower",
+        "es": "Agricultor independiente"
+      },
+      "description": {
+        "en": "A fresh start with the standard farm resources.",
+        "es": "Un nuevo comienzo con los recursos normales de la finca."
+      },
+      "perk": {
+        "en": "Standard starting resources.",
+        "es": "Recursos iniciales normales."
+      }
+    },
+    "steward": {
+      "name": {
+        "en": "Soil steward",
+        "es": "Cuidador del suelo"
+      },
+      "description": {
+        "en": "You learned to feed soil before asking it for a harvest.",
+        "es": "Aprendiste a cuidar el suelo antes de pedirle una cosecha."
+      },
+      "perk": {
+        "en": "Extra organic nitrogen in every field at the start.",
+        "es": "Nitrógeno orgánico adicional en todas las parcelas al empezar."
+      }
+    },
+    "naturalist": {
+      "name": {
+        "en": "Field naturalist",
+        "es": "Naturalista"
+      },
+      "description": {
+        "en": "You know which small visitors can become allies.",
+        "es": "Sabes qué pequeños visitantes pueden convertirse en aliados."
+      },
+      "perk": {
+        "en": "Extra ladybirds in every field, within habitat capacity.",
+        "es": "Más mariquitas iniciales en todas las parcelas, dentro de la capacidad del hábitat."
+      }
+    },
+    "engineer": {
+      "name": {
+        "en": "Water keeper",
+        "es": "Guardián del agua"
+      },
+      "description": {
+        "en": "You arrive with a plan to make every stored drop count.",
+        "es": "Llegas con un plan para aprovechar cada gota almacenada."
+      },
+      "perk": {
+        "en": "Extra starting water in the farm reservoir, up to capacity.",
+        "es": "Agua inicial adicional en el depósito, hasta su capacidad máxima."
+      }
+    }
+  },
+  "modes": {
+    "story": {
+      "name": {
+        "en": "Story: The returning season",
+        "es": "Historia: La estación del regreso"
+      },
+      "description": {
+        "en": "Rebuild an inherited valley farm over three chapters. Your harvests and rotations shape the ending. Continue farming afterwards.",
+        "es": "Recupera una finca heredada a lo largo de tres capítulos. Tus cosechas y rotaciones deciden el desenlace. Después puedes seguir cultivando."
+      }
+    },
+    "freeplay": {
+      "name": {
+        "en": "Free play",
+        "es": "Juego libre"
+      },
+      "description": {
+        "en": "Build your own farming rhythm. Every resource and cost still matters, with no campaign deadline.",
+        "es": "Cultiva a tu ritmo. Los recursos y los gastos siguen contando, sin un plazo de campaña."
+      }
+    },
+    "challenge": {
+      "name": {
+        "en": "Challenge: A lean beginning",
+        "es": "Desafío: Un comienzo difícil"
+      },
+      "description": {
+        "en": "Less starting money, less frequent rain and more initial pests. Meet all six harvest objectives in three seasons.",
+        "es": "Menos dinero inicial, menos lluvia y más plagas al empezar. Supera los seis objetivos de cosecha en tres temporadas."
+      }
+    }
+  },
+  "story": [
+    {
+      "id": 1,
+      "title": {
+        "en": "The key to the valley",
+        "es": "La llave del valle"
+      },
+      "speaker": {
+        "en": "Inés · your neighbour",
+        "es": "Inés · tu vecina"
+      },
+      "text": {
+        "en": "A key, a notebook and three quiet fields: this is what your aunt left you. The farm is still alive, but it needs someone to listen. Your first task is a harvest that can pay its own way.",
+        "es": "Una llave, un cuaderno y tres parcelas tranquilas: eso te dejó tu tía. La finca sigue viva, pero necesita a alguien que la escuche. Tu primera tarea es lograr una cosecha que cubra sus propios gastos."
+      },
+      "letter": {
+        "en": "“Start with the soil,” Inés says at the gate. “Water and nutrients have to arrive together. Watch the insects before you decide which ones to remove. I will come back when the first harvest is in.”",
+        "es": "«Empieza por el suelo», dice Inés junto a la verja. «El agua y los nutrientes deben llegar juntos. Observa los insectos antes de decidir cuáles eliminar. Volveré cuando recojas la primera cosecha»."
+      },
+      "goalsIntro": {
+        "en": "Grow a useful harvest and cover the first season’s production costs.",
+        "es": "Consigue una cosecha suficiente y cubre los costes de producción de la primera temporada."
+      }
+    },
+    {
+      "id": 2,
+      "title": {
+        "en": "What the land remembers",
+        "es": "Lo que recuerda la tierra"
+      },
+      "speaker": {
+        "en": "Darío · the irrigation keeper",
+        "es": "Darío · encargado del riego"
+      },
+      "text": {
+        "en": "The first crop has gone to market. Under the surface, its residues and risks remain. Darío helps you read the old notebook: every field has a memory, and the next crop should make use of it.",
+        "es": "La primera cosecha ya llegó al mercado. Bajo la superficie quedan sus restos y sus riesgos. Darío te ayuda a leer el viejo cuaderno: cada parcela tiene memoria y el siguiente cultivo debe aprovecharla."
+      },
+      "letter": {
+        "en": "“Your aunt never asked one field to do the same job forever. Give the next family a turn. Keep an eye on the tank, too: an empty reservoir cannot irrigate a thirsty crop.”",
+        "es": "«Tu tía nunca le pedía a una parcela que hiciera siempre el mismo trabajo. Dale el turno a otra familia de cultivos. Vigila también el depósito: si está vacío, no podrá regar un cultivo sediento»."
+      },
+      "goalsIntro": {
+        "en": "Rotate enough fields and sustain a second productive harvest.",
+        "es": "Rota suficientes parcelas y mantén una segunda cosecha productiva."
+      }
+    },
+    {
+      "id": 3,
+      "title": {
+        "en": "A place at the harvest table",
+        "es": "Un lugar en la mesa de la cosecha"
+      },
+      "speaker": {
+        "en": "Inés and the valley growers",
+        "es": "Inés y los agricultores del valle"
+      },
+      "text": {
+        "en": "The valley is preparing its harvest gathering. There is a place for your farm at the table, but the story you bring depends on the choices you made: the crops you rotated, the allies you protected and the costs you could sustain.",
+        "es": "El valle prepara su encuentro de la cosecha. Hay un lugar para tu finca en la mesa, pero la historia que llevarás depende de tus decisiones: los cultivos que rotaste, los aliados que protegiste y los gastos que pudiste sostener."
+      },
+      "letter": {
+        "en": "“Nobody can promise an easy season,” Inés writes. “Bring us a farm with a future, not just one lucky harvest. Let the records tell the truth.”",
+        "es": "«Nadie puede prometer una temporada fácil», escribe Inés. «Tráenos una finca con futuro, además de una buena cosecha. Que los registros cuenten la verdad»."
+      },
+      "goalsIntro": {
+        "en": "Build a diverse crop history and finish with a sustainable cumulative result.",
+        "es": "Construye un historial diverso de cultivos y termina con un resultado económico acumulado sostenible."
+      }
+    }
+  ],
+  "avatar": {
+    "skin": [
+      "#f3d1b0",
+      "#deb58e",
+      "#c78d62",
+      "#a66a43",
+      "#794b34",
+      "#503324"
+    ],
+    "hair": [
+      "crop",
+      "waves",
+      "braids",
+      "bald"
+    ],
+    "outfit": [
+      "#42684b",
+      "#c49a41",
+      "#ac644c",
+      "#4f7d9b",
+      "#8b5278"
+    ]
+  }
+}

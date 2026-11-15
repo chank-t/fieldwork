@@ -1,0 +1,22 @@
+# Godot generated content
+.godot/
+.import/
+*.import
+# Local exports and build artifacts
+build/
+dist/
+exports/
+*.apk
+*.aab
+*.exe
+*.pck
+# Temp/editor files
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+*.swp
+__pycache__/
+*.pyc
+# Generated QA results (running audits will regenerate)
+tests/QA_*_RESULT.json
