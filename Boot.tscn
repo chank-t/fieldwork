@@ -89,7 +89,7 @@ text = "Continue saved farm"
 
 [node name="SmallPrint" type="Label" parent="Center/Frame/Content"]
 layout_mode = 2
-text = "Offline | No account | No Node.js | Godot 4.4+"
+text = "Offline | No account | No Node.js"
 horizontal_alignment = 1
 
 [node name="Status" type="Label" parent="Center/Frame/Content"]

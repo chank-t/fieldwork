@@ -21,7 +21,3 @@ Thumbs.db
 *.swp
 __pycache__/
 *.pyc
-# Generated QA results (running audits will regenerate)
-tests/QA_*_RESULT.json
-tests/QA_RESULT.json
-shader_cache/

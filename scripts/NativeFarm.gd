@@ -1156,7 +1156,7 @@ func act(kind: String, args: Dictionary = {}) -> Dictionary:
 	if kind != "tutorial":
 		_checkpoint_tutorial(kind)
 	if kind != "move" and kind != "inspect" and kind != "tutorial":
-		_check_milestones()
+		_check_milestones(original["stats"])
 	return result
 
 func _checkpoint_tutorial(kind: String) -> void:
@@ -1167,11 +1167,13 @@ func _checkpoint_tutorial(kind: String) -> void:
 		_xp(15)
 		_log("Tutorial lesson " + str(index + 1) + " completed", "story")
 
-func _check_milestones() -> void:
+func _check_milestones(previous_stats: Dictionary) -> void:
 	var stats: Dictionary = state["stats"]
 	for id in QUESTS:
 		var quest: Dictionary = QUESTS[id]
-		if not state["story"]["quests"].has(id) and float(stats.get(quest["stat"], 0.0)) >= float(quest["target"]):
+		var stat: String = str(quest["stat"])
+		var target: float = float(quest["target"])
+		if not state["story"]["quests"].has(id) and float(previous_stats.get(stat, 0.0)) < target and float(stats.get(stat, 0.0)) >= target:
 			# Rewards require a separate claim action.
 			_log("Quest ready: " + n(quest), "quest")
 	for trophy in ["first_crop", "thousand_kg", "first_building", "first_animal", "first_contract", "first_course", "all_land", "artisan"]:

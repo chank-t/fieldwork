@@ -91,7 +91,7 @@ func _apply_language() -> void:
 	$Center/Frame/Content/About.text = "Gestiona tu finca, consulta el nuevo Compass, completa objetivos y explora ocho regiones del valle." if language == "es" else "Grow your farm, follow the new Farm Compass, complete long-term goals and explore eight valley regions."
 	$Center/Frame/Content/NewGame.text = "Crear una finca nueva" if language == "es" else "Create a new farm"
 	$Center/Frame/Content/Continue.text = "Continuar partida" if language == "es" else "Continue saved farm"
-	$Center/Frame/Content/SmallPrint.text = "Sin conexión · Sin cuenta · Godot 4.4+" if language == "es" else "Offline · No account · Godot 4.4+"
+	$Center/Frame/Content/SmallPrint.text = "Sin conexión · Sin cuenta" if language == "es" else "Offline · No account"
 	for button in [en_button,es_button]:
 		var box: StyleBoxFlat = StyleBoxFlat.new()
 		var selected: bool = (button == es_button and language == "es") or (button == en_button and language == "en")

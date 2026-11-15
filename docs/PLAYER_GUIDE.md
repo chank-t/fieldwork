@@ -65,4 +65,4 @@ Options include interface scaling (source range 100%-165%), high-contrast modes,
 
 ## Before relying on a long campaign
 
-Use **Save** or one of three manual slots, keep backups of Godot `user://`, and verify that an exported build runs on your target PC or phone. See [Saves and migration](SAVES_AND_MIGRATION.md).
+Use **Save** or one of three manual slots, keep an external backup of Godot `user://`, and verify that an exported build runs on your target PC or phone.
