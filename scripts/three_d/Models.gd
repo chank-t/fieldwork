@@ -12,7 +12,6 @@ static func material(color: Color) -> StandardMaterial3D:
 		result.albedo_color = color.srgb_to_linear()
 		result.roughness = 0.80
 		result.metallic = 0.04
-		result.specular = 0.35
 		result.ao_enabled = true
 		result.ao_light_affect = 0.25
 		materials[key] = result
@@ -192,19 +191,20 @@ static func farmer(parent: Node3D, source: Dictionary) -> Node3D:
 	var width: float = 1.18 if look["body"] == "broad" else (0.84 if look["body"] == "compact" else 1.0)
 	var skin := Color(str(look["skin"]))
 	var hair := Color(str(look["hair_color"]))
+	var outfit := Color(str(look["outfit"]))
 	for side in [-1.0,1.0]:
 		box(node, Vector3(side*0.19,0.46,0), Vector3(0.31,0.7,0.36), Color(str(look["pants"])))
 		box(node, Vector3(side*0.19,0.14,0.08), Vector3(0.35,0.27,0.52), Color(str(look["boots"])))
-		ball(node, Vector3(side*0.52*width,1.18,0), Vector3(0.27,0.68,0.32), Color(str(look["outfit"])))
+		ball(node, Vector3(side*0.52*width,1.18,0), Vector3(0.27,0.68,0.32), outfit)
 		ball(node, Vector3(side*0.54*width,0.9,0.06), Vector3.ONE*0.24, skin)
-	box(node, Vector3(0,1.15,0), Vector3(0.80*width,0.88,0.48), Color(str(look["outfit"])))
-	box(node, Vector3(0,1.03,0.25), Vector3(0.52,0.56,0.04), Color(str(look["outfit"])).darkened(0.18))
-	box(node, Vector3(0,1.36,0.12), Vector3(0.64,0.18,0.44), Color(str(look["outfit"]).lightened(0.05)))
+	box(node, Vector3(0,1.15,0), Vector3(0.80*width,0.88,0.48), outfit)
+	box(node, Vector3(0,1.03,0.25), Vector3(0.52,0.56,0.04), outfit.darkened(0.18))
+	box(node, Vector3(0,1.36,0.12), Vector3(0.64,0.18,0.44), outfit.lightened(0.05))
 	ball(node, Vector3(0,1.92,0), Vector3(0.9,0.82,0.74), skin)
 	for side in [-1.0,1.0]:
 		ball(node, Vector3(side*0.16,1.95,0.35), Vector3.ONE*0.075, Color(str(look["eyes"])))
 	ball(node, Vector3(0,1.82,0.41), Vector3(0.12,0.13,0.1), skin.lightened(0.1))
-	box(node, Vector3(0,1.73,0.12), Vector3(0.12,0.18,0.18), Color(str(look["outfit"]).darkened(0.2)))
+
 	if look["hair"] != "bald":
 		ball(node, Vector3(0,2.19,-0.02), Vector3(0.95,0.42,0.80), hair)
 		if look["hair"] in ["long","braids"]:

@@ -293,7 +293,7 @@ func _update_selection() -> void:
 	if selection == null: return
 	var i: int = int(selected.trim_prefix("plot"))-1
 	selection.visible = i >= 0 and i < 24
-	if selection.visible: selection.position = Vector3(GRID_X[i%6]+FIELD_W/2,0.23,GRID_Y[i/6]+FIELD_H/2)
+	if selection.visible: selection.position = Vector3(GRID_X[i%6]+FIELD_W/2,0.23,GRID_Y[floori(float(i)/6.0)]+FIELD_H/2)
 
 func _tick(delta: float) -> void:
 	if farm == null or farm.state.is_empty(): return

@@ -14,8 +14,8 @@ static func localized(value: Variant, lang: String) -> String:
 static func root_arc(event_id: String) -> String:
 	var arcs: Dictionary = Data.load_dictionary(SOURCE).get("arcs",{})
 	for arc_id in arcs:
-		var arc: Dictionary = arcs[arc_id]
-		if str(arc.get("root", "")) == event_id:
+		var arc_data: Dictionary = arcs[arc_id]
+		if str(arc_data.get("root", "")) == event_id:
 			return str(arc_id)
 	return ""
 
