@@ -1595,8 +1595,10 @@ func _import_file(path: String) -> void:
 		return
 	var result: Dictionary = farm.load_text(file.get_as_text())
 	if result.get("ok",false):
-		farm.save_file()
+		var saved: Dictionary = farm.save_file()
 		_refresh()
+		if not bool(saved.get("ok",false)):
+			_notify(tx("The save was imported but could not be stored: ","La partida se importó, pero no se pudo guardar: ") + str(saved.get("error","Unknown write error")))
 	else:
 		_notify(str(result.get("error","Invalid import")))
 
@@ -3223,8 +3225,10 @@ func _research_current_event() -> void:
 	if not bool(result.get("ok",false)):
 		_notify(str(result.get("error","Research not available")))
 		return
-	farm.save_file()
+	var saved: Dictionary = farm.save_file()
 	_show_decision_board()
+	if not bool(saved.get("ok",false)):
+		_notify(tx("The research succeeded but autosave failed: ","La investigación se completó, pero falló el autoguardado: ") + str(saved.get("error","Unknown write error")))
 
 func _event_decide(choice: String) -> void:
 	var id: String = str(farm.state["events"]["active"].get("id",""))
@@ -3237,11 +3241,14 @@ func _event_decide(choice: String) -> void:
 	if not bool(result.get("ok",false)):
 		_notify(str(result.get("error",tx("Action failed","Acción no disponible"))))
 		return
-	farm.save_file()
+	var saved: Dictionary = farm.save_file()
 	_close_modal()
 	_refresh()
 	var outcome_title: String = Chains.title(id,language) if not Chains.stage(id).is_empty() else Decisions.title(id,language)
-	_notify(outcome_title + "\n" + str(selected_option.get("effect","")) + "\n" + str(result.get("message","")))
+	var outcome_message: String = outcome_title + "\n" + str(selected_option.get("effect","")) + "\n" + str(result.get("message",""))
+	if not bool(saved.get("ok",false)):
+		outcome_message += "\n" + tx("The choice was applied but autosave failed: ","La decisión se aplicó, pero falló el autoguardado: ") + str(saved.get("error","Unknown write error"))
+	_notify(outcome_message)
 
 func _enter_building(kind: String) -> void:
 	if not game_running:

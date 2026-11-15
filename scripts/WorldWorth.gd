@@ -3,14 +3,10 @@ extends RefCounted
 ## This module does not alter the simulation or use its random number generator.
 const SOURCE: String = "res://data/world_worth_50.json"
 const SEASON_KEYS: Array = ["spring", "summer", "autumn", "winter"]
+const Data = preload("res://scripts/NativeData.gd")
 
 static func catalog() -> Dictionary:
-	var file: FileAccess = FileAccess.open(SOURCE, FileAccess.READ)
-	if file == null:
-		push_error("Missing Fieldwork 5.0 content catalog")
-		return {}
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+	return Data.load_dictionary(SOURCE)
 
 static func localized(item: Variant, language: String) -> String:
 	if typeof(item) != TYPE_DICTIONARY:

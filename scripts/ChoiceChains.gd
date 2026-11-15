@@ -1,14 +1,10 @@
 extends RefCounted
 ## 4.8 authored multi-step storylines. No RNG or farm mutations in this file.
 const SOURCE: String = "res://data/event_chains_48.json"
+const Data = preload("res://scripts/NativeData.gd")
 
 static func catalog() -> Dictionary:
-	var f: FileAccess = FileAccess.open(SOURCE, FileAccess.READ)
-	if f == null:
-		push_error("Missing Fieldwork 4.8 story chains")
-		return {}
-	var parsed: Variant = JSON.parse_string(f.get_as_text())
-	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+	return Data.load_dictionary(SOURCE)
 
 static func localized(value: Variant, lang: String) -> String:
 	if typeof(value) != TYPE_DICTIONARY:
@@ -16,17 +12,18 @@ static func localized(value: Variant, lang: String) -> String:
 	return str(value.get(lang, value.get("en", "")))
 
 static func root_arc(event_id: String) -> String:
-	for arc_id in catalog().get("arcs",{}).keys():
-		var arc: Dictionary = catalog()["arcs"][arc_id]
+	var arcs: Dictionary = Data.load_dictionary(SOURCE).get("arcs",{})
+	for arc_id in arcs:
+		var arc: Dictionary = arcs[arc_id]
 		if str(arc.get("root", "")) == event_id:
 			return str(arc_id)
 	return ""
 
 static func arc(arc_id: String) -> Dictionary:
-	return catalog().get("arcs",{}).get(arc_id,{})
+	return Data.load_dictionary(SOURCE).get("arcs",{}).get(arc_id,{})
 
 static func stage(stage_id: String) -> Dictionary:
-	return catalog().get("stages",{}).get(stage_id,{})
+	return Data.load_dictionary(SOURCE).get("stages",{}).get(stage_id,{})
 
 static func title(stage_id: String, lang: String) -> String:
 	return localized(stage(stage_id).get("title", {"en":stage_id}),lang)
