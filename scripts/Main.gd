@@ -1,14 +1,15 @@
 extends Control
-## FIELDWORK NATIVE. The main menu is drawn synchronously in _ready.
+## FieldWork native. The main menu is drawn synchronously in _ready.
 ## Nothing on the startup path requires Node.js, a web server, or credentials.
 
 const FarmScript = preload("res://scripts/NativeFarm.gd")
-const WorldScript = preload("res://scripts/World.gd")
-const IsoWorld56 = preload("res://scripts/IsometricWorld.gd")
-const IllustratedScript = preload("res://scripts/IllustratedFarm.gd")
-const ValleyScript = preload("res://scripts/Overworld.gd")
-const PortraitScript = preload("res://scripts/FarmerPortrait.gd")
-const InteriorScript = preload("res://scripts/Interior.gd")
+const WorldScript = preload("res://scripts/three_d/FarmView3D.gd")
+const Backdrop3D = preload("res://scripts/three_d/Backdrop3D.gd")
+const ThemeKit = preload("res://scripts/three_d/GameTheme.gd")
+const MachinePreview = preload("res://scripts/three_d/MachinePreview3D.gd")
+const ValleyScript = preload("res://scripts/three_d/ValleyView3D.gd")
+const PortraitScript = preload("res://scripts/three_d/PortraitView3D.gd")
+const InteriorScript = preload("res://scripts/three_d/InteriorView3D.gd")
 const Data = preload("res://scripts/NativeData.gd")
 const Decisions = preload("res://scripts/DecisionContent.gd")
 const Chains = preload("res://scripts/ChoiceChains.gd")
@@ -27,10 +28,10 @@ const Compass60 = preload("res://scripts/FarmCompass.gd")
 
 const INK = Color("#263a32")
 const MUTED = Color("#687e70")
-const BG = Color("#dce9d8")
-const PANEL = Color("#fffcf2")
-const ACCENT = Color("#347856")
-const ACCENT2 = Color("#e0eddb")
+const BG = Color("#e7e9dd")
+const PANEL = Color("#f7f4e9")
+const ACCENT = Color("#3f6652")
+const ACCENT2 = Color("#e2e7d7")
 const GOLD = Color("#dbb86b")
 const DANGER = Color("#b8665a")
 
@@ -72,10 +73,11 @@ var inside: Control = null
 var selected_npc: String = "ines"
 var nav_buttons: Dictionary = {}
 # 5.5 responsive presentation remains separate from the farm simulation.
-var sidebar_open: bool = true
+var sidebar_open: bool = false
 var left_nav_holder: PanelContainer = null
 var hud_values: Dictionary = {}
 var context_title: Label = null
+var context_card_view: PanelContainer = null
 var context_detail: Label = null
 var context_moisture: ProgressBar = null
 var context_growth: ProgressBar = null
@@ -84,7 +86,7 @@ var context_water: Button = null
 var context_harvest: Button = null
 var overlay_picker: OptionButton = null
 var terrain_overlay: String = "none"
-var use_25d: bool = true
+var map_perspective: bool = false
 var plot_status_label: Label = null
 var compact_mode: bool = false
 var reflow_pending: bool = false
@@ -132,7 +134,7 @@ func _persist_language() -> void:
 	prefs.set_value("presentation","ambient_enabled",ambient_enabled)
 	prefs.set_value("presentation","ambient_volume",ambient_volume)
 	prefs.set_value("presentation","farm_overlay_51",terrain_overlay)
-	prefs.set_value("presentation","isometric_56",use_25d)
+	prefs.set_value("presentation","map_perspective",map_perspective)
 	prefs.set_value("presentation","sidebar_open_55",sidebar_open)
 	prefs.set_value("presentation","render_preset_59",performance_mode59)
 	prefs.set_value("presentation","fps_counter_59",show_fps59)
@@ -239,6 +241,7 @@ func _go_from_modal(tab: String) -> void:
 func _apply_visual_preferences(view: Variant) -> void:
 	if view == null or not is_instance_valid(view):
 		return
+	view.perspective = map_perspective
 	view.show_ambient_effects = visual_weather
 	view.show_growth_labels = visual_growth_labels
 	view.show_animal_moods = visual_animal_moods
@@ -258,6 +261,8 @@ func _set_visual_option(enabled: bool, key: String) -> void:
 	_apply_visual_preferences(world)
 
 func _ready() -> void:
+	theme = ThemeKit.create()
+	DisplayServer.window_set_title("FieldWork")
 	Layout55.configure_window(get_window())
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	language = str(get_tree().get_meta("fieldwork_language","en"))
@@ -279,10 +284,10 @@ func _ready() -> void:
 		show_fps59 = bool(settings.get_value("presentation","fps_counter_59",false))
 		overlay_numbers59 = bool(settings.get_value("presentation","overlay_numbers_59",true))
 		terrain_overlay = str(settings.get_value("presentation","farm_overlay_51","none"))
-		use_25d = bool(settings.get_value("presentation","isometric_56",true))
+		map_perspective = bool(settings.get_value("presentation","map_perspective",false))
 		if not Beauty51.OVERLAYS.has(terrain_overlay):
 			terrain_overlay = "none"
-		sidebar_open = bool(settings.get_value("presentation","sidebar_open_55",true))
+		sidebar_open = bool(settings.get_value("presentation","sidebar_open_55",false))
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	if Layout55.is_mobile_device() or Layout55.mode(DisplayServer.window_get_size(),get_viewport_rect().size) == 0:
 		ui_scale = maxf(ui_scale,1.22)
@@ -340,6 +345,8 @@ func _text(value: String, font_size: int = 15, color: Color = INK) -> Label:
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override("font_size",maxi(10,int(round(float(font_size) * ui_scale))))
 	label.add_theme_color_override("font_color",color)
+	if font_size >= 22:
+		label.add_theme_font_override("font",ThemeKit.SERIF)
 	return label
 
 func _button(value: String, cb: Callable, parent: Node, primary: bool = false) -> Button:
@@ -351,7 +358,9 @@ func _button(value: String, cb: Callable, parent: Node, primary: bool = false) -
 	b.add_theme_font_size_override("font_size",maxi(12,int(round(14.0 * ui_scale))))
 	b.add_theme_stylebox_override("normal", _style(Color("#24563c") if high_contrast and primary else (ACCENT if primary else (Color("#f1f9eb") if high_contrast else ACCENT2)),9))
 	b.add_theme_stylebox_override("hover", _style(Color("#a9d2b1"),9))
-	b.add_theme_stylebox_override("pressed", _style(Color("#94bd9d"),9))
+	b.add_theme_stylebox_override("pressed", _style(Color("#b6c8a9"),9))
+	b.add_theme_stylebox_override("disabled", _style(Color("#e0e2d7"),9))
+	b.add_theme_color_override("font_disabled_color",Color("#7b8475"))
 	b.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT,9,Color("#f3b24e")))
 	b.add_theme_color_override("font_color", Color.WHITE if primary else INK)
 	b.add_theme_color_override("font_hover_color", INK)
@@ -442,19 +451,14 @@ func _field(parent: Node, starting: String = "", hint: String = "") -> LineEdit:
 	return input
 
 func _scenic_background(parent: Control) -> void:
-	_background(parent)
-	var landscape: TextureRect = TextureRect.new()
-	landscape.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	landscape.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	var landscape: Control = Backdrop3D.new()
 	landscape.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	landscape.texture = load("res://assets/cover_landscape.png")
 	parent.add_child(landscape)
 	landscape.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var tint: ColorRect = ColorRect.new()
-	tint.color = Color(0.10,0.20,0.14,0.30)
-	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(tint)
-	tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	landscape.reduced_motion = reduced_motion
+	landscape.performance_mode59 = performance_mode59
+	landscape.farm.language = language
+
 
 func _clear_scene() -> void:
 	for child in get_children():
@@ -478,6 +482,7 @@ func _clear_scene() -> void:
 	fps_label59 = null
 	fps_accum59 = 0.0
 	context_title = null
+	context_card_view = null
 	context_detail = null
 	context_moisture = null
 	context_growth = null
@@ -511,7 +516,7 @@ func _show_start_menu() -> void:
 	frame.add_theme_stylebox_override("panel",_style(PANEL,22))
 	center.add_child(frame)
 	var body: VBoxContainer = _vbox(frame,14)
-	var logo: Label = _line(body,"FIELDWORK",46,ACCENT)
+	var logo: Label = _line(body,"FieldWork",46,ACCENT)
 	logo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var subtitle: Label = _line(body,tx("THE LIVING VALLEY  |  NATIVE GODOT EDITION","EL VALLE VIVO  |  EDICION NATIVA GODOT"),16,MUTED)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -525,7 +530,7 @@ func _show_start_menu() -> void:
 				cont.disabled = false
 	_button(tx("Language: English / Espanol","Idioma: English / Espanol"),_toggle_menu_language,body)
 	_button(tx("How to play","Cómo jugar"),_show_rules,body)
-	var foot: Label = _line(body,"Godot 4.4+  |  Native 6.0  |  Offline  |  No Node.js",12,MUTED)
+	var foot: Label = _line(body,"Godot 4.6  ·  Offline",12,MUTED)
 	foot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 func _continue() -> void:
@@ -684,7 +689,7 @@ func _hud_chip(parent: Node, key: String) -> void:
 	parent.add_child(tile)
 	var value: Label = _text("",13,INK)
 	value.autowrap_mode = TextServer.AUTOWRAP_OFF
-	value.clip_text = true
+	value.clip_text = false
 	tile.add_child(value)
 	hud_values[key] = value
 
@@ -696,7 +701,7 @@ func _toolbar_button(parent: Node, caption: String, action: Callable, important:
 	return button
 
 func _toggle_sidebar() -> void:
-	if compact_mode:
+	if layout_band < 2:
 		_show_screen_picker()
 		return
 	sidebar_open = not sidebar_open
@@ -726,11 +731,14 @@ func _select_screen_51(tab: String) -> void:
 	_close_modal()
 	_change_tab(tab)
 
-func _toggle_perspective56() -> void:
-	use_25d = not use_25d
+func _toggle_map_view() -> void:
+	map_perspective = not map_perspective
 	_persist_language()
-	if game_running:
-		_show_game()
+	if world != null and is_instance_valid(world):
+		world.perspective = map_perspective
+	if valley_view != null and is_instance_valid(valley_view):
+		valley_view.perspective = map_perspective
+
 
 func _set_overlay_51(index: int) -> void:
 	if overlay_picker == null or index < 0 or index >= overlay_picker.item_count:
@@ -847,13 +855,13 @@ func _show_game() -> void:
 	var top: PanelContainer = PanelContainer.new()
 	game_top_bar = top
 	top.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top.add_theme_stylebox_override("panel", _style(PANEL,0))
+	top.add_theme_stylebox_override("panel", _style(PANEL,12))
 	base.add_child(top)
 	# 5.1: a compact, readable HUD, with the farm as the main canvas.
 	var topbox: HBoxContainer = _hbox(top,9)
-	var brand: Label = _text("FIELDWORK" if compact_mode else "FIELDWORK  6.0",18 if compact_mode else 19,ACCENT)
+	var brand: Label = _text("FieldWork",18 if compact_mode else 19,ACCENT)
 	brand.autowrap_mode = TextServer.AUTOWRAP_OFF
-	brand.custom_minimum_size.x = 106 if compact_mode else 184
+	brand.custom_minimum_size.x = 106 if compact_mode else 170
 	topbox.add_child(brand)
 	header_label = _text("",12,MUTED)
 	header_label.visible = false # Retained for scripts and compatibility.
@@ -909,14 +917,14 @@ func _show_game() -> void:
 		base.add_child(center_row)
 	var nav_holder: PanelContainer = PanelContainer.new()
 	left_nav_holder = nav_holder
-	nav_holder.visible = sidebar_open and not compact
+	nav_holder.visible = sidebar_open and layout_band == 2
 	nav_holder.custom_minimum_size = Vector2(0,66) if horizontal_nav else Vector2(192,0)
 	nav_holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL if horizontal_nav else Control.SIZE_SHRINK_BEGIN
 	nav_holder.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	nav_holder.add_theme_stylebox_override("panel",_style(Color("#f6f9f1"),10))
 	if horizontal_nav:
 		base.add_child(nav_holder)
-		base.move_child(nav_holder,base.get_child_index(center_row))
+		base.move_child(nav_holder,center_row.get_index())
 	else:
 		center_row.add_child(nav_holder)
 	var nav_scroll: ScrollContainer = ScrollContainer.new()
@@ -968,6 +976,7 @@ func _show_game() -> void:
 	map_toolbar.add_child(plot_status_label)
 	if not compact:
 		var layer_title: Label = _text(tx("Map layer","Capa"),12,MUTED)
+		layer_title.autowrap_mode = TextServer.AUTOWRAP_OFF
 		map_toolbar.add_child(layer_title)
 	var overlay_ids: Array = Beauty51.OVERLAY_ORDER
 	var overlay_names: Array = Beauty51.overlay_labels(language == "es")
@@ -977,21 +986,21 @@ func _show_game() -> void:
 	var overlay_index: int = maxi(0,overlay_ids.find(terrain_overlay))
 	overlay_picker.select(overlay_index)
 	overlay_picker.item_selected.connect(_set_overlay_51)
-	var perspective_button: Button = _toolbar_button(map_toolbar, "2.5D" if use_25d else "2D", _toggle_perspective56, use_25d)
+	var perspective_button: Button = _toolbar_button(map_toolbar, tx("Map view","Vista del mapa"), _toggle_map_view, map_perspective)
 	perspective_button.custom_minimum_size = Vector2(54, 42 * ui_scale)
-	perspective_button.tooltip_text = tx("Switch between isometric 2.5D and classic 2D map", "Cambiar entre mapa isométrico 2.5D y 2D clásico")
+	perspective_button.tooltip_text = tx("Toggle map view", "Alternar vista del mapa")
 	var surface: PanelContainer = PanelContainer.new()
 	surface.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	surface.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	surface.custom_minimum_size = Vector2(0,240.0 if compact else 380.0)
+	surface.custom_minimum_size = Vector2(0,240.0 if compact else minf(280.0,get_viewport_rect().size.y*0.32))
 	surface.add_theme_stylebox_override("panel",_style(Color("#edf2dd"),13,Color("#a5bfa9")))
 	surface.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	surface.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	visual_side.add_child(surface)
-	world = IsoWorld56.new() if use_25d else WorldScript.new()
+	world = WorldScript.new()
 	_apply_visual_preferences(world)
 	world.clip_contents = true
-	world.custom_minimum_size = Vector2(220,240.0) if compact else Vector2(0,380.0)
+	world.custom_minimum_size = Vector2(220,240.0) if compact else Vector2(0,minf(280.0,get_viewport_rect().size.y*0.32))
 	world.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	world.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	surface.add_child(world)
@@ -1009,17 +1018,19 @@ func _show_game() -> void:
 	world.requested_move.connect(_move_to)
 	valley_view = ValleyScript.new()
 	valley_view.clip_contents = true
-	valley_view.custom_minimum_size = Vector2(220,240.0) if compact else Vector2(0,380.0)
+	valley_view.custom_minimum_size = Vector2(220,240.0) if compact else Vector2(0,minf(280.0,get_viewport_rect().size.y*0.32))
 	valley_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	valley_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	valley_view.visible = false
 	surface.add_child(valley_view)
 	valley_view.set_farm(farm)
 	valley_view.performance_mode59 = performance_mode59
+	valley_view.perspective = map_perspective
 	valley_view.reduced_motion59 = reduced_motion
 	valley_view.region_selected.connect(_picked_region)
 	# Context bar stays visible when switching management tabs and is live-updated.
 	var context_card: PanelContainer = PanelContainer.new()
+	context_card_view = context_card
 	context_card.add_theme_stylebox_override("panel",_style(Color("#fbf8eb"),12,Color("#dce9d8")))
 	visual_side.add_child(context_card)
 	var context_layout: BoxContainer
@@ -1027,7 +1038,7 @@ func _show_game() -> void:
 	context_layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var context_labels: VBoxContainer = _vbox(context_layout,3)
 	context_labels.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	context_labels.visible = not compact
+	context_labels.visible = layout_band == 2
 	context_title = _text("",16,ACCENT)
 	context_title.autowrap_mode = TextServer.AUTOWRAP_OFF
 	context_title.clip_text = true
@@ -1048,7 +1059,7 @@ func _show_game() -> void:
 	context_growth.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	context_growth.add_theme_stylebox_override("fill",_style(Color("#82ac61"),5))
 	progress_row.add_child(context_growth)
-	var context_actions: HFlowContainer = HFlowContainer.new()
+	var context_actions: HBoxContainer = HBoxContainer.new()
 	context_actions.add_theme_constant_override("h_separation",5)
 	context_actions.add_theme_constant_override("v_separation",3)
 	context_actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL if compact else Control.SIZE_FILL
@@ -1104,7 +1115,7 @@ func _show_game() -> void:
 	confirm.confirmed.connect(_commit_pending)
 	layer.add_child(confirm)
 	info = AcceptDialog.new()
-	info.title = "Fieldwork"
+	info.title = "FieldWork"
 	layer.add_child(info)
 	_setup_file_dialogs(layer)
 	ambient_player = AudioStreamPlayer.new()
@@ -1154,6 +1165,12 @@ func _update_nav_state() -> void:
 
 func _update_visual_mode() -> void:
 	_sync_mobile_panels55()
+	if context_card_view != null:
+		context_card_view.visible = active_tab != "Valley"
+	if overlay_picker != null:
+		overlay_picker.disabled = active_tab == "Valley"
+	if active_tab == "Valley" and plot_status_label != null:
+		plot_status_label.text = tx("THE LIVING VALLEY · Choose a destination","EL VALLE VIVO · Elige un destino")
 	if world != null and valley_view != null:
 		world.visible = active_tab != "Valley"
 		if active_tab == "Valley":
@@ -1278,68 +1295,8 @@ func _walk_step(dx: int, dy: int) -> void:
 	_move_to(clampf(float(p["x"])+dx*0.8,1.0,63.0),clampf(float(p["y"])+dy*0.8,1.0,53.0))
 
 func _show_illustrated_view() -> void:
-	# Optional storybook painting of a developed farm. Click hotspots to open
-	# real plot, animal, building and social panels. The live map remains the
-	# accurate renderer of actual crops and building ownership.
-	if not game_running or (modal != null and is_instance_valid(modal)):
-		return
-	speed = 0
-	if world != null and is_instance_valid(world):
-		world.controls_enabled = false
-	var shade: ColorRect = ColorRect.new()
-	shade.color = Color("#193528")
-	shade.mouse_filter = Control.MOUSE_FILTER_STOP
-	scene_root.add_child(shade)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	modal = shade
-	var padding: MarginContainer = MarginContainer.new()
-	for edge in ["margin_left", "margin_right", "margin_top", "margin_bottom"]:
-		padding.add_theme_constant_override(edge,12)
-	shade.add_child(padding)
-	padding.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var column: VBoxContainer = _vbox(padding,8)
-	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var heading: HBoxContainer = _hbox(column,8)
-	var title: Label = _text(tx("ILLUSTRATED COURTYARD - CLICK TO EXPLORE","PATIO ILUSTRADO - PULSA PARA EXPLORAR"),17,Color("#fff7df"))
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.autowrap_mode = TextServer.AUTOWRAP_OFF
-	title.clip_text = true
-	heading.add_child(title)
-	var live_button: Button = _button(tx("Live map","Mapa vivo"),_switch_to_live_map,heading)
-	live_button.custom_minimum_size.x = 110
-	var close: Button = _button(tx("Close","Cerrar"),_close_modal,heading)
-	close.custom_minimum_size.x = 90
-	var illustrated: Variant = IllustratedScript.new()
-	illustrated.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	illustrated.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	illustrated.custom_minimum_size = Vector2(280,220)
-	column.add_child(illustrated)
-	illustrated.set_farm(farm)
-	illustrated.hotspot_selected.connect(_illustrated_hotspot)
-	var note: Label = _text(tx("Scenic illustration of a possible farm. Actual crops, construction and ownership are shown in Live map.","Ilustracion de una finca posible. Los cultivos y edificios reales se muestran en Mapa vivo."),12,Color("#fff2d5"))
-	column.add_child(note)
-
-func _switch_to_live_map() -> void:
-	_close_modal()
 	_show_panorama()
 
-func _illustrated_hotspot(kind: String, reference: String) -> void:
-	_close_modal()
-	match kind:
-		"field":
-			_picked_field(reference)
-		"npc":
-			_picked_npc(reference)
-		"animal":
-			_change_tab("Animals")
-		"market":
-			_change_tab("Market")
-		"building":
-			if reference == "farmhouse" or farm.ready(reference):
-				_enter_building(reference)
-			else:
-				_change_tab("Buildings")
-				_notify(tx("Build this structure before entering it.","Construye el edificio antes de entrar."))
 
 func _show_panorama() -> void:
 	# The full-screen farm uses the same real World and game state as the
@@ -1376,7 +1333,7 @@ func _show_panorama() -> void:
 	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	shell.add_child(frame)
-	var grand: Variant = IsoWorld56.new() if use_25d else WorldScript.new()
+	var grand: Variant = WorldScript.new()
 	_apply_visual_preferences(grand)
 	grand.overlay_mode = terrain_overlay
 	grand.clip_contents = true
@@ -1396,7 +1353,7 @@ func _show_panorama() -> void:
 	_button(tx("Zoom out","Alejar"),func():grand.change_zoom(-0.25),controls)
 	_button(tx("Reset camera","Recentrar"),func():grand.reset_camera(),controls)
 	_button(tx("Photo","Foto"),_take_photo,controls)
-	var hint: Label = _text(tx("Select a field, neighbour, or building. WASD/arrows to walk, mouse wheel to zoom, middle-click to pan.","Selecciona parcela, vecino o edificio. WASD/flechas para moverte, rueda para zoom y boton central para desplazar."),12,Color("#f6edcf"))
+	var hint: Label = _text(tx("Select a field, neighbour, or building. WASD/arrows to walk, mouse wheel to zoom, middle-click to pan, right-drag to orbit.","Selecciona parcela, vecino o edificio. WASD/flechas para moverte, rueda para zoom y botón central para desplazar y derecho para girar."),12,Color("#f6edcf"))
 	shell.add_child(hint)
 
 func _panorama_field(id: String) -> void:
@@ -1432,7 +1389,7 @@ func _update_header() -> void:
 		if hud_values.has("water"):
 			(hud_values["water"] as Label).text = "H₂O " + str(int(float(s["water"]))) + " m³"
 		if hud_values.has("weather"):
-			(hud_values["weather"] as Label).text = str(s["season"]) + " · " + str(farm.state["weather"].get("kind","clear"))
+			(hud_values["weather"] as Label).text = str(s["season"]) + " · " + ({"clear":"despejado","rain":"lluvia","heat":"calor"}.get(str(farm.state["weather"].get("kind","clear")),"despejado") if language == "es" else str(farm.state["weather"].get("kind","clear")))
 	_update_context_51()
 	if plot_status_label != null and is_instance_valid(plot_status_label):
 		var plot: Dictionary = farm.field_of(selected_field)
@@ -1569,13 +1526,13 @@ func _setup_file_dialogs(parent: Node) -> void:
 	export_dialog = FileDialog.new()
 	export_dialog.access = FileDialog.ACCESS_FILESYSTEM
 	export_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
-	export_dialog.add_filter("*.json", "Fieldwork JSON saves")
+	export_dialog.add_filter("*.json", "FieldWork JSON saves")
 	export_dialog.file_selected.connect(_export_file)
 	parent.add_child(export_dialog)
 	import_dialog = FileDialog.new()
 	import_dialog.access = FileDialog.ACCESS_FILESYSTEM
 	import_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-	import_dialog.add_filter("*.json", "Fieldwork JSON saves")
+	import_dialog.add_filter("*.json", "FieldWork JSON saves")
 	import_dialog.file_selected.connect(_import_file)
 	parent.add_child(import_dialog)
 
@@ -1620,7 +1577,7 @@ func _jump_compass60(task: Dictionary) -> void:
 
 func _panel_compass60() -> void:
 	var overall: float = Compass60.overall_progress(farm)
-	_caption(right_body,tx("FARM COMPASS · 6.0","BRÚJULA DE LA FINCA · 6.0"), tx("Real recommendations from your saved farm — never automatic spending.","Recomendaciones de tu finca real: nunca se gastan recursos automáticamente."))
+	_caption(right_body,tx("FARM COMPASS","BRÚJULA DE LA FINCA"), tx("Real recommendations from your saved farm — never automatic spending.","Recomendaciones de tu finca real: nunca se gastan recursos automáticamente."))
 	_line(right_body,Compass60.farm_stage(overall,language),21,ACCENT)
 	var overall_bar: ProgressBar = ProgressBar.new()
 	overall_bar.show_percentage = true
@@ -1745,7 +1702,7 @@ func _panel_farm() -> void:
 	_button(tx("Manage this field","Gestionar parcela"),_change_tab.bind("Fields"),right_body,true)
 	_button(tx("Scout pests & natural allies","Revisar plagas y aliados"),_change_tab.bind("Ecology"),right_body)
 	_button(tx("Scenic farm view","Vista panoramica de finca"),_show_panorama,right_body,true)
-	_button(tx("Illustrated courtyard","Patio ilustrado"),_show_illustrated_view,right_body)
+	_button(tx("Explore the farm","Explorar la finca"),_show_illustrated_view,right_body)
 	_button(tx("Explore the valley map","Explorar el mapa del valle"),_change_tab.bind("Valley"),right_body)
 	_button(tx("Visit the village market","Ir al mercado"),_enter_building.bind("market"),right_body)
 	_button(tx("Talk to Ines","Hablar con Ines"),_show_neighbour.bind("ines"),right_body)
@@ -1793,7 +1750,7 @@ func _localized_effect(id: String) -> String:
 func _panel_explorer() -> void:
 	_caption(right_body,tx("Explore your entire farm","Explora toda tu finca"),tx("Everything is reachable from here, even while staying on the live map.","Desde aquí puedes acceder a todo sin salir del mapa vivo."))
 	_button(tx("Open full-screen live farm","Abrir finca a pantalla completa"),_show_panorama,right_body,true)
-	_button(tx("Visit the illustrated courtyard","Visitar patio ilustrado"),_show_illustrated_view,right_body)
+	_button(tx("Explore the farm","Explorar la finca"),_show_illustrated_view,right_body)
 	_caption(right_body,tx("FARM MANAGEMENT","GESTIÓN DE LA FINCA"))
 	for pair in [["Farm",tx("Farm overview","Resumen de la finca")],["Fields",tx("Plant, water and harvest","Sembrar, regar y cosechar")],["Ecology",tx("Inspect soil, insects and disease","Revisar suelo, insectos y enfermedades")],["Resources",tx("Gather supplies and decorate","Recoger recursos y decorar")],["GardenStudio57",tx("Garden studio and relocation","Estudio del jardín y traslados")],["Expeditions58",tx("Explore regional projects","Explorar proyectos regionales")],["Planning",tx("Soil, forecast and today's plan","Suelo, pronostico y plan diario")],["Machinery",tx("Equipment maintenance","Mantenimiento de maquinaria")],["Economy",tx("Farm strategy and operating budget","Estrategia y presupuesto")],["Animals",tx("Visit and care for livestock","Visitar y cuidar animales")],["Buildings",tx("Construct and enter buildings","Construir y entrar en edificios")],["Processing",tx("Processing workshop","Taller de elaboración")],["Market",tx("Offers, contracts and the market","Ofertas, contratos y mercado")],["Stories",tx("Village relationships and story chains","Relaciones e historias del pueblo")]]:
 		_button(str(pair[1]),_change_tab.bind(str(pair[0])),right_body)
@@ -2304,15 +2261,13 @@ func _panel_garden_studio57() -> void:
 
 func _panel_machinery() -> void:
 	_caption(right_body,tx("Machinery yard","Parque de maquinaria"),tx("Equipment changes actual costs and resources. Usage wears parts; neglected machines can break down.","La maquinaria cambia los costes reales. Se desgasta con el uso y puede averiarse."))
-	_line(right_body,tx("Owned machines are visible and selectable near the village in both map perspectives.", "Las máquinas compradas aparecen junto al pueblo y se pueden tocar en ambos mapas."),13,MUTED)
+	_line(right_body,tx("Your machines appear as selectable models in the farmyard.", "Tus máquinas aparecen como modelos seleccionables en el patio."),13,MUTED)
 	for id in Life.MACHINES.keys():
 		var definition: Dictionary = Life.MACHINES[id]
-		var image57: TextureRect = TextureRect.new()
-		var machine_image_path57: String = "res://assets/machine57_" + str(id) + ".png"
-		image57.texture = load(machine_image_path57)
-		image57.custom_minimum_size = Vector2(136,84)
-		image57.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		image57.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		var image57: Control = MachinePreview.new()
+		image57.kind = str(id)
+		image57.performance_mode59 = performance_mode59
+		image57.custom_minimum_size = Vector2(136,110)
 		right_body.add_child(image57)
 		_caption(right_body,farm.n(definition))
 		_line(right_body,farm.n(definition,"description"),13,MUTED)
@@ -2590,14 +2545,8 @@ func _level_progress(parent: Node) -> void:
 
 func _resource_row(parent: Node, id: String, quantity: float, description: String = "") -> void:
 	var row: HBoxContainer = _hbox(parent,10)
-	var path: String = "res://assets/icon_" + id + ".png"
-	if ResourceLoader.exists(path):
-		var icon_view: TextureRect = TextureRect.new()
-		icon_view.texture = load(path)
-		icon_view.custom_minimum_size = Vector2(43,43)
-		icon_view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon_view.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		row.add_child(icon_view)
+	var badge: Label = _line(row,id.left(2).to_upper(),12,ACCENT)
+	badge.custom_minimum_size = Vector2(36,36)
 	_line(row,farm.n(farm.content["goods"][id]) + ": " + str(snappedf(quantity,0.1)) + " kg" + ("  " + description if description != "" else ""),14)
 
 func _panel_resources() -> void:
@@ -3006,7 +2955,7 @@ func _panel_options() -> void:
 		option.toggled.connect(_set_accessibility.bind(str(pair[0])))
 		option.custom_minimum_size.y = Performance59.touch_target(ui_scale)
 		right_body.add_child(option)
-	_caption(right_body,tx("Graphics performance", "Rendimiento gráfico"),tx("Eco reduces animated detail and redraws; Balanced is the default; Quality is smoothest on fast devices.","Ahorro reduce detalles y repintados; Equilibrado es normal; Calidad ofrece mas fluidez."))
+	_caption(right_body,tx("Graphics performance", "Rendimiento gráfico"),tx("Eco uses half resolution without shadows. Balanced adds shadows and 2× anti-aliasing. Quality uses 4× anti-aliasing.","Ahorro usa media resolución sin sombras. Equilibrado añade sombras y suavizado 2×. Calidad usa suavizado 4×."))
 	var quality_ids: Array = ["eco","balanced","quality"]
 	var quality_names: Array = [tx("Eco (battery saver)","Ahorro (bateria)"),tx("Balanced","Equilibrado"),tx("Quality","Calidad")]
 	var quality: OptionButton = _select(right_body,quality_ids,quality_names)
@@ -3034,14 +2983,14 @@ func _panel_options() -> void:
 			index = j
 	volume_select.select(index)
 	_button(tx("Apply sound level","Aplicar volumen"),func():_set_ambience_volume(float(volume_select.get_item_metadata(volume_select.selected))),right_body)
-	_caption(right_body,tx("Fieldwork 6.0 display", "Pantalla Fieldwork 6.0"))
-	_button(tx("Switch to classic 2D map", "Cambiar al mapa 2D clásico") if use_25d else tx("Switch to isometric 2.5D", "Cambiar a isométrico 2.5D"),_toggle_perspective56,right_body,true)
-	_line(right_body,tx("Isometric projection affects graphics and click coordinates only. Your farm, crops and save remain unchanged.", "La proyección isométrica solo afecta a gráficos y selección; cultivos y partida permanecen intactos."),13,MUTED)
+	_caption(right_body,tx("FieldWork display", "Pantalla de FieldWork"))
+	_button(tx("Toggle map view", "Cambiar vista del mapa"),_toggle_map_view,right_body,true)
+	_line(right_body,tx("Wheel: zoom · Middle drag: pan · Right click: quick actions. The farm remains the same in every view.", "Rueda: zoom · Arrastre central: desplazar · Botón derecho: acciones rápidas. La granja es la misma en todas las vistas."),13,MUTED)
 	_button(tx("Open screen directory", "Abrir todas las pantallas"),_show_screen_picker,right_body)
 	_button(tx("Show / hide sidebar", "Mostrar / ocultar menú lateral"),_toggle_sidebar,right_body)
 	_line(right_body,tx("Farm map layers: growth, moisture, soil health and pests. Change the map layer above the farm.","Capas del mapa: crecimiento, humedad, salud del suelo y plagas. Cambia la capa sobre la finca."),13,MUTED)
 	_caption(right_body,tx("Living world graphics","Gráficos del mundo vivo"),tx("Presentation settings change only visuals, never the farm simulation.","Las opciones visuales no cambian la simulación de la finca."))
-	for pair in [["weather",tx("Weather, fog, seasonal particles and night lighting","Clima, niebla, particulas y luz nocturna"),visual_weather],["growth",tx("Growth stage labels on plants","Etiquetas de crecimiento en cultivos"),visual_growth_labels],["animals",tx("Animal behaviour labels","Etiquetas de comportamiento animal"),visual_animal_moods]]:
+	for pair in [["weather",tx("Rain effects","Efectos de lluvia"),visual_weather],["growth",tx("Growth stage labels on plants","Etiquetas de crecimiento en cultivos"),visual_growth_labels],["animals",tx("Animal behaviour labels","Etiquetas de comportamiento animal"),visual_animal_moods]]:
 		var toggle: CheckBox = CheckBox.new()
 		toggle.text = str(pair[1])
 		toggle.button_pressed = bool(pair[2])
@@ -3283,11 +3232,15 @@ func _enter_building(kind: String) -> void:
 		"path": props = ["Stone path","Signposts","Wildflowers"]
 		_: props = ["Work station","Materials","Notice board"]
 	farm.act("visit",{})
-	var body: VBoxContainer = _modal_body(kind.capitalize().replace("_"," "))
+	var place_title: String = farm.n(farm.content["buildings"][kind]) if farm.content["buildings"].has(kind) else (tx("Farmhouse","Casa") if kind == "farmhouse" else kind.capitalize().replace("_"," "))
+	var body: VBoxContainer = _modal_body(place_title)
 	if body == null:
 		return
 	_line(body,tx("Click a visible object to learn about it.","Pulsa los objetos para conocerlos."),14,MUTED)
 	var view: Variant = InteriorScript.new()
+	view.language = language
+	view.performance_mode59 = performance_mode59
+	view.reduced_motion = reduced_motion
 	view.custom_minimum_size = Vector2(0,minf(340.0,get_viewport_rect().size.y*0.42))
 	view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	view.size_flags_vertical = Control.SIZE_EXPAND_FILL

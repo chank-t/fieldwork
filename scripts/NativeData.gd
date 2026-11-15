@@ -37,3 +37,10 @@ static func money(amount: float) -> float:
 
 static func clamp01(value: float) -> float:
 	return clampf(value, 0.0, 1.0)
+
+static func is_json_integer(value: Variant) -> bool:
+	# Godot JSON parses every number as float. Accept integral numeric values
+	# while rejecting fractional values, strings, booleans and non-finite data.
+	if value is int:
+		return true
+	return value is float and is_finite(value) and absf(value) <= 9007199254740991.0 and value == floor(value)

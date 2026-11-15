@@ -766,12 +766,12 @@ func _valid_state(candidate: Dictionary) -> bool:
 		return false
 	if typeof(consequences.get("relationships")) != TYPE_DICTIONARY or typeof(consequences.get("relationship_history")) != TYPE_ARRAY or typeof(consequences.get("clues")) != TYPE_DICTIONARY:
 		return false
-	if not (consequences.get("last_invitation_hour") is int) or int(consequences["last_invitation_hour"]) < -72:
+	if not Data.is_json_integer(consequences.get("last_invitation_hour")) or int(consequences["last_invitation_hour"]) < -72:
 		return false
 	if consequences["followups"].size() > 24 or consequences["branches"].size() > 6:
 		return false
 	for npc in consequences["relationships"].keys():
-		if not content["npcs"].has(str(npc)) or not (consequences["relationships"][npc] is int) or abs(int(consequences["relationships"][npc])) > 10:
+		if not content["npcs"].has(str(npc)) or not Data.is_json_integer(consequences["relationships"][npc]) or abs(int(consequences["relationships"][npc])) > 10:
 			return false
 	for arc_id in consequences["branches"].keys():
 		if Chains.arc(str(arc_id)).is_empty():
@@ -796,7 +796,7 @@ func _valid_state(candidate: Dictionary) -> bool:
 	if int(world_state.get("season_key",-1)) < 0 or world_state["npc_history"].size() > 120 or world_state["festival_history"].size() > 100 or world_state["season_results"].size() > 100:
 		return false
 	for npc_id in world_state["npc_chapters"].keys():
-		if not world_catalog.get("npc_chapters",{}).has(str(npc_id)) or not (world_state["npc_chapters"][npc_id] is int):
+		if not world_catalog.get("npc_chapters",{}).has(str(npc_id)) or not Data.is_json_integer(world_state["npc_chapters"][npc_id]):
 			return false
 		if int(world_state["npc_chapters"][npc_id]) < 0 or int(world_state["npc_chapters"][npc_id]) > 3:
 			return false
@@ -914,7 +914,7 @@ func _valid_state(candidate: Dictionary) -> bool:
 			return false
 		if not Fields52.allowed_layout(str(f.get("plot_type","")),str(f["terrain"])):
 			return false
-		if not (f.get("last_conversion_day") is int) or int(f["last_conversion_day"]) < -9999 or int(f["last_conversion_day"]) > int(candidate["time"].get("day",0)):
+		if not Data.is_json_integer(f.get("last_conversion_day")) or int(f["last_conversion_day"]) < -9999 or int(f["last_conversion_day"]) > int(candidate["time"].get("day",0)):
 			return false
 		fields_seen[str(f["id"])] = true
 		if int(f.get("last_inspection_day", -2)) < -1 or int(f.get("scouted_day",-2)) < -1 or int(f.get("cover_until",-1)) < 0:

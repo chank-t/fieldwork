@@ -1,4 +1,4 @@
-# Player guide - Fieldwork 6.0
+# Player guide — Fieldwork 3D
 
 ## Start a farm
 
@@ -32,15 +32,16 @@ The full set of screens is accessible through **All screens**; on narrow/mobile 
 
 | Input | Behaviour |
 | --- | --- |
-| W/A/S/D or arrow keys | Move the farmer on the live farm map |
+| W/A/S/D or arrow keys | Move the farmer on the live 3D farm |
 | Left-click / tap a plot | Select it and open its appropriate information or actions |
 | Mouse wheel | Zoom the farm map |
 | Middle-mouse drag | Pan the farm camera |
-| Touch drag / pinch | Pan / zoom in the touch-aware farm view |
+| Touch drag / pinch | Pan / zoom in the 3D farm view |
 | On-screen arrow buttons | Move the farmer when using the virtual controls |
 | Pause, 1x, 4x and 12x* | Control simulated time (*12x is available in the noncompact layout) |
 | +1h | Advance one simulated hour |
-| 2D / 2.5D | Switch between the classic and isometric-style world views |
+| Camera | Switch between orthographic and perspective 3D projection |
+| Right-mouse drag | Orbit and tilt the 3D camera |
 | Escape | Leave an interior or close a relevant overlay |
 
 Some gestures depend on whether a UI panel or a map is active. Mobile layouts offer larger touch targets and a bottom navigation route.

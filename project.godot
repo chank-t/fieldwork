@@ -11,7 +11,8 @@ config_version=5
 [application]
 
 config/name="Fieldwork - Complete Farming Experience 6.0"
-config/description="Fieldwork 6.0: Farm Compass, coherent progression, 2.5D countryside, responsive PC/mobile UI and protected saves"
+config/description="Fieldwork 3D: a living low-poly valley, real 3D farming, orbit camera, responsive UI and compatible saves"
+config/version="7.0-3d"
 run/main_scene="res://Boot.tscn"
 config/features=PackedStringArray("4.6")
 

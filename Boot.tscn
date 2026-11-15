@@ -1,99 +1,12 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/Boot.gd" id="1_boot"]
-[ext_resource type="Texture2D" path="res://assets/cover_landscape.png" id="2_cover"]
+[ext_resource type="Script" path="res://scripts/Boot.gd" id="1"]
 
-[node name="Boot" type="Control"]
+[node name="FieldworkLauncher" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_boot")
-
-[node name="Background" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.83, 0.91, 0.82, 1)
-
-[node name="Landscape" type="TextureRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("2_cover")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Dimmer" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.04, 0.16, 0.12, 0.27)
-
-[node name="Center" type="CenterContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Frame" type="PanelContainer" parent="Center"]
-custom_minimum_size = Vector2(520, 0)
-layout_mode = 2
-
-[node name="Content" type="VBoxContainer" parent="Center/Frame"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="Title" type="Label" parent="Center/Frame/Content"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 47
-text = "FIELDWORK"
-horizontal_alignment = 1
-
-[node name="Subtitle" type="Label" parent="Center/Frame/Content"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "COMPLETE FARMING EXPERIENCE  |  NATIVE GODOT 6.0"
-horizontal_alignment = 1
-
-[node name="About" type="Label" parent="Center/Frame/Content"]
-layout_mode = 2
-text = "Start small. Grow 24 unique fields, care for your animals, meet neighbours, explore the valley and learn to live with the land. All farming runs offline, entirely in Godot."
-autowrap_mode = 3
-horizontal_alignment = 1
-
-[node name="NewGame" type="Button" parent="Center/Frame/Content"]
-custom_minimum_size = Vector2(0, 54)
-layout_mode = 2
-text = "Start a new farm"
-
-[node name="Continue" type="Button" parent="Center/Frame/Content"]
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-text = "Continue saved farm"
-
-[node name="SmallPrint" type="Label" parent="Center/Frame/Content"]
-layout_mode = 2
-text = "Offline | No account | No Node.js"
-horizontal_alignment = 1
-
-[node name="Status" type="Label" parent="Center/Frame/Content"]
-layout_mode = 2
-text = ""
-autowrap_mode = 3
-horizontal_alignment = 1
+script = ExtResource("1")

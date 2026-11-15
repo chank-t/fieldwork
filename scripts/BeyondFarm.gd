@@ -1,4 +1,5 @@
 extends RefCounted
+const Data = preload("res://scripts/NativeData.gd")
 ## Fieldwork 5.8 — Beyond the Farm.
 ## Data and validation only. The farm model owns every financial or state change.
 ## Eight three-step regional projects; all amounts are fictional gameplay values.
@@ -47,7 +48,7 @@ static func valid(data: Variant) -> bool:
 		return false
 	if not data.has("profession") or not (str(data["profession"]) == "none" or PROFESSIONS.has(str(data["profession"]))):
 		return false
-	if not (data.get("profession_change_day") is int) or int(data["profession_change_day"]) < -9999:
+	if not Data.is_json_integer(data.get("profession_change_day")) or int(data["profession_change_day"]) < -9999:
 		return false
 	if typeof(data.get("chapters")) != TYPE_DICTIONARY or typeof(data.get("chapter_days")) != TYPE_DICTIONARY:
 		return false
@@ -55,7 +56,7 @@ static func valid(data: Variant) -> bool:
 		return false
 	var completed_count: int = 0
 	for region_id in data["chapters"].keys():
-		if not PROJECTS.has(str(region_id)) or not (data["chapters"][region_id] is int):
+		if not PROJECTS.has(str(region_id)) or not Data.is_json_integer(data["chapters"][region_id]):
 			return false
 		var chapter: int = int(data["chapters"][region_id])
 		if chapter < 1 or chapter > 3:
@@ -63,14 +64,14 @@ static func valid(data: Variant) -> bool:
 		if chapter == 3:
 			completed_count += 1
 	for region_id in data["chapter_days"].keys():
-		if not PROJECTS.has(str(region_id)) or not (data["chapter_days"][region_id] is int) or int(data["chapter_days"][region_id]) < 1:
+		if not PROJECTS.has(str(region_id)) or not Data.is_json_integer(data["chapter_days"][region_id]) or int(data["chapter_days"][region_id]) < 1:
 			return false
-	if not (data.get("completed") is int) or int(data["completed"]) != completed_count:
+	if not Data.is_json_integer(data.get("completed")) or int(data["completed"]) != completed_count:
 		return false
 	for entry in data["history"]:
 		if typeof(entry) != TYPE_DICTIONARY:
 			return false
-		if not PROJECTS.has(str(entry.get("region",""))) or not (entry.get("stage") is int) or not (entry.get("day") is int):
+		if not PROJECTS.has(str(entry.get("region",""))) or not Data.is_json_integer(entry.get("stage")) or not Data.is_json_integer(entry.get("day")):
 			return false
 		if int(entry["stage"]) < 1 or int(entry["stage"]) > 3 or int(entry["day"]) < 1:
 			return false

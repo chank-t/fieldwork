@@ -1,35 +1,60 @@
-# Fieldwork 6.0
+# FieldWork
 
-A native, offline Godot farming and countryside game with classic 2D and isometric-style 2.5D maps, farming, community stories and regional exploration.
+FieldWork is a farming and countryside life game built in Godot. The project combines farm management, valley growth, community life, economic decisions, and narrative progression in a fully local experience without external services.
 
-**Recommended editor:** Godot 4.6, matching the version marked in `project.godot`. Compatibility with earlier Godot versions has not been verified. This source project does not include a prebuilt desktop or mobile app.
+This repository is intended to run offline and to progress the game from a local Godot installation.
 
-## Play
+## Key features
 
-1. Open Godot and import this folder by selecting `project.godot`.
-2. Let Godot import the assets, then press **F5**.
-3. Choose English or Spanish, then create a farm or continue a saved game.
-4. Open **Farm / Fields / Goals (Farm Compass)** to begin.
+- Plot, crop, soil, water, and pest management.
+- Farm economy, trading, construction, and resource planning.
+- Village life with neighbours, stories, and long-term goals.
+- Animals, machinery, processing, and valley activities.
+- Desktop and touch-friendly interface.
+- English and Spanish language support.
+- Local save system with backup compatibility and legacy save support.
 
-Keep the complete project folder together; scenes, scripts, `assets/`, `data/` and `references/` are used by the game.
+## Requirements
 
-## Player help
+- Godot 4.6.x (4.6.2 or newer recommended)
+- A complete local copy of this repository with all resources intact
+
+## How to run
+
+1. Open Godot.
+2. Import the project by selecting `project.godot`.
+3. Wait for the editor to import resources.
+4. Press **F5** to run the main scene.
+5. Choose a language and create or continue a farm.
+
+No Node.js, web server, internet access, or external accounts are required.
+
+## Project structure
+
+- `assets/` — graphics, fonts, audio, and visual resources
+- `data/` — game content and world data
+- `docs/` — project manuals and documentation
+- `references/` — design notes and reference resources
+- `scripts/` — game logic, UI, and simulation code
+- `project.godot` — main Godot project file
+
+## Documentation
 
 - [Player guide](docs/PLAYER_GUIDE.md)
 - [PDF manual](docs/FIELDWORK_6_0_MANUAL.pdf)
 
-## Included
+## Save data and compatibility
 
-- 24 plots, 27 crops, multiple plot layouts, soil, pests and crop quality.
-- Animals, buildings, machinery, processing, market and farm economics.
-- Farmer appearance, skills, courses, neighbour stories and festivals.
-- Eight valley regions, regional projects and countryside activities.
-- Desktop/touch-oriented UI, 2D and 2.5D views, and Eco/Balanced/Quality modes.
-- Local saves, recovery backups, three manual slots and legacy save imports.
+- Save files are stored in Godot's local user directory (`user://`), not inside the repository.
+- The project maintains compatibility with older save formats when supported by the code.
+- Backup restoration and legacy save loading are preserved where applicable.
+
+## License
+
+This project is distributed under the MIT license. See [LICENSE](LICENSE) for the full text.
 
 ## Notes
 
-- Saves are stored under Godot `user://`, not in this source folder. Removing or replacing project files does not remove existing saves.
-- The save schema remains version 10 with envelope `FW_NATIVE_5_4`; these identifiers are retained for compatibility.
-- Godot runtime and device/export verification have not been performed in this environment.
-- Artwork and source licensing have not been established; review rights before public distribution.
+- The project is intended for local use and personal development.
+- Validation in this environment is limited to project startup checks in Godot.
+- Before public distribution or commercial use, review the licensing of any inherited art or third-party resources.
