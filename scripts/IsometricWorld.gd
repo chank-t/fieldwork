@@ -85,14 +85,30 @@ func _sprite56(id: String, world_x: float, world_y: float, width: float, height:
 	draw_circle(shadow, maxf(2.0, w * 0.15), Color(0.13, 0.21, 0.13, 0.16))
 	draw_texture_rect(art[id], Rect2(point + Vector2(-w * 0.5, -h - bob), Vector2(w, h)), false, tint)
 
-func _paint_backdrop56(season: int) -> void:
+func _paint_backdrop56(season: int, hour: int, weather: String) -> void:
 	var seasonal: Array = [Color("#b9d6a0"), Color("#c2d19a"), Color("#d4bc8f"), Color("#cfdfd8")]
 	var base: Color = seasonal[season % 4]
-	draw_rect(Rect2(Vector2.ZERO, size), SKY56.lerp(base, 0.63))
+	var sky: Color = SKY56
+	if show_ambient_effects:
+		if hour >= 21 or hour < 5:
+			sky = Color("#273858")
+		else:
+			var twilight: float = 0.0
+			if hour in [5, 20]:
+				twilight = 0.58
+			elif hour in [6, 19]:
+				twilight = 0.42
+			elif hour in [7, 18]:
+				twilight = 0.20
+			elif hour == 17:
+				twilight = 0.10
+			sky = sky.lerp(Color("#efb18f"), twilight)
+	draw_rect(Rect2(Vector2.ZERO, size), sky.lerp(base, 0.63))
 	for i in range(0, 32, Performance59.terrain_stride(performance_mode59)):
 		var pct: float = float(i) / 32.0
 		var blend: float = 0.08 + 0.45 * pct
-		draw_rect(Rect2(Vector2(0.0, pct * size.y), Vector2(size.x, size.y / 32.0 + 1.0)), SKY56.lerp(base, blend))
+		draw_rect(Rect2(Vector2(0.0, pct * size.y), Vector2(size.x, size.y / 32.0 + 1.0)), sky.lerp(base, blend))
+	_paint_atmosphere56(hour, weather)
 	# The whole island has a convincing lower side, not a flat rectangular backdrop.
 	_diamond56(0.8, 0.8, 62.4, 52.4, base.darkened(0.12), 19.0, Color("#6e9878"))
 	_diamond56(3.0, 3.0, 58.0, 48.0, base, 4.0, Color("#a8c698"))
@@ -117,6 +133,66 @@ func _paint_backdrop56(season: int) -> void:
 	draw_polyline(bank, Color("#cde1be"), maxf(3.0, _units56() * 1.5 * zoom), true)
 	draw_polyline(bank, Color("#559eaf"), maxf(2.0, _units56() * 1.1 * zoom), true)
 	draw_polyline(bank, Color("#a0d4d0"), maxf(1.0, _units56() * 0.22 * zoom), true)
+
+func _paint_atmosphere56(hour: int, weather: String) -> void:
+	if not show_ambient_effects:
+		return
+	var anim_time: float = 0.0 if reduced_motion else elapsed
+	var sky_scale: float = clampf(size.y / 520.0, 0.55, 1.0)
+	var overcast: bool = weather in ["cloudy", "rain", "storm"]
+	if hour >= 6 and hour <= 20:
+		var daylight: float = clampf(float(hour - 6) / 14.0, 0.0, 1.0)
+		var sun: Vector2 = Vector2(
+			lerpf(size.x * 0.10, size.x * 0.90, daylight),
+			size.y * (0.34 - 0.20 * sin(daylight * PI))
+		)
+		if not overcast:
+			var visibility: float = 0.42 if weather == "windy" else 1.0
+			draw_circle(sun, 31.0 * sky_scale, Color(1.0, 0.78, 0.42, 0.08 * visibility))
+			draw_circle(sun, 20.0 * sky_scale, Color(1.0, 0.84, 0.52, 0.15 * visibility))
+			draw_circle(sun, 12.0 * sky_scale, Color("#fff0b8"))
+	else:
+		var moon_phase: float = fposmod(float(hour - 20) / 10.0, 1.0)
+		var moon: Vector2 = Vector2(
+			lerpf(size.x * 0.12, size.x * 0.88, moon_phase),
+			size.y * (0.34 - 0.18 * sin(moon_phase * PI))
+		)
+		draw_circle(moon, 25.0 * sky_scale, Color(0.75, 0.86, 1.0, 0.08))
+		draw_circle(moon, 10.0 * sky_scale, Color("#e8f0df"))
+		if not overcast:
+			for i in range(18):
+				var star: Vector2 = Vector2(
+					fposmod(float(i * 73 + 19) * 17.31, maxf(1.0, size.x)),
+					fposmod(float(i * 37 + 11) * 5.17, maxf(1.0, size.y * 0.30))
+				)
+				var twinkle: float = 0.35 + 0.25 * sin(anim_time * 1.4 + float(i) * 2.1)
+				draw_circle(star, 1.0 + float(i % 3) * 0.35, Color(0.94, 0.97, 1.0, twinkle))
+	var cloud_count: int = 2
+	var cloud_alpha: float = 0.16
+	if weather == "cloudy":
+		cloud_count = 4
+		cloud_alpha = 0.32
+	elif weather in ["rain", "storm"]:
+		cloud_count = 6
+		cloud_alpha = 0.44
+	elif weather == "windy":
+		cloud_count = 3
+		cloud_alpha = 0.24
+	var cloud_radius: float = 14.0 * sky_scale
+	var cloud_width: float = cloud_radius * 4.2
+	var cloud_color: Color = Color(0.93, 0.96, 0.94, cloud_alpha)
+	var underside_color: Color = Color(0.36, 0.48, 0.51, cloud_alpha * 0.38)
+	if hour >= 21 or hour < 5:
+		cloud_color = Color(0.55, 0.64, 0.73, cloud_alpha)
+		underside_color = Color(0.18, 0.26, 0.37, cloud_alpha * 0.48)
+	for i in range(0, cloud_count, Performance59.terrain_stride(performance_mode59)):
+		var cloud_x: float = fposmod(float(i) * size.x * 0.31 + anim_time * (5.0 if weather == "windy" else 2.0), size.x + cloud_width * 2.0) - cloud_width
+		var cloud_y: float = size.y * (0.12 + float((i * 7) % 4) * 0.045)
+		var center: Vector2 = Vector2(cloud_x, cloud_y)
+		draw_circle(center + Vector2(0.0, cloud_radius * 0.30), cloud_radius * 1.75, underside_color)
+		draw_circle(center + Vector2(-cloud_radius * 0.82, 0.0), cloud_radius * 0.86, cloud_color)
+		draw_circle(center + Vector2(0.0, -cloud_radius * 0.36), cloud_radius * 1.05, cloud_color)
+		draw_circle(center + Vector2(cloud_radius * 0.86, 0.02), cloud_radius * 0.78, cloud_color)
 
 func _soil56(field: Dictionary, owned: bool, season: int) -> Color:
 	if not owned:
@@ -304,9 +380,13 @@ func _draw_machine_yard57(state_data: Dictionary) -> void:
 
 func _draw() -> void:
 	var season: int = 0
+	var hour: int = 12
+	var weather: String = "clear"
 	if farm != null and not farm.state.is_empty():
 		season = int(farm.state.get("time", {}).get("season", 0)) % 4
-	_paint_backdrop56(season)
+		hour = int(farm.state.get("time", {}).get("hour", 12))
+		weather = str(farm.state.get("weather", {}).get("kind", "clear"))
+	_paint_backdrop56(season, hour, weather)
 	if farm == null or farm.state.is_empty():
 		return
 	var st: Dictionary = farm.state
@@ -344,7 +424,6 @@ func _draw() -> void:
 		if FarmScript.DECORATIONS.has(deco_id):
 			deco_id = str(FarmScript.DECORATIONS[deco_id].get("icon", deco_id))
 		_sprite56("decor_" + deco_id, 12.2 + float(slot % 12) * 4.0, 9.9 if slot < 12 else 49.0, 2.4, 2.7)
-	var hour: int = int(st["time"].get("hour", 12))
 	for i in range(st["animals"].size()):
 		_animal56(st["animals"][i], i, hour)
 	var npc_ids: Array = farm.content.get("npcs", {}).keys()
