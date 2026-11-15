@@ -1,9 +1,9 @@
 extends Control
-const Performance59 = preload("res://scripts/PerformanceAccessibility59.gd")
+const Performance59 = preload("res://scripts/PerformanceAccessibility.gd")
 ## Valley map: travel destinations are chosen here; no simulation advances while viewing.
 signal region_selected(region_id: String)
-const Country54 = preload("res://scripts/LivingCountryside54.gd")
-const Beyond58 = preload("res://scripts/BeyondFarm58.gd")
+const Country54 = preload("res://scripts/LivingCountryside.gd")
+const Beyond58 = preload("res://scripts/BeyondFarm.gd")
 
 const LOCATIONS = [
 	{"id":"village", "xy":Vector2(0.52,0.42), "label":"WILLOW VILLAGE", "label_es":"VILLA SAUCE", "color":"#e8c993", "icon":"building_market"},

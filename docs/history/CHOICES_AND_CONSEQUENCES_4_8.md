@@ -73,8 +73,8 @@ Static checks do not prove that Godot can launch the scripts. Run in the extract
 
 ```bash
 godot --headless --path . --editor --quit
-godot --headless --path . --script res://tests/story_48_smoke.gd
-godot --headless --path . --script res://tests/ui_story_48_smoke.gd
+godot --headless --path . --script res://tests/story_smoke.gd
+godot --headless --path . --script res://tests/ui_story_smoke.gd
 ```
 
 Then run `RUN_NATIVE_TESTS.sh` or `RUN_NATIVE_TESTS.bat` to exercise inherited test scripts. Test the screen at desktop and narrower window sizes, including event-choice cards and the Spanish variant. A future Godot interpreter/compiler run is **required** before release approval; the source-only audit in this package is not an engine verification.

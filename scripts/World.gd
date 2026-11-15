@@ -1,13 +1,13 @@
 extends Control
 const FarmScript = preload("res://scripts/NativeFarm.gd")
 const Visual = preload("res://scripts/WorldPresentation.gd")
-const Life = preload("res://scripts/FarmingLife49.gd")
-const Style53 = preload("res://scripts/FarmerStyle53.gd")
-const Beauty51 = preload("res://scripts/BeautifulFarm51.gd")
-const Fields52 = preload("res://scripts/FieldsOpportunity52.gd")
-const Living57 = preload("res://scripts/LivingFarm57.gd")
+const Life = preload("res://scripts/FarmingLife.gd")
+const Style53 = preload("res://scripts/FarmerStyle.gd")
+const Beauty51 = preload("res://scripts/BeautifulFarm.gd")
+const Fields52 = preload("res://scripts/FieldsOpportunity.gd")
+const Living57 = preload("res://scripts/LivingFarm.gd")
 const Data52 = preload("res://scripts/NativeData.gd")
-const Performance59 = preload("res://scripts/PerformanceAccessibility59.gd")
+const Performance59 = preload("res://scripts/PerformanceAccessibility.gd")
 ## Native illustrated 2D farm. No RNG is used for rendering or movement.
 ## Zoom and panning affect presentation only; simulations use farm.state.
 signal selected_field(field_id: String)

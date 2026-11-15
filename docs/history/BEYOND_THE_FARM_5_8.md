@@ -4,7 +4,7 @@
 
 The 5.8 release extends existing native Godot 5.7, rather than adding a separate UI or overwriting the simulation. The entire update is built from four connected components:
 
-1. `scripts/BeyondFarm58.gd`: eight projects with three chapters each, profession definitions, localized text, defaults and save validation.
+1. `scripts/BeyondFarm.gd`: eight projects with three chapters each, profession definitions, localized text, defaults and save validation.
 2. `scripts/NativeFarm.gd`: transactional actions `chooseProfession58` and `advanceProject58`; travel, energy, money, supplies, XP and neighbour trust are all actual gameplay state changes.
 3. `scripts/Overworld.gd`: two new destinations and progress badges on the valley map. Map selections still use native Godot signals.
 4. `scripts/Main.gd`: regional projects screen accessible from desktop, mobile screen picker, the Explorer screen, countryside activities, and the Valley screen.
@@ -43,6 +43,6 @@ Current writes go only to `user://fieldwork_native_5_8.json` and `user://fieldwo
 
 - Offline: `python3 tests/qa_58.py`.
 - Actual engine parser and all native tests: `RUN_NATIVE_TESTS.bat` or `RUN_NATIVE_TESTS.sh` using Godot 4.4+.
-- New engine smoke test: `tests/beyond_farm_58_smoke.gd`.
+- New engine smoke test: `tests/beyond_farm_smoke.gd`.
 
 The offline audit verifies structure and resource integrity but is **not** equivalent to a Godot parser run or a playable export.

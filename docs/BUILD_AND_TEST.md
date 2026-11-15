@@ -12,10 +12,10 @@ The project uses the Godot Compatibility renderer. There is no Node.js dependenc
 ## Offline source verification (Python 3)
 
 ```sh
-python3 tests/qa_60.py
+python3 tests/qa.py
 ```
 
-This performs resource-path checks, source-shape checks, JSON and PNG validation, preserved-art hash comparison and documentation/test presence checks. It does **not** compile GDScript, render scenes or validate input/device behavior. The audit produces `tests/QA_60_RESULT.json` when run; that generated file is intentionally absent from the clean distribution.
+This performs resource-path checks, source-shape checks, JSON and PNG validation, preserved-art hash comparison and documentation/test presence checks. It does **not** compile GDScript, render scenes or validate input/device behavior. The audit produces `tests/QA_RESULT.json` when run; that generated file is intentionally absent from the clean distribution.
 
 ## Real Godot checks
 
@@ -32,7 +32,7 @@ set GODOT=C:\Path\To\Godot_v4.4-stable_win64.exe
 RUN_NATIVE_TESTS.bat
 ```
 
-Each runner first opens the project headlessly in editor mode to load/import assets, then executes the native smoke scripts from `tests/`, including `complete_experience_60_smoke.gd`. **Check exit codes and the Godot output**, since source-only Python checks cannot catch all GDScript parser errors.
+Each runner first opens the project headlessly in editor mode to load/import assets, then executes the native smoke scripts from `tests/`, including `complete_experience_smoke.gd`. **Check exit codes and the Godot output**, since source-only Python checks cannot catch all GDScript parser errors.
 
 ## Manual layout and interaction matrix
 

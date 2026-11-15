@@ -56,6 +56,6 @@ The new **Planning** screen shows forecast, soil summary, crop rotation and cost
 
 ## Acceptance checks / known limits
 
-`tests/farming_life_49_smoke.gd` targets schema migration, budgets, scouting, cover crops, machinery, livestock, construction, grade sales, and atomic rejection. `tests/ui_life_49_smoke.gd` targets main navigation, Spanish screens, map construction locations and selection. `tests/qa_49.py` audits version, content, asset links and expected features without claiming Godot execution. Inherited native tests remain in `RUN_NATIVE_TESTS`.
+`tests/farming_life_smoke.gd` targets schema migration, budgets, scouting, cover crops, machinery, livestock, construction, grade sales, and atomic rejection. `tests/ui_life_smoke.gd` targets main navigation, Spanish screens, map construction locations and selection. `tests/qa_49.py` audits version, content, asset links and expected features without claiming Godot execution. Inherited native tests remain in `RUN_NATIVE_TESTS`.
 
 **Known limits:** This release includes a probabilistic forecast, not a meteorological physics model; specialized budgets exclude many variable costs; livestock reproduction is deliberately simplified; native 2D art is stylized, not photorealistic; some inherited technical logs remain English. Godot parsing, actual gameplay and screenshot QA require execution in a real installed engine, which was not available during package authoring.

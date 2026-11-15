@@ -10,7 +10,7 @@ The 5.3 work is deliberately restricted to avatar customization, presentation an
 
 ## Appearance contract
 
-`FarmerStyle53.gd` is the sole source for legal appearance fields, option IDs, labels, normalization, unlocks and preset storage. The public fields are:
+`FarmerStyle.gd` is the sole source for legal appearance fields, option IDs, labels, normalization, unlocks and preset storage. The public fields are:
 
 - `hair`, `skin`, `outfit`, `hair_color`, `pants`, `boots`, `hat`, `accessory`, `facial_hair`, `body`, `eyes`, `pronouns`.
 - A 5.2 farmer had the first three fields. On migration, only missing cosmetic keys are filled with defaults. The name, farm name, XP, farming background, location and existing inventory remain unchanged.
@@ -37,4 +37,4 @@ Save writes use `FW_NATIVE_5_3` and schema 9. `NativeFarm._upgrade_state` migrat
 
 ## Verification
 
-`tests/qa_53.py` checks source and resources offline. `tests/farmer_style_53_smoke.gd` covers real engine save/load, old-save migration, reward locks, invalid options and outfit transactions. `tests/ui_farmer_53_smoke.gd` covers live native creator/wardrobe rendering and avatar transfer to interiors. Godot binary execution was unavailable during release construction.
+`tests/qa_53.py` checks source and resources offline. `tests/farmer_style_smoke.gd` covers real engine save/load, old-save migration, reward locks, invalid options and outfit transactions. `tests/ui_farmer_smoke.gd` covers live native creator/wardrobe rendering and avatar transfer to interiors. Godot binary execution was unavailable during release construction.

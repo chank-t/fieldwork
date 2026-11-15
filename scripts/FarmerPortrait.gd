@@ -1,7 +1,7 @@
 extends Control
 ## Fieldwork 5.3: procedural farmer illustration driven by the same saved
 ## appearance dictionary as the map and interior. No imported sprite mismatch.
-const Style53 = preload("res://scripts/FarmerStyle53.gd")
+const Style53 = preload("res://scripts/FarmerStyle.gd")
 var appearance: Dictionary = Style53.defaults()
 
 func set_look(h: String, s: String, c: String) -> void:

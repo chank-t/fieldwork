@@ -6,12 +6,12 @@ Expand the existing 5.1 farm while keeping its real save-linked 2D renderer and 
 
 ## Core architecture
 
-- `scripts/FieldsOpportunity52.gd` is a pure functional rules module for layout compatibility, localized labels, water and growth multipliers, cultivars and perennial cycle durations.
+- `scripts/FieldsOpportunity.gd` is a pure functional rules module for layout compatibility, localized labels, water and growth multipliers, cultivars and perennial cycle durations.
 - `scripts/NativeFarm.gd` owns all cash, water, inventory, crops, land and state mutation. All operations still go through `quote` and `act`; failures roll back the original state.
 - `data/catalog.json` now has 27 crop definitions (12 original + 15 new), 50 goods (35 original + 15 new) and unchanged original animal/building/talent data.
-- `scripts/Main.gd` exposes a native bilingual crop encyclopedia, price/terrain-safe layout conversions and cultivar choice. `scripts/BeautifulFarm51.gd` retains the farm-first UI navigation.
+- `scripts/Main.gd` exposes a native bilingual crop encyclopedia, price/terrain-safe layout conversions and cultivar choice. `scripts/BeautifulFarm.gd` retains the farm-first UI navigation.
 - `scripts/World.gd` loads individual native PNG sprites dynamically from the crop catalog, draws layouts that match the actual save, and does not mutate game progress.
-- `tools/generate_52_crops.py` can regenerate the 15×5 original pixel crop sprites, the three plot textures and contact sheet. Requires Python/Pillow only for asset regeneration; **not** for running the shipped game.
+- `tools/generate_crops.py` can regenerate the 15×5 original pixel crop sprites, the three plot textures and contact sheet. Requires Python/Pillow only for asset regeneration; **not** for running the shipped game.
 
 ## Plot rules
 

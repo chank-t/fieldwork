@@ -1,5 +1,5 @@
 extends Control
-const Layout55 = preload("res://scripts/ResponsiveLayout55.gd")
+const Layout55 = preload("res://scripts/ResponsiveLayout.gd")
 ## Stable native startup UI. Language can be selected BEFORE creating a farmer.
 const SAVE_FILE = "user://fieldwork_native_6_0.json"
 const V59_SAVE_FILE = "user://fieldwork_native_5_9.json"

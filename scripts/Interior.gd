@@ -1,5 +1,5 @@
 extends Control
-const Style53 = preload("res://scripts/FarmerStyle53.gd")
+const Style53 = preload("res://scripts/FarmerStyle.gd")
 ## Fieldwork 4.7: interactive 2D interiors/outdoor sites. No farm state mutation.
 ## Locations share drawing rules but have individual palettes and props.
 signal prop_selected(label: String)

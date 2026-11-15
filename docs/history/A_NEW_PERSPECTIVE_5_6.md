@@ -1,6 +1,6 @@
 # Architecture: the new 2.5D renderer
 
-The existing `World.gd` and all simulation/saves remain in place. `IsometricWorld56.gd` extends `World.gd`, overriding its projection and drawing functions while inheriting signals and click/walk/camera input. View selection in `Main.gd` is a presentation setting only; changing views reconstructs the UI using the same live `farm` instance.
+The existing `World.gd` and all simulation/saves remain in place. `IsometricWorld.gd` extends `World.gd`, overriding its projection and drawing functions while inheriting signals and click/walk/camera input. View selection in `Main.gd` is a presentation setting only; changing views reconstructs the UI using the same live `farm` instance.
 
 ## Coordinates
 

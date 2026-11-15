@@ -45,7 +45,7 @@ The **Character** screen includes a wardrobe; **Settings** offers reduced motion
 
 ## State, saves and compatibility
 
-- `scripts/WorldWorth50.gd` reads `data/world_worth_50.json`, computes seasonal key/goal progress and evaluates certificate criteria.
+- `scripts/WorldWorth.gd` reads `data/world_worth_50.json`, computes seasonal key/goal progress and evaluates certificate criteria.
 - `scripts/NativeFarm.gd` owns transactional actions `completeNpcChapter`, `earnCertificate`, `festivalEnter` and `setFarmerLook`, and a per-day season finalization hook.
 - New schema `7` stores `world50` progress; auto-save path `fieldwork_native_5_0.json`, manual slots directory `fieldwork_slots_50`.
 - Migrated 4.9/schema-6 farms gain clean 5.0 progress without wiping their old resources or NPC relationship histories. 4.8/schema-5 upgrades through existing 4.9 conversion first. Old save paths stay distinct.
@@ -59,6 +59,6 @@ The **Character** screen includes a wardrobe; **Settings** offers reduced motion
 
 ## Verification / limitations
 
-Python release gate: `python3 tests/qa_50.py`; it checks data completeness, referenced assets, 5.0 script wiring, many duplicate-name cases and balanced delimiters. Native engine tests `tests/world_worth_50_smoke.gd` and `tests/ui_world_50_smoke.gd` target transactions, saves, migration, UI and settings, with inherited tests runnable using `RUN_NATIVE_TESTS.sh` (or `.bat`).
+Python release gate: `python3 tests/qa_50.py`; it checks data completeness, referenced assets, 5.0 script wiring, many duplicate-name cases and balanced delimiters. Native engine tests `tests/world_worth_smoke.gd` and `tests/ui_world_smoke.gd` target transactions, saves, migration, UI and settings, with inherited tests runnable using `RUN_NATIVE_TESTS.sh` (or `.bat`).
 
 **Godot could not be executed in the packaging environment.** Native parse, test assertions, runtime performance, layout and sound must be verified on a local Godot 4.4+ installation before calling 5.0 engine-tested. This release does not add 3D, multiplayer, mobile APK packaging, online sync or cloud saves. Some legacy technical messages may remain in English; 5.0 authored content and menus are bilingual.

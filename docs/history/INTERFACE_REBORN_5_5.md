@@ -24,4 +24,4 @@ Desktop: top-level toolbar for Farm, Fields, Valley, Animals, Market and Buildin
 4. Existing saves from 5.4 and earlier import and receive new 5.5 backups without deleting the original file.
 5. Godot project import, GDScript parse, gameplay and phone touch should be tested on real engine builds. They have not been run here.
 
-Native test scripts: `tests/layout_logic_55_smoke.gd`, `tests/ui_interface_55_smoke.gd` and inherited gameplay tests. Python release audit: `tests/qa_55.py`.
+Native test scripts: `tests/layout_logic_smoke.gd`, `tests/ui_interface_smoke.gd` and inherited gameplay tests. Python release audit: `tests/qa_55.py`.

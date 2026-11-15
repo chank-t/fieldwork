@@ -2,6 +2,9 @@
 .godot/
 .import/
 *.import
+/editor/
+/imported/
+/shader_cache/
 # Local exports and build artifacts
 build/
 dist/
@@ -20,3 +23,5 @@ __pycache__/
 *.pyc
 # Generated QA results (running audits will regenerate)
 tests/QA_*_RESULT.json
+tests/QA_RESULT.json
+shader_cache/

@@ -7,10 +7,10 @@ project.godot -> Boot.tscn / scripts/Boot.gd
              -> Main.tscn / scripts/Main.gd
                     |-> NativeFarm.gd (state, simulation, actions, saves)
                     |-> World.gd (classic 2D map)
-                    |-> IsometricWorld56.gd (2.5D presentation over World)
+                    |-> IsometricWorld.gd (2.5D presentation over World)
                     |-> Overworld.gd (valley map)
                     |-> Interior.gd / FarmerPortrait.gd (interiors and avatar)
-                    |-> FarmCompass60.gd (read-only derived priorities)
+                    |-> FarmCompass.gd (read-only derived priorities)
 ```
 
 The primary application is native GDScript. Assets and authored content are local; no Node.js server or account is needed. The `project.godot` main scene is `Boot.tscn`. The rendering method is Godot's compatibility renderer.
@@ -24,11 +24,11 @@ The primary application is native GDScript. Assets and authored content are loca
 | `scripts/NativeFarm.gd` | Authoritative farm `state`, `act()`, `quote()`, save/migration and rules |
 | `scripts/NativeData.gd` | Read-only `data/catalog.json` loader |
 | `scripts/DecisionContent.gd`, `ChoiceChains.gd` | Authored decisions and follow-up story chains |
-| `scripts/FarmingLife49.gd`, `FieldsOpportunity52.gd` | Pure farming, plot and equipment rules |
-| `scripts/WorldWorth50.gd`, `LivingCountryside54.gd`, `BeyondFarm58.gd` | Character/community/regional rule definitions |
-| `scripts/FarmerStyle53.gd`, `LivingFarm57.gd` | Avatar and decorative placement helpers |
-| `scripts/ResponsiveLayout55.gd`, `PerformanceAccessibility59.gd` | Presentation-only display rules |
-| `scripts/FarmCompass60.gd` | Read-only, state-derived tasks and progress paths |
+| `scripts/FarmingLife.gd`, `FieldsOpportunity.gd` | Pure farming, plot and equipment rules |
+| `scripts/WorldWorth.gd`, `LivingCountryside.gd`, `BeyondFarm.gd` | Character/community/regional rule definitions |
+| `scripts/FarmerStyle.gd`, `LivingFarm.gd` | Avatar and decorative placement helpers |
+| `scripts/ResponsiveLayout.gd`, `PerformanceAccessibility.gd` | Presentation-only display rules |
+| `scripts/FarmCompass.gd` | Read-only, state-derived tasks and progress paths |
 | `assets/` | Sprites, terrain, icons and local audio |
 | `references/` | One illustrated farm image loaded by `IllustratedFarm.gd` (must remain) |
 | `data/` | Gameplay catalogs, events and translations |
@@ -39,13 +39,13 @@ The primary application is native GDScript. Assets and authored content are loca
 
 `NativeFarm.gd` is the only authoritative gameplay action engine. UI controls call `farm.act(kind, args)` or show a quote/confirmation first. `act()` duplicates the previous state, applies `_apply()`, validates invariants, and restores the original state on failure. Directly mutating `farm.state` in a renderer or panel would bypass those safeguards; avoid doing it.
 
-`FarmCompass60.gd` calculates `summary()`, `pillars()` and `priorities()` using the current state. It is deliberately non-mutating; a Compass button routes to the existing game panel rather than performing a transaction.
+`FarmCompass.gd` calculates `summary()`, `pillars()` and `priorities()` using the current state. It is deliberately non-mutating; a Compass button routes to the existing game panel rather than performing a transaction.
 
-The presentation (`World.gd`, `IsometricWorld56.gd`, `Overworld.gd`) reflects stored state but does not own transaction balances. The 2.5D view uses projected geometry over shared world coordinates so it should not require a different save format.
+The presentation (`World.gd`, `IsometricWorld.gd`, `Overworld.gd`) reflects stored state but does not own transaction balances. The 2.5D view uses projected geometry over shared world coordinates so it should not require a different save format.
 
 ## UI and responsive layout
 
-`Main.gd` chooses between world and management views and exposes screen-specific `_panel_*()` functions. `ResponsiveLayout55.gd` defines phone/tablet/desktop layout bands and logical design sizes. On portrait/mobile, management panels replace the world view instead of compressing it. Touch targets and render presets are configured by `PerformanceAccessibility59.gd`.
+`Main.gd` chooses between world and management views and exposes screen-specific `_panel_*()` functions. `ResponsiveLayout.gd` defines phone/tablet/desktop layout bands and logical design sizes. On portrait/mobile, management panels replace the world view instead of compressing it. Touch targets and render presets are configured by `PerformanceAccessibility.gd`.
 
 ## Extending the game safely
 

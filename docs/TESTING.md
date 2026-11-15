@@ -5,7 +5,7 @@ The current testing guide is [Build and tests](BUILD_AND_TEST.md). Previous rele
 Quick checks:
 
 ```sh
-python3 tests/qa_60.py
+python3 tests/qa.py
 GODOT=/path/to/godot ./RUN_NATIVE_TESTS.sh
 ```
 

@@ -16,8 +16,8 @@ These are source, asset, and content checks **only**. They do not prove an actua
 1. `godot --headless --path . --editor --quit`
 2. `godot --headless --path . --script res://tests/native_smoke.gd`
 3. `godot --headless --path . --script res://tests/layout_smoke.gd`
-4. `godot --headless --path . --script res://tests/decision_45_smoke.gd`
-5. `godot --headless --path . --script res://tests/ui_45_smoke.gd`
+4. `godot --headless --path . --script res://tests/decision_smoke.gd`
+5. `godot --headless --path . --script res://tests/ui_decision_smoke.gd`
 
 **BLOCKER:** The Godot 4 executable is not installed here and external package download is unavailable. The project is an editable native GDScript build candidate, **not a runtime-verified release**. Test on an actual Godot 4.4+ editor before distribution.
 

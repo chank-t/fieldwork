@@ -30,11 +30,11 @@ Almond, apple, aubergine, barley, basil, bean, beetroot, blueberry, carrot, chic
 
 ### Plot layouts
 
-`open`, `raised`, `orchard` and `paddy` are defined in `scripts/FieldsOpportunity52.gd`. Compatibility rules, capacity changes and conversion costs live in the code; not every terrain allows each layout.
+`open`, `raised`, `orchard` and `paddy` are defined in `scripts/FieldsOpportunity.gd`. Compatibility rules, capacity changes and conversion costs live in the code; not every terrain allows each layout.
 
 ### Regions and activities
 
-`village`, `river`, `woods`, `hills`, `marsh`, `orchard`, `lake` and `quarry`. See `NativeFarm.REGIONS`, `LivingCountryside54.gd` and `BeyondFarm58.gd` for times, costs, available goods, risks, partners and regional projects. Costs and amounts are **fictional gameplay values**, not real-world agricultural benchmarks.
+`village`, `river`, `woods`, `hills`, `marsh`, `orchard`, `lake` and `quarry`. See `NativeFarm.REGIONS`, `LivingCountryside.gd` and `BeyondFarm.gd` for times, costs, available goods, risks, partners and regional projects. Costs and amounts are **fictional gameplay values**, not real-world agricultural benchmarks.
 
 ## Data files used at runtime
 

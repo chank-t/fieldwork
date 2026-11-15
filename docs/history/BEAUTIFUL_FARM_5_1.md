@@ -7,10 +7,10 @@ This release follows the priorities agreed after 5.0: the farm should become the
 | Feature | Code | State / interaction | Test |
 | --- | --- | --- | --- |
 | Sidebar hidden by default | `Main.gd` | Only `user://fieldwork_settings.cfg` preference | UI 5.1 smoke |
-| Main quick navigation and all-screen modal | `Main.gd`, `BeautifulFarm51.gd` | Reuse all existing tabs; no second economy path | UI 5.1 smoke |
+| Main quick navigation and all-screen modal | `Main.gd`, `BeautifulFarm.gd` | Reuse all existing tabs; no second economy path | UI 5.1 smoke |
 | Compact HUD / contextual field actions | `Main.gd` | Reads `farm.status()` and `farm.field_of()`; calls `_ask()` for transactions | UI 5.1 smoke |
-| Colored dynamic terrain | `World.gd`, `BeautifulFarm51.gd`, `assets/terrain51_*.png` | Real terrain, relative moisture; no RNG | Farm 5.1 smoke |
-| 5 map overlays | `BeautifulFarm51.gd`, `World.gd` | Actual plot water, growth, organic soil score and pest pressure; 0–100% scale | Farm 5.1 smoke |
+| Colored dynamic terrain | `World.gd`, `BeautifulFarm.gd`, `assets/terrain51_*.png` | Real terrain, relative moisture; no RNG | Farm 5.1 smoke |
+| 5 map overlays | `BeautifulFarm.gd`, `World.gd` | Actual plot water, growth, organic soil score and pest pressure; 0–100% scale | Farm 5.1 smoke |
 | Smooth camera | `World.gd` | `zoom_target` / `camera_target`; does not call simulation actions | Farm 5.1 smoke |
 | Protected 5.1 save namespace | `NativeFarm.gd` | Schema 7, `FW_NATIVE_5_1`; imports 5.0 | Farm 5.1 smoke |
 

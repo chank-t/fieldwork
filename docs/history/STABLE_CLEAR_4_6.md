@@ -22,7 +22,7 @@ A save is not written if its JSON envelope/checksum fails validation. A prior va
 ## Quality gates
 
 1. Run Godot 4.4+ headless editor parse.
-2. Run `tests/save_46_smoke.gd` and `tests/ui_46_smoke.gd`, alongside prior test suite.
+2. Run `tests/save_smoke.gd` and `tests/ui_save_smoke.gd`, alongside prior test suite.
 3. Verify original existing saves load without modifying gameplay.
 4. Test corrupt primary, valid backup, invalid slot, overwriting a manual slot, and recovery after an interrupted write.
 5. Inspect actual Godot screenshots at all requested widths. Check long Spanish labels and event cards, file dialogs and creator seed input.

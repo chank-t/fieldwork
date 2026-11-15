@@ -34,7 +34,7 @@ This document describes **actual additions to the editable Godot 4 project**, no
 - `scripts/Main.gd`: visual toggles and bilingual living-state summaries.
 - `assets/growth_<crop>_<stage>.png`: 48 transparent PNGs; stage indices 0 through 3.
 - `tools/generate_growth_sprites.py`: deterministic, build-time Pillow generator; the shipped game **does not require Python**.
-- `tests/living_world_47_smoke.gd`: **included** engine-level smoke tests; run with Godot.
+- `tests/living_world_smoke.gd`: **included** engine-level smoke tests; run with Godot.
 - `tests/qa_47.py`: offline static/asset/compatibility audit.
 
 ## Compatibility

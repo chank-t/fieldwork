@@ -6,7 +6,7 @@
 
 ## Implementation boundaries
 
-`FarmCompass60.gd` only reads native simulation state, returns prioritized suggestions and computes six progress indicators. UI buttons jump to existing panels and focus a relevant plot where available. None of these features use random generators, require an account, mutate farms, auto-sell items or bypass existing transaction confirmations.
+`FarmCompass.gd` only reads native simulation state, returns prioritized suggestions and computes six progress indicators. UI buttons jump to existing panels and focus a relevant plot where available. None of these features use random generators, require an account, mutate farms, auto-sell items or bypass existing transaction confirmations.
 
 ## Completion paths
 
@@ -21,4 +21,4 @@ Each pillar uses fractional progress based on its component goals. This is an op
 
 ## Quality gates
 
-Run `tests/qa_60.py`, then run `RUN_NATIVE_TESTS.sh` or `.bat` with Godot installed. Verify full-window UI across desktop and mobile aspect ratios; test nested menu scroll, language changes, quick goals, accessible labels, both map modes and migration of an actual backed-up 5.9 save. A release is not certified until parser, runtime, touch and export checks have been performed in the target engine.
+Run `tests/qa.py`, then run `RUN_NATIVE_TESTS.sh` or `.bat` with Godot installed. Verify full-window UI across desktop and mobile aspect ratios; test nested menu scroll, language changes, quick goals, accessible labels, both map modes and migration of an actual backed-up 5.9 save. A release is not certified until parser, runtime, touch and export checks have been performed in the target engine.

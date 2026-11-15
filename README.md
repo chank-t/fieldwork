@@ -43,7 +43,7 @@ Older release notes are kept separately in [`docs/history/`](docs/history/). The
 Python 3 (does **not** parse GDScript):
 
 ```sh
-python3 tests/qa_60.py
+python3 tests/qa.py
 ```
 
 Godot engine checks (requires Godot installed):
