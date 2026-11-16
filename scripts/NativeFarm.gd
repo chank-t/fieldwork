@@ -122,6 +122,13 @@ const TUTORIAL = [
 	{"en":"Build your own garden decoration from gathered materials.","es":"Construye una decoracion con los materiales recogidos.","action":"craftDecoration"}
 ]
 
+const STARTER_GUIDE = [
+	{"en":"Prepare a plot: inspect its soil and moisture before planting.","es":"Prepara la parcela: revisa el suelo y la humedad antes de sembrar.","action":"inspect"},
+	{"en":"Plant one crop in your field.","es":"Siembra un cultivo en tu parcela.","action":"plant"},
+	{"en":"Water the crop thoughtfully; the reservoir is limited.","es":"Riega el cultivo con cuidado; la reserva es limitada.","action":"irrigate"},
+	{"en":"Advance time until the crop ripens, then harvest it.","es":"Avanza el tiempo hasta que madure y recoge la cosecha.","action":"harvest"}
+]
+
 # New lessons are appended so active 4.2 tutorials keep their step index.
 # Progression bonuses do not consume simulation RNG.
 
@@ -363,6 +370,8 @@ func _upgrade_state(candidate: Dictionary) -> Dictionary:
 		elif typeof(rural["beyond58"]) == TYPE_DICTIONARY:
 			var inherited58: Dictionary = rural["beyond58"]
 			rural["beyond58"] = Beyond58.ensure(inherited58)
+	if typeof(loaded.get("story")) == TYPE_DICTIONARY and not loaded["story"].has("starter_guide"):
+		loaded["story"]["starter_guide"] = STARTER_GUIDE.size()
 	return loaded
 
 func npc_trust(npc_id: String) -> int:
@@ -453,7 +462,7 @@ func new_game(options: Dictionary = {}) -> void:
 		"market":{"index":1.0,"offers":[],"contracts":[],"price_index":{}},
 		"inventory":{"feed":40.0,"timber":3.0,"stone":2.0},"flows":{},"buildings":[],"animals":[],"processing":[],
 		"deliveries":[],"automation":false,"events":{"active":{},"history":[],"next":30},
-		"story":{"chapter":1,"completed":false,"tutorial":0,"tutorial_skipped":false,"quests":[],"achievements":[]},
+		"story":{"chapter":1,"completed":false,"tutorial":0,"tutorial_skipped":false,"starter_guide":0,"quests":[],"achievements":[]},
 		"stats":{"harvest_kg":0.0,"sold_kg":0.0,"fields_bought":0,"processed_kg":0.0,"animal_kg":0.0,"contracts_delivered":0,"buildings_completed":0,"inspections":0,"visits":0,"resources_gathered":0.0,"decorations_built":0.0,"compost_used":0.0},
 		"logs":[],"next_id":1,"decisions":{"effects":{},"history":[],"branches":{},"followups":[],"relationships":{},"relationship_history":[],"clues":{},"last_invitation_hour":-72},"decorations":[],"resources":{"gathered_today":{},"total_gathered":0.0,"crafted":0},"progression":_new_progression(),"overworld":_new_overworld(),"wildlife":_new_wildlife(),"neighbours":{"favours":{},"helped":0},"life":{"path":"balanced","last_change":-9999,"machines":{},"quality_stock":{},"vet_visits":0,"machine_breakdowns":0},
 		"hourly_baselines":{"water_in":0.0,"water_out":0.0,"nutrient_input":0.0,"nutrient_export":0.0}
@@ -698,6 +707,20 @@ func weather_text() -> String:
 func status() -> Dictionary:
 	return {"cash":_cash(),"fields":owned_count(),"water":float(state["water"]["stored"]),"season":season_name(),"day":int(state["time"]["day"]),"hour":int(state["time"]["hour"]),"inventory":stored(),"capacity":storage_capacity(),"level":int(state["player"]["level"]),"xp":int(state["player"]["xp"]),"xp_to_next":xp_to_next_level(),"talent_points":available_points()}
 
+func animal_daily_requirements(animal: Dictionary) -> Dictionary:
+	var species: Dictionary = content.get("animals",{}).get(str(animal.get("kind","")),{})
+	if species.is_empty():
+		return {}
+	var count: int = maxi(0,int(animal.get("count",0)))
+	var balanced: bool = str(animal.get("feeding","standard")) == "balanced"
+	var feed: float = count * float(species["feedKgDaily"]) * (0.90 if has_talent("feedPlanner") else 1.0)
+	feed *= 1.10 if balanced else 1.0
+	feed *= 0.88 if str(state["life"]["path"]) == "livestock" else 1.0
+	feed *= 1.0 - 0.09 * machine_efficiency("mixer")
+	var nutrition_gain: float = (0.08 if balanced else 0.034) + 0.009 * machine_efficiency("mixer")
+	return {"feed_kg":feed,"water_m3":count*float(species["waterM3Daily"]),
+		"nutrition_gain":nutrition_gain,"base_production_kg":count*float(species["produceKgDaily"])}
+
 func season_name() -> String:
 	var names: Array = ["Spring", "Summer", "Autumn", "Winter"]
 	var i: int = int(state["time"]["season"]) % names.size()
@@ -754,6 +777,9 @@ func _valid_state(candidate: Dictionary) -> bool:
 	for key in ["player", "economy", "time", "water", "weather", "inventory", "market", "events", "story", "stats", "overworld", "wildlife", "neighbours", "progression", "resources", "decisions", "life", "world50", "wardrobe53", "countryside54"]:
 		if typeof(candidate.get(key)) != TYPE_DICTIONARY:
 			return false
+	var story: Dictionary = candidate["story"]
+	if not Data.is_json_integer(story.get("starter_guide",-1)) or int(story["starter_guide"]) < 0 or int(story["starter_guide"]) > STARTER_GUIDE.size():
+		return false
 	for key in ["buildings", "animals", "processing", "deliveries", "logs", "decorations"]:
 		if typeof(candidate.get(key)) != TYPE_ARRAY:
 			return false
@@ -1155,9 +1181,19 @@ func act(kind: String, args: Dictionary = {}) -> Dictionary:
 		return _fail("Action violated the farm state invariant")
 	if kind != "tutorial":
 		_checkpoint_tutorial(kind)
+		_checkpoint_starter_guide(kind)
 	if kind != "move" and kind != "inspect" and kind != "tutorial":
 		_check_milestones(original["stats"])
 	return result
+
+func _checkpoint_starter_guide(kind: String) -> void:
+	var story: Dictionary = state["story"]
+	var index: int = int(story.get("starter_guide",STARTER_GUIDE.size()))
+	if index >= STARTER_GUIDE.size() or str(STARTER_GUIDE[index]["action"]) != kind:
+		return
+	story["starter_guide"] = index + 1
+	if int(story["starter_guide"]) == STARTER_GUIDE.size():
+		story["tutorial"] = maxi(7,int(story.get("tutorial",0)))
 
 func _checkpoint_tutorial(kind: String) -> void:
 	var s: Dictionary = state["story"]
@@ -1891,6 +1927,13 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 				state["story"]["tutorial_skipped"] = true
 				return _ok("Tutorial step skipped")
 			return _fail("Complete the lesson action or skip it explicitly")
+		"starterGuide":
+			if not bool(args.get("skip", false)):
+				return _fail("Skip the starter guide explicitly")
+			state["story"]["starter_guide"] = STARTER_GUIDE.size()
+			state["story"]["tutorial"] = maxi(7,int(state["story"].get("tutorial",0)))
+			state["story"]["tutorial_skipped"] = true
+			return _ok("Starter guide skipped")
 		"visit":
 			state["stats"]["visits"] = int(state["stats"]["visits"]) + 1
 			return _ok("Visited a neighbour or structure")
@@ -2839,19 +2882,16 @@ func _update_animals_daily() -> void:
 	for a in state["animals"]:
 		var species: Dictionary = content["animals"][str(a["kind"])]
 		var count: int = int(a["count"])
-		var balanced: bool = str(a["feeding"]) == "balanced"
-		var feed_needed: float = count * float(species["feedKgDaily"]) * (0.90 if has_talent("feedPlanner") else 1.0)
-		feed_needed *= 1.10 if balanced else 1.0
-		feed_needed *= 0.88 if str(state["life"]["path"]) == "livestock" else 1.0
-		feed_needed *= 1.0 - 0.09 * machine_efficiency("mixer")
-		var water_needed: float = count * float(species["waterM3Daily"])
+		var needs: Dictionary = animal_daily_requirements(a)
+		var feed_needed: float = float(needs["feed_kg"])
+		var water_needed: float = float(needs["water_m3"])
 		var enough_feed: bool = stock("feed") + 0.001 >= feed_needed
 		var enough_water: bool = float(state["water"]["stored"]) + 0.001 >= water_needed
 		if enough_feed and enough_water:
 			_stock_take("feed",feed_needed)
 			state["water"]["stored"] = maxf(0.0,float(state["water"]["stored"])-water_needed)
 			a["condition"] = minf(1.0,float(a["condition"]) + 0.018 + _effect("animal_welfare"))
-			a["nutrition"] = minf(1.0,float(a["nutrition"]) + (0.08 if balanced else 0.034) + 0.009*machine_efficiency("mixer"))
+			a["nutrition"] = minf(1.0,float(a["nutrition"]) + float(needs["nutrition_gain"]))
 			_wear_machine("mixer",0.003)
 		else:
 			a["condition"] = maxf(0.10,float(a["condition"])-0.12)

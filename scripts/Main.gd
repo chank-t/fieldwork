@@ -780,6 +780,16 @@ func _update_context_51() -> void:
 	var water: float = 100.0 * clampf(float(field["soil"]["water"]) / maxf(1.0,float(field["soil"]["capacity"])),0.0,1.0)
 	var development: float = float(crop.get("development",0.0)) * 100.0
 	context_detail.text = farm.n(terrain) + " / " + Fields52.localized(Fields52.PLOTS[str(field.get("plot_type","open"))],language) + "  ·  " + tx("Moisture ","Humedad ") + str(int(water)) + "%  ·  " + (tx("Growth ","Crecimiento ") + str(int(development)) + "%" if not crop.is_empty() else tx("Ready for your next plan","Lista para planificar"))
+	if owned and not crop.is_empty():
+		var priorities: PackedStringArray = []
+		if Fields52.water_factor(field,crop) < 0.98: priorities.append(tx("water","agua"))
+		var soil: Dictionary = field["soil"]
+		var nutrients: float = minf(1.0,minf(float(soil["n"])/24.0,minf(float(soil["p"])/10.0,float(soil["k"])/45.0)))
+		if nutrients < 0.98: priorities.append(tx("soil nutrients","nutrientes del suelo"))
+		if float(crop.get("pest_stress",0.0)) > 0.02: priorities.append(tx("pests","plagas"))
+		if float(crop.get("disease_stress",0.0)) > 0.02: priorities.append(tx("disease","enfermedad"))
+		if not priorities.is_empty():
+			context_detail.text += "  ·  "+tx("Needs ","Necesita ")+", ".join(priorities)
 	context_moisture.value = water
 	context_moisture.add_theme_stylebox_override("fill",_style(Color("#cb945f") if water < 25.0 else Color("#4b9ab3"),5))
 	context_growth.value = development
@@ -1452,6 +1462,97 @@ func _notify(message: String) -> void:
 	info.dialog_text = farm.message(message)
 	info.popup_centered()
 
+func _action_effect_text(kind: String, args: Dictionary) -> String:
+	match kind:
+		"plant":
+			var crop_id: String = str(args.get("cropId",""))
+			var crop: Dictionary = farm.content.get("crops",{}).get(crop_id,{})
+			if crop.is_empty():
+				return ""
+			var variety_id: String = str(args.get("variety","standard"))
+			var variety: Dictionary = Fields52.VARIETIES.get(variety_id,Fields52.VARIETIES["standard"])
+			var base_hours: int = int(ceil(Fields52.duration(crop,{"harvest_cycles":0})/maxf(0.01,float(variety["growth"]))))
+			return tx("Starts growing ","Empieza a crecer ")+farm.n(crop)+" · "+tx("about ","aprox. ")+str(base_hours)+tx(" base game hours; actual time depends on soil, weather and season."," horas de juego de base; el tiempo real depende del suelo, el clima y la estación.")
+		"irrigate":
+			var field: Dictionary = farm.field_of(str(args.get("fieldId","plot1")))
+			if field.is_empty():
+				return ""
+			var soil: Dictionary = field["soil"]
+			var requested: float = float(args.get("mm",0.0))
+			var added: float = minf(requested,maxf(0.0,float(soil["capacity"])-float(soil["water"])))
+			return tx("Raises soil moisture ","Aumenta la humedad del suelo ")+str(snappedf(float(soil["water"]),0.1))+" → "+str(snappedf(float(soil["water"])+added,0.1))+" mm · "+tx("uses reservoir water.","consume agua de la reserva.")
+		"aerateSoil":
+			var field: Dictionary = farm.field_of(str(args.get("fieldId","plot1")))
+			if field.is_empty():
+				return ""
+			var compaction: float = float(field["soil"]["compaction"])
+			var reduction: float = 0.20+0.045*farm.machine_efficiency("cultivator")
+			return tx("Reduces soil compaction ","Reduce la compactación ")+str(int(compaction*100.0))+"% → "+str(int(maxf(0.0,compaction-reduction)*100.0))+"%."
+		"coverCrop":
+			return tx("Protects soil for 4 game days, lowers erosion and temporarily blocks cash crops.","Protege el suelo durante 4 días de juego, reduce la erosión e impide sembrar cultivos comerciales hasta que termine.")
+		"plantHedgerow":
+			return tx("Adds a field hedgerow that supports beneficial wildlife and reduces erosion.","Añade un seto que favorece la fauna auxiliar y reduce la erosión.")
+		"compost":
+			return tx("Adds organic matter and organic N/P/K reserves; it does not directly add mineral N/P/K.","Añade materia orgánica y reservas orgánicas N/P/K; no añade directamente N/P/K mineral.")
+		"spreadCompost":
+			return tx("Uses 5 kg of stored compost to improve organic matter and nutrient reserves.","Usa 5 kg de compost almacenado para mejorar la materia orgánica y las reservas de nutrientes.")
+		"useManure":
+			return tx("Uses 10 kg of manure to add organic matter and nutrient reserves.","Usa 10 kg de estiércol para añadir materia orgánica y reservas de nutrientes.")
+		"mulch":
+			var field: Dictionary = farm.field_of(str(args.get("fieldId","plot1")))
+			if field.is_empty():
+				return ""
+			var current_mulch: float = float(field["soil"]["mulch"])
+			var next_mulch: float = minf(1.0,current_mulch+0.65)
+			return tx("Mulch cover ","Cobertura de acolchado ")+str(int(current_mulch*100.0))+"% → "+str(int(next_mulch*100.0))+"% · "+tx("slows evaporation but can shelter slugs.","reduce la evaporación, pero puede proteger a las babosas.")
+		"treat":
+			var method: String = str(args.get("method",""))
+			match method:
+				"soap": return tx("Reduces aphids, mites and whiteflies by about 55%.","Reduce aproximadamente un 55% los pulgones, ácaros y moscas blancas.")
+				"bt": return tx("Reduces caterpillars and cutworms by about 55%.","Reduce aproximadamente un 55% las orugas y los gusanos cortadores.")
+				"trap","nets": return tx("Protects this field from selected pests for 72 game hours.","Protege la parcela de determinadas plagas durante 72 horas de juego.")
+				"spray": return tx("Reduces most pests by about 75%, but harms beneficial insects and adds spray residue.","Reduce la mayoría de las plagas aproximadamente un 75%, pero daña insectos auxiliares y deja residuos.")
+				"fungicide": return tx("Reduces disease pressure by about 50%.","Reduce la presión de las enfermedades aproximadamente un 50%.")
+				"solarize": return tx("Reduces nematodes by 65% and root rot by 50%; the field cannot be planted for 48 game hours.","Reduce los nematodos un 65% y la podredumbre de raíz un 50%; no se podrá sembrar durante 48 horas de juego.")
+		"fertilize":
+			var field: Dictionary = farm.field_of(str(args.get("fieldId","plot1")))
+			if field.is_empty():
+				return ""
+			var element: String = str(args.get("element","n")).to_lower()
+			var amount: float = float(args.get("kg",0.0))
+			var current: float = float(field["soil"].get(element,0.0))
+			return tx("Adds ","Añade ")+str(snappedf(amount,0.1))+" kg "+element.to_upper()+tx(" to soil: "," al suelo: ")+str(snappedf(current,0.1))+" → "+str(snappedf(current+amount,0.1))+" kg."
+		"buyAnimal":
+			var animal_id: String = str(args.get("animalId",""))
+			var definition: Dictionary = farm.content.get("animals",{}).get(animal_id,{})
+			if definition.is_empty():
+				return ""
+			var count: int = int(args.get("count",1))
+			var needs: Dictionary = farm.animal_daily_requirements({"kind":animal_id,"count":count,"feeding":"standard"})
+			return tx("Adds ","Añade ")+str(count)+" × "+farm.n(definition)+" · "+str(snappedf(float(needs["feed_kg"]),0.01))+tx(" kg feed and "," kg de pienso y ")+str(snappedf(float(needs["water_m3"]),0.001))+" m³ "+tx("water per day. Base output: ","de agua al día. Producción base: ")+str(snappedf(float(needs["base_production_kg"]),0.01))+" kg/day "+tx("before welfare modifiers.","/día, antes de los modificadores de bienestar.")
+		"buySupply":
+			var good_id: String = str(args.get("goodId","feed"))
+			var amount: float = float(args.get("kg",0.0))
+			var current: float = farm.stock(good_id)
+			return tx("Adds ","Añade ")+str(snappedf(amount,0.1))+" kg "+farm.n(farm.content.get("goods",{}).get(good_id,{}))+": "+str(snappedf(current,0.1))+" → "+str(snappedf(current+amount,0.1))+" kg."
+		"animalCare":
+			for animal in farm.state["animals"]:
+				if str(animal["id"]) == str(args.get("animalId","")):
+					var increase: float = 0.195 if farm.has_talent("animalWhisperer") else 0.15
+					return tx("Raises group welfare ","Aumenta el bienestar del grupo ")+str(int(float(animal["condition"])*100))+"% → "+str(int(minf(1.0,float(animal["condition"])+increase)*100))+"%."
+		"vetVisit":
+			for animal in farm.state["animals"]:
+				if str(animal["id"]) == str(args.get("animalId","")):
+					return tx("Raises health to ","Aumenta la salud hasta ")+str(int(minf(1.0,float(animal["health"])+0.25)*100))+"% · "+tx("welfare to ","bienestar hasta ")+str(int(minf(1.0,float(animal["condition"])+0.10)*100))+"% · "+tx("adds 7 days of protection.","añade 7 días de protección.")
+		"feedingPlan":
+			for animal in farm.state["animals"]:
+				if str(animal["id"]) == str(args.get("animalId","")):
+					var planned: Dictionary = animal.duplicate(true)
+					planned["feeding"] = str(args.get("mode","standard"))
+					var needs: Dictionary = farm.animal_daily_requirements(planned)
+					return tx("New daily feed use: ","Nuevo consumo diario de pienso: ")+str(snappedf(float(needs["feed_kg"]),0.01))+tx(" kg · nutrition recovery: "," kg · recuperación de nutrición: ")+str(int(float(needs["nutrition_gain"])*100.0))+tx("% per day when fully supplied.","% al día si hay suministros suficientes.")
+	return ""
+
 func _ask(kind: String, args: Dictionary = {}) -> void:
 	var preview: Dictionary = farm.quote(kind,args)
 	if not preview.get("ok",false):
@@ -1459,11 +1560,20 @@ func _ask(kind: String, args: Dictionary = {}) -> void:
 		return
 	var cost: float = float(preview.get("cost",0.0))
 	var revenue: float = float(preview.get("revenue",0.0))
-	if cost <= 0.0 and revenue <= 0.0:
+	var effect: String = _action_effect_text(kind,args)
+	if cost <= 0.0 and revenue <= 0.0 and effect.is_empty():
 		_direct(kind,args)
 		return
 	pending = {"type":kind,"args":args}
-	confirm.dialog_text = farm.message(str(preview.get("message",kind))) + "\n" + ("EUR " + str(cost) + tx(" cost"," de coste") if cost > 0.0 else "EUR " + str(revenue) + tx(" income"," de ingreso")) + "\n" + tx("Confirm this action?","¿Confirmas esta acción?")
+	var details: PackedStringArray = [farm.message(str(preview.get("message",kind)))]
+	if cost > 0.0:
+		details.append("EUR "+str(cost)+tx(" cost"," de coste"))
+	elif revenue > 0.0:
+		details.append("EUR "+str(revenue)+tx(" income"," de ingreso"))
+	if not effect.is_empty():
+		details.append(effect)
+	details.append(tx("Confirm this action?","¿Confirmas esta acción?"))
+	confirm.dialog_text = "\n".join(details)
 	confirm.popup_centered()
 
 func _commit_pending() -> void:
@@ -1686,11 +1796,13 @@ func _panel_farm() -> void:
 	for pair in [[tx("Check crops","Revisar cultivos"),"Fields"],[tx("Inspect pests","Inspeccionar plagas"),"Ecology"],[tx("Open planner","Abrir diario"),"Journal"]]:
 		var link: Button = _button(str(pair[0]),_change_tab.bind(str(pair[1])),dashboard_buttons)
 		link.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	var tip: int = int(farm.state["story"]["tutorial"])
-	if tip < FarmScript.TUTORIAL.size():
-		_caption(right_body,tx("Ines' field lessons","Lecciones de Ines"),tx("One small step at a time","Paso a paso"))
-		_line(right_body,str(tip+1) + "/" + str(FarmScript.TUTORIAL.size()) + " - " + farm.n(FarmScript.TUTORIAL[tip], ""))
-		_button(tx("Show the lesson tab","Abrir las lecciones"),_change_tab.bind("Story"),right_body)
+	if not _render_starter_guide():
+		var tip: int = int(farm.state["story"]["tutorial"])
+		if tip < FarmScript.TUTORIAL.size():
+			_caption(right_body,tx("Ines' field lessons","Lecciones de Ines"),tx("One small step at a time","Paso a paso"))
+			_line(right_body,str(tip+1) + "/" + str(FarmScript.TUTORIAL.size()) + " - " + farm.n(FarmScript.TUTORIAL[tip], ""))
+			_button(tx("Show the lesson tab","Abrir las lecciones"),_change_tab.bind("Story"),right_body)
+
 	_caption(right_body,tx("Today's conditions","Condiciones de hoy"))
 	_line(right_body,farm.weather_text(),14)
 	var first: Dictionary = farm.field_of(selected_field)
@@ -1718,6 +1830,17 @@ func _panel_farm() -> void:
 		_line(right_body,Chains.title(str(event["id"]),language) if str(event.get("arc","")) != "" else Decisions.title(str(event["id"]),language))
 		_button(tx("Review choices","Ver opciones"),_show_decision_board,right_body,true)
 
+func _render_starter_guide() -> bool:
+	var step: int = int(farm.state["story"].get("starter_guide",FarmScript.STARTER_GUIDE.size()))
+	if step >= FarmScript.STARTER_GUIDE.size():
+		return false
+	_caption(right_body,tx("Your first harvest","Tu primera cosecha"),tx("Four small steps to get started","Cuatro pasos breves para empezar"))
+	var lesson: Dictionary = FarmScript.STARTER_GUIDE[step]
+	var language_key: String = "es" if language == "es" else "en"
+	_line(right_body,str(step+1)+"/"+str(FarmScript.STARTER_GUIDE.size())+" · "+str(lesson[language_key]),14,ACCENT)
+	_button(tx("Manage your first plot","Gestionar tu primera parcela"),_change_tab.bind("Fields"),right_body,true)
+	_button(tx("Skip quick start","Saltar guia inicial"),func():_direct("starterGuide",{"skip":true}),right_body)
+	return true
 
 func _jump_to_field(id: String) -> void:
 	_picked_field(id)
@@ -1972,6 +2095,21 @@ func _panel_fields() -> void:
 				continue
 			var field_id: String = str(field["id"])
 			var label: String = field_id.to_upper() + " · " + crop_name + (" · " + tx("owned","propia") if field["owned"] else " · " + tx("for sale","en venta"))
+			if not crop.is_empty():
+				label += " · "+str(int(float(crop.get("development",0.0))*100.0))+"%"
+				if float(crop.get("development",0.0)) >= 0.995:
+					label += " · "+tx("READY","LISTA")
+				else:
+					var crop_water: float = Fields52.water_factor(field,crop)
+					var crop_nutrients: Dictionary = field["soil"]
+					var crop_nutrient_factor: float = minf(1.0,minf(float(crop_nutrients["n"])/24.0,minf(float(crop_nutrients["p"])/10.0,float(crop_nutrients["k"])/45.0)))
+					var needs: PackedStringArray = []
+					if crop_water < 0.98: needs.append(tx("water","agua"))
+					if crop_nutrient_factor < 0.98: needs.append(tx("soil","suelo"))
+					if float(crop.get("pest_stress",0.0)) > 0.02: needs.append(tx("pests","plagas"))
+					if float(crop.get("disease_stress",0.0)) > 0.02: needs.append(tx("disease","enfermedad"))
+					if not needs.is_empty():
+						label += " · "+", ".join(needs)
 			choice.add_item(label)
 			var index: int = choice.item_count - 1
 			choice.set_item_metadata(index,field_id)
@@ -2039,6 +2177,21 @@ func _panel_fields() -> void:
 			var variety_data: Dictionary = Fields52.VARIETIES[vid]
 			variety_names.append(Fields52.localized(variety_data,language) + "  ·  x" + str(variety_data["seed"]) + tx(" seed cost"," coste semilla"))
 		var variety_picker: OptionButton = _select(right_body,variety_ids,variety_names)
+		var plant_preview: Label = _text("",12,MUTED)
+		right_body.add_child(plant_preview)
+		var update_plant_preview: Callable = func():
+			var crop_id: String = str(picker.get_item_metadata(picker.selected))
+			var variety_id: String = str(variety_picker.get_item_metadata(variety_picker.selected))
+			var definition: Dictionary = crops[crop_id]
+			var quote: Dictionary = farm.quote("plant",{"fieldId":selected_field,"cropId":crop_id,"variety":variety_id})
+			if not bool(quote.get("ok",false)):
+				plant_preview.text = farm.message(str(quote.get("error","Planting is unavailable")))
+				return
+			var hours: int = int(ceil(Fields52.duration(definition,{"harvest_cycles":0}) / float(Fields52.VARIETIES[variety_id]["growth"])))
+			plant_preview.text = tx("Effect: ","Efecto: ")+farm.n(definition)+" starts growing · "+tx("base time ","tiempo base ")+str(hours)+tx(" game hours · estimated cost EUR "," horas de juego · coste estimado EUR ")+str(quote["cost"])+tx(". Weather, soil and care can change growth speed."," El clima, el suelo y los cuidados pueden cambiar la velocidad.")
+		picker.item_selected.connect(func(_index):update_plant_preview.call())
+		variety_picker.item_selected.connect(func(_index):update_plant_preview.call())
+		update_plant_preview.call()
 		_button(tx("Plant selected crop and variety","Sembrar cultivo y variedad"),func():_ask("plant",{"fieldId":selected_field,"cropId":str(picker.get_item_metadata(picker.selected)),"variety":str(variety_picker.get_item_metadata(variety_picker.selected))}),right_body,true)
 		_line(right_body,tx("Early seeds mature faster but yield less. Resilient seeds cost more and tolerate drought.","La semilla temprana madura antes pero rinde menos. La resistente cuesta mas y soporta sequia."),12,MUTED)
 	else:
@@ -2051,6 +2204,19 @@ func _panel_fields() -> void:
 		_line(right_body,tx("Crop condition: ","Estado: ") + str(int(float(crop["health"])*100)) + "%")
 		_line(right_body,tx("Visible growth stage: ","Fase de crecimiento: ") + Visual.crop_stage_text(float(crop["development"]),language=="es"),14,ACCENT)
 		_line(right_body,tx("Visual plant health: ","Salud visual de la planta: ") + str(int(Visual.plant_health(f)*100.0)) + "%",13,MUTED)
+		var water_factor: float = Fields52.water_factor(f,crop)
+		var nutrients: Dictionary = soil
+		var nutrient_factor: float = minf(1.0,minf(float(nutrients["n"])/24.0,minf(float(nutrients["p"])/10.0,float(nutrients["k"])/45.0)))
+		var pest_factor: float = 1.0-clampf(float(crop.get("pest_stress",0.0)),0.0,0.8)
+		var disease_factor: float = 1.0-clampf(float(crop.get("disease_stress",0.0)),0.0,0.8)
+		_line(right_body,tx("Growth factors: ","Factores de crecimiento: ")+"H₂O "+str(int(water_factor*100.0))+"% · NPK "+str(int(nutrient_factor*100.0))+"% · "+tx("pest control ","control de plagas ")+str(int(pest_factor*100.0))+"% · "+tx("disease control ","control de enfermedades ")+str(int(disease_factor*100.0))+"%",13,ACCENT)
+		var priorities: PackedStringArray = []
+		if water_factor < 0.98: priorities.append(tx("water","agua"))
+		if nutrient_factor < 0.98: priorities.append(tx("soil nutrients","nutrientes del suelo"))
+		if pest_factor < 0.98: priorities.append(tx("pest control","control de plagas"))
+		if disease_factor < 0.98: priorities.append(tx("disease control","control de enfermedades"))
+		_line(right_body,tx("Current priority: ","Prioridad actual: ")+(", ".join(priorities) if not priorities.is_empty() else tx("no major growth limit","sin limitaciones importantes")),13,DANGER if not priorities.is_empty() else ACCENT)
+		_line(right_body,tx("A factor below 100% reduces crop growth or biomass gain.","Un factor inferior al 100% redueix el creixement o la biomassa del cultiu."),12,MUTED)
 		var harvest_button: Button = _button(tx("Harvest ready crop","Recoger cosecha"),_ask.bind("harvest",{"fieldId":selected_field}),right_body,true)
 		harvest_button.disabled = float(crop["development"]) < 0.995
 	_line(right_body,tx("Root-zone water: ","Agua en raiz: ") + str(snappedf(float(soil["water"]),0.1)) + " / " + str(soil["capacity"]) + " mm")
@@ -2068,10 +2234,33 @@ func _panel_fields() -> void:
 	var ir: HBoxContainer = _hbox(right_body)
 	_line(ir,tx("Irrigate (mm)","Riego (mm)"),13)
 	var irrigation: SpinBox = _spin(ir,15,1,60,1)
+	var irrigation_preview: Label = _text("",12,MUTED)
+	right_body.add_child(irrigation_preview)
+	var update_irrigation_preview: Callable = func():
+		var quote: Dictionary = farm.quote("irrigate",{"fieldId":selected_field,"mm":irrigation.value})
+		if not bool(quote.get("ok",false)):
+			irrigation_preview.text = farm.message(str(quote.get("error","Irrigation is unavailable")))
+			return
+		var added: float = minf(float(irrigation.value),maxf(0.0,float(soil["capacity"])-float(soil["water"])))
+		irrigation_preview.text = tx("Effect: soil moisture ","Efecto: humedad del suelo ")+str(snappedf(float(soil["water"]),0.1))+" → "+str(snappedf(float(soil["water"])+added,0.1))+" mm · "+tx("reservoir and cost ","reserva y coste ")+str(quote["cost"])+" EUR"
+	irrigation.value_changed.connect(func(_value):update_irrigation_preview.call())
+	update_irrigation_preview.call()
 	_button(tx("Irrigate","Regar"),func():_ask("irrigate",{"fieldId":selected_field,"mm":irrigation.value}),right_body)
 	var fert: HBoxContainer = _hbox(right_body)
 	var elements: OptionButton = _select(fert,["n","p","k"],["N", "P", "K"])
 	var quantity: SpinBox = _spin(fert,12,1,80,1)
+	var fertilizer_preview: Label = _text("",12,MUTED)
+	right_body.add_child(fertilizer_preview)
+	var update_fertilizer_preview: Callable = func():
+		var element: String = str(elements.get_item_metadata(elements.selected))
+		var quote: Dictionary = farm.quote("fertilize",{"fieldId":selected_field,"element":element,"kg":quantity.value})
+		if not bool(quote.get("ok",false)):
+			fertilizer_preview.text = farm.message(str(quote.get("error","Fertilizer is unavailable")))
+			return
+		fertilizer_preview.text = tx("Effect: adds ","Efecto: añade ")+str(quantity.value)+" kg "+element.to_upper()+tx(" to this soil · estimated cost EUR "," a este suelo · coste estimado EUR ")+str(quote["cost"])
+	elements.item_selected.connect(func(_index):update_fertilizer_preview.call())
+	quantity.value_changed.connect(func(_value):update_fertilizer_preview.call())
+	update_fertilizer_preview.call()
 	_button(tx("Apply fertilizer","Abonar"),func():_ask("fertilize",{"fieldId":selected_field,"element":str(elements.get_item_metadata(elements.selected)),"kg":quantity.value}),right_body)
 	var care: HBoxContainer = _hbox(right_body)
 	_button(tx("Compost","Compost"),_ask.bind("compost",{"fieldId":selected_field}),care)
@@ -2378,6 +2567,19 @@ func _panel_buildings() -> void:
 func _panel_animals() -> void:
 	_caption(right_body,tx("Animal care","Cuidado de animales"),tx("Feed and water influence welfare and produce","Pienso y agua afectan al bienestar y la produccion"))
 	_line(right_body,tx("Stored feed: ","Pienso: ") + str(snappedf(farm.stock("feed"),0.1)) + " kg",17,ACCENT)
+	var daily_feed: float = 0.0
+	var daily_water: float = 0.0
+	for herd in farm.state["animals"]:
+		var requirements: Dictionary = farm.animal_daily_requirements(herd)
+		daily_feed += float(requirements.get("feed_kg",0.0))
+		daily_water += float(requirements.get("water_m3",0.0))
+	if daily_feed > 0.0 or daily_water > 0.0:
+		var feed_days: float = farm.stock("feed") / daily_feed if daily_feed > 0.0 else 0.0
+		var water_days: float = float(farm.state["water"]["stored"]) / daily_water if daily_water > 0.0 else 0.0
+		_line(right_body,tx("Daily herd demand: ","Necesidad diaria del ganado: ")+str(snappedf(daily_feed,0.01))+tx(" kg feed · "," kg de pienso · ")+str(snappedf(daily_water,0.001))+" m³ "+tx("water","de agua"),14,ACCENT)
+		_line(right_body,tx("At current herd demand, reserves cover: ","Al ritmo de consumo del ganado, las reservas cubren: ")+str(snappedf(feed_days,0.1))+tx(" days of feed · "," dias de pienso · ")+str(snappedf(water_days,0.1))+tx(" days of water"," dias de agua"),13,DANGER if feed_days < 1.0 or water_days < 1.0 else MUTED)
+		if feed_days < 1.0 or water_days < 1.0:
+			_line(right_body,tx("Replenish the short reserve before advancing to the next day; shortages stop production and lower welfare.","Repón la reserva escasa antes de avanzar al día siguiente; la falta de suministros detiene la producción y reduce el bienestar."),12,DANGER)
 	var animals: Dictionary = farm.content["animals"]
 	var ids: Array = animals.keys()
 	var labels: Array = []
@@ -2387,11 +2589,36 @@ func _panel_animals() -> void:
 	var row: HBoxContainer = _hbox(right_body)
 	_line(row,tx("Number","Cantidad"),13)
 	var count: SpinBox = _spin(row,1,1,20,1)
+	var purchase_preview: Label = _text("",12,MUTED)
+	right_body.add_child(purchase_preview)
+	var update_purchase_preview: Callable = func():
+		var animal_id: String = str(animal.get_item_metadata(animal.selected))
+		var amount: int = int(count.value)
+		var quote: Dictionary = farm.quote("buyAnimal",{"animalId":animal_id,"count":amount})
+		if not bool(quote.get("ok",false)):
+			purchase_preview.text = farm.message(str(quote.get("error","Purchase is unavailable")))
+			return
+		var needs: Dictionary = farm.animal_daily_requirements({"kind":animal_id,"count":amount,"feeding":"standard"})
+		var definition: Dictionary = animals[animal_id]
+		purchase_preview.text = tx("Effect: adds ","Efecto: añade ")+str(amount)+" × "+farm.n(definition)+" · "+str(snappedf(float(needs["feed_kg"]),0.01))+tx(" kg feed + "," kg de pienso + ")+str(snappedf(float(needs["water_m3"]),0.001))+" m³ "+tx("water/day · base output ","de agua/día · producción base ")+str(snappedf(float(needs["base_production_kg"]),0.01))+" kg/day · EUR "+str(quote["cost"])
+	count.value_changed.connect(func(_value):update_purchase_preview.call())
+	animal.item_selected.connect(func(_index):update_purchase_preview.call())
+	update_purchase_preview.call()
 	_button(tx("Buy animals","Comprar animales"),func():_ask("buyAnimal",{"animalId":str(animal.get_item_metadata(animal.selected)),"count":int(count.value)}),right_body,true)
 	_line(right_body,tx("Animals need their appropriate completed housing. Mixed species share housing space.","Cada especie necesita su alojamiento. Las especies compartidas suman ocupacion."),13,MUTED)
 	var feed_row: HBoxContainer = _hbox(right_body)
 	_line(feed_row,tx("Buy feed kg","Comprar pienso kg"),13)
 	var feed: SpinBox = _spin(feed_row,40,1,400,5)
+	var feed_preview: Label = _text("",12,MUTED)
+	right_body.add_child(feed_preview)
+	var update_feed_preview: Callable = func():
+		var quote: Dictionary = farm.quote("buySupply",{"goodId":"feed","kg":feed.value})
+		if not bool(quote.get("ok",false)):
+			feed_preview.text = farm.message(str(quote.get("error","Feed purchase is unavailable")))
+			return
+		feed_preview.text = tx("Effect: feed stock ","Efecto: pienso almacenado ")+str(snappedf(farm.stock("feed"),0.1))+" → "+str(snappedf(farm.stock("feed")+feed.value,0.1))+tx(" kg · estimated cost EUR "," kg · coste estimado EUR ")+str(quote["cost"])
+	feed.value_changed.connect(func(_value):update_feed_preview.call())
+	update_feed_preview.call()
 	_button(tx("Buy feed","Comprar pienso"),func():_ask("buySupply",{"goodId":"feed","kg":feed.value}),right_body)
 	_caption(right_body,tx("Livestock on your farm","Ganado en tu finca"))
 	if farm.state["animals"].is_empty():
@@ -2400,6 +2627,13 @@ func _panel_animals() -> void:
 		var a: Dictionary = farm.state["animals"][i]
 		_line(right_body,farm.n(animals[str(a["kind"])]) + " x" + str(a["count"]) + " · "+tx("welfare ","bienestar ") + str(int(float(a["condition"])*100)) + "%",14)
 		_line(right_body,tx("Health ","Salud ")+str(int(float(a["health"])*100))+"%  ·  "+tx("Nutrition ","Nutricion ")+str(int(float(a["nutrition"])*100))+"%  ·  "+tx("Age ","Edad ")+str(a["age_days"])+tx(" days"," dias"),13,ACCENT if float(a["health"])>=0.7 else DANGER)
+		var needs: Dictionary = farm.animal_daily_requirements(a)
+		_line(right_body,tx("This group uses per day: ","Este grupo consume al día: ")+str(snappedf(float(needs["feed_kg"]),0.01))+tx(" kg feed · "," kg de pienso · ")+str(snappedf(float(needs["water_m3"]),0.001))+" m³ "+tx("water","de agua"),12,MUTED)
+		var care_needs: PackedStringArray = []
+		if float(a["nutrition"]) < 0.35: care_needs.append(tx("nutrition is critically low","nutrición muy baja"))
+		if float(a["condition"]) < 0.70: care_needs.append(tx("welfare care would help","necesita mejorar su bienestar"))
+		if float(a["health"]) < 0.70: care_needs.append(tx("health is low; consider a vet","salud baja; considera veterinario"))
+		_line(right_body,tx("Needs: ","Necesidades: ")+(", ".join(care_needs) if not care_needs.is_empty() else tx("no urgent care indicated","sin cuidados urgentes")),12,DANGER if not care_needs.is_empty() else ACCENT)
 		_line(right_body,tx("Feeding plan: ","Plan de alimentacion: ")+(tx("balanced (10% extra feed)","equilibrado (+10% de pienso)") if str(a["feeding"])=="balanced" else tx("standard","normal")),12,MUTED)
 		var routine: String = Visual.animal_behavior(a,int(farm.state["time"]["hour"]),i,0.0)
 		var status_en: Dictionary = {"sleeping":"Sleeping","resting":"Resting","grazing":"Grazing","drinking":"Drinking","walking":"Exploring paddock","unwell":"Needs care"}
@@ -2410,7 +2644,7 @@ func _panel_animals() -> void:
 		_button(tx("Vet visit","Veterinario"),_ask.bind("vetVisit",{"animalId":str(a["id"])}),actions)
 		_button(tx("Plan breeding","Criar"),_ask.bind("breedAnimal",{"animalId":str(a["id"])}),actions)
 		var change_to: String = "standard" if str(a["feeding"])=="balanced" else "balanced"
-		_button(tx("Switch feed plan","Cambiar alimentacion"),_direct.bind("feedingPlan",{"animalId":str(a["id"]),"mode":change_to}),right_body)
+		_button(tx("Switch feed plan","Cambiar alimentacion"),_ask.bind("feedingPlan",{"animalId":str(a["id"]),"mode":change_to}),right_body)
 		if int(a.get("pregnancy_due",0))>int(farm.state["time"]["total"]):
 			_line(right_body,tx("Expected newborn in ","Nueva cria prevista en ")+str(int(ceil(float(int(a["pregnancy_due"])-int(farm.state["time"]["total"]))/24.0)))+tx(" days"," dias"),13,ACCENT)
 	_line(right_body,tx("Animal goods: eggs, milk, wool, fiber; apiaries make honey.","Productos: huevos, leche, lana, fibra y miel."),13,MUTED)
@@ -2758,14 +2992,15 @@ func _panel_story() -> void:
 		_line(right_body,farm.n(chapter,"text"),13,MUTED)
 	elif story["completed"]:
 		_line(right_body,tx("Your farm has found its place in the valley.","Tu finca ya forma parte del valle."),14)
-	_caption(right_body,tx("Interactive tutorial","Tutorial interactivo"))
-	var step: int = int(story["tutorial"])
-	if step < FarmScript.TUTORIAL.size():
-		_line(right_body,"Step " + str(step+1) + " / " + str(FarmScript.TUTORIAL.size()),15,ACCENT)
-		_line(right_body,farm.n(FarmScript.TUTORIAL[step],""),14)
-		_button(tx("Skip this lesson","Saltar esta leccion"),_direct.bind("tutorial",{"skip":true}),right_body)
-	else:
-		_line(right_body,tx("All tutorial lessons finished.","Has terminado todas las lecciones."),14)
+	if not _render_starter_guide():
+		_caption(right_body,tx("Interactive tutorial","Tutorial interactivo"))
+		var step: int = int(story["tutorial"])
+		if step < FarmScript.TUTORIAL.size():
+			_line(right_body,"Step " + str(step+1) + " / " + str(FarmScript.TUTORIAL.size()),15,ACCENT)
+			_line(right_body,farm.n(FarmScript.TUTORIAL[step],""),14)
+			_button(tx("Skip this lesson","Saltar esta leccion"),_direct.bind("tutorial",{"skip":true}),right_body)
+		else:
+			_line(right_body,tx("All tutorial lessons finished.","Has terminado todas las lecciones."),14)
 	_caption(right_body,tx("Quests and rewards","Misiones y recompensas"))
 	for id_quest in FarmScript.QUESTS.keys():
 		var q: Dictionary = FarmScript.QUESTS[id_quest]
