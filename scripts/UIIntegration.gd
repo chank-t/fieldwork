@@ -210,15 +210,8 @@ static func on_field_picked(main_ui: Variant, radial_menu: Variant, field_id: St
     # Show radial menu at field position on screen
     var world: Variant = main_ui.world
     if world != null and is_instance_valid(world):
-        var GRID_X = [7.3, 16.6, 25.9, 35.2, 44.5, 53.8]
-        var GRID_Y = [10.8, 18.6, 26.4, 34.2]
-        var FIELD_W: float = 8.55
-        var FIELD_H: float = 6.75
-        var index: int = int(field_id.trim_prefix("plot")) - 1
-        if index >= 0 and index < 24:
-            var world_pos: Vector3 = Vector3(GRID_X[index % 6] + FIELD_W / 2, 0.5, GRID_Y[index / 6] + FIELD_H / 2)
-            var screen_pos: Vector2 = world.camera.unproject_position(world_pos) * world.size / Vector2(world.viewport_3d.size)
-            _show_pick_radial(world, radial_menu, screen_pos, "field", field_id)
+        var screen_pos: Vector2 = world.get_field_screen_pos(field_id)
+        _show_pick_radial(world, radial_menu, screen_pos, "field", field_id)
 
 static func on_animal_picked(main_ui: Variant, radial_menu: Variant, animal_id: String) -> void:
     var world: Variant = main_ui.world

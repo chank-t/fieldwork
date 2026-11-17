@@ -1307,9 +1307,9 @@ func _show_game() -> void:
 	_refresh()
 
 	# Start guided onboarding for new games
-	if farm.state.has("story") and farm.state["story"].has("starter_guide"):
-		var step: int = int(farm.state["story"]["starter_guide"])
-		if step < 10:
+	if farm.state.has("story"):
+		var step: int = int(farm.state["story"].get("guided_onboarding", 0))
+		if step < GuidedOnboarding.STEPS.size():
 			onboarding.start(farm, self, _on_onboarding_complete)
 
 func _refresh_speed_buttons() -> void:
@@ -1449,7 +1449,8 @@ func _on_radial_action(action_id: String, args: Dictionary) -> void:
 	UIIntegration.on_radial_action(self, action_id, args)
 
 func _on_onboarding_complete() -> void:
-	_notify(tx("Tutorial complete! Explore the 6 hubs at your own pace.","¡Tutorial completado! Explora los 6 centros a tu ritmo."))
+	if status_label != null and is_instance_valid(status_label):
+		status_label.text = tx("Tutorial complete! Explore the 6 hubs at your own pace.","¡Tutorial completado! Explora los 6 centros a tu ritmo.")
 
 func _update_nav_state() -> void:
 	for id in primary_nav_buttons.keys():

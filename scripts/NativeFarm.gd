@@ -128,6 +128,7 @@ const STARTER_GUIDE = [
 	{"en":"Water the crop thoughtfully; the reservoir is limited.","es":"Riega el cultivo con cuidado; la reserva es limitada.","action":"irrigate"},
 	{"en":"Advance time until the crop ripens, then harvest it.","es":"Avanza el tiempo hasta que madure y recoge la cosecha.","action":"harvest"}
 ]
+const GUIDED_ONBOARDING_STEP_COUNT: int = 10
 
 # New lessons are appended so active 4.2 tutorials keep their step index.
 # Progression bonuses do not consume simulation RNG.
@@ -370,8 +371,18 @@ func _upgrade_state(candidate: Dictionary) -> Dictionary:
 		elif typeof(rural["beyond58"]) == TYPE_DICTIONARY:
 			var inherited58: Dictionary = rural["beyond58"]
 			rural["beyond58"] = Beyond58.ensure(inherited58)
-	if typeof(loaded.get("story")) == TYPE_DICTIONARY and not loaded["story"].has("starter_guide"):
-		loaded["story"]["starter_guide"] = STARTER_GUIDE.size()
+	if typeof(loaded.get("story")) == TYPE_DICTIONARY:
+		var story: Dictionary = loaded["story"]
+		if not story.has("starter_guide"):
+			story["starter_guide"] = STARTER_GUIDE.size()
+		elif Data.is_json_integer(story["starter_guide"]) and int(story["starter_guide"]) > STARTER_GUIDE.size():
+			var old_onboarding_step: int = int(story["starter_guide"])
+			var saved_onboarding_step: Variant = story.get("guided_onboarding", 0)
+			if Data.is_json_integer(saved_onboarding_step):
+				story["guided_onboarding"] = maxi(int(saved_onboarding_step), old_onboarding_step)
+			else:
+				story["guided_onboarding"] = old_onboarding_step
+			story["starter_guide"] = STARTER_GUIDE.size()
 	return loaded
 
 func npc_trust(npc_id: String) -> int:
@@ -462,7 +473,7 @@ func new_game(options: Dictionary = {}) -> void:
 		"market":{"index":1.0,"offers":[],"contracts":[],"price_index":{}},
 		"inventory":{"feed":40.0,"timber":3.0,"stone":2.0},"flows":{},"buildings":[],"animals":[],"processing":[],
 		"deliveries":[],"automation":false,"events":{"active":{},"history":[],"next":30},
-		"story":{"chapter":1,"completed":false,"tutorial":0,"tutorial_skipped":false,"starter_guide":0,"quests":[],"achievements":[]},
+		"story":{"chapter":1,"completed":false,"tutorial":0,"tutorial_skipped":false,"starter_guide":0,"guided_onboarding":0,"quests":[],"achievements":[]},
 		"stats":{"harvest_kg":0.0,"sold_kg":0.0,"fields_bought":0,"processed_kg":0.0,"animal_kg":0.0,"contracts_delivered":0,"buildings_completed":0,"inspections":0,"visits":0,"resources_gathered":0.0,"decorations_built":0.0,"compost_used":0.0},
 		"logs":[],"next_id":1,"decisions":{"effects":{},"history":[],"branches":{},"followups":[],"relationships":{},"relationship_history":[],"clues":{},"last_invitation_hour":-72},"decorations":[],"resources":{"gathered_today":{},"total_gathered":0.0,"crafted":0},"progression":_new_progression(),"overworld":_new_overworld(),"wildlife":_new_wildlife(),"neighbours":{"favours":{},"helped":0},"life":{"path":"balanced","last_change":-9999,"machines":{},"quality_stock":{},"vet_visits":0,"machine_breakdowns":0},
 		"hourly_baselines":{"water_in":0.0,"water_out":0.0,"nutrient_input":0.0,"nutrient_export":0.0}
@@ -779,6 +790,9 @@ func _valid_state(candidate: Dictionary) -> bool:
 			return false
 	var story: Dictionary = candidate["story"]
 	if not Data.is_json_integer(story.get("starter_guide",-1)) or int(story["starter_guide"]) < 0 or int(story["starter_guide"]) > STARTER_GUIDE.size():
+		return false
+	var guided_onboarding_step: Variant = story.get("guided_onboarding", 0)
+	if not Data.is_json_integer(guided_onboarding_step) or int(guided_onboarding_step) < 0 or int(guided_onboarding_step) > GUIDED_ONBOARDING_STEP_COUNT:
 		return false
 	for key in ["buildings", "animals", "processing", "deliveries", "logs", "decorations"]:
 		if typeof(candidate.get(key)) != TYPE_ARRAY:

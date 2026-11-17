@@ -33,6 +33,16 @@ func run() -> void:
 	check(farm.owned_count() == 1,"Original starting economy retained")
 	var guide_farm := Farm.new()
 	guide_farm.new_game({"language":"en","seed":4568})
+	var old_onboarding_save: Dictionary = guide_farm.state.duplicate(true)
+	old_onboarding_save["story"].erase("guided_onboarding")
+	old_onboarding_save["story"]["starter_guide"] = Farm.GUIDED_ONBOARDING_STEP_COUNT
+	var old_onboarding_wire: Dictionary = JSON.parse_string(JSON.stringify(old_onboarding_save))
+	var old_onboarding_envelope: Dictionary = JSON.parse_string(guide_farm.export_text())
+	old_onboarding_envelope["payload"] = old_onboarding_wire
+	old_onboarding_envelope["sha256"] = guide_farm._canonical_json(old_onboarding_wire).sha256_text()
+	var repaired_onboarding_farm := Farm.new()
+	var onboarding_recovery: Dictionary = repaired_onboarding_farm.load_text(JSON.stringify(old_onboarding_envelope))
+	check(onboarding_recovery.get("ok",false) and int(repaired_onboarding_farm.state["story"]["starter_guide"]) == Farm.STARTER_GUIDE.size() and int(repaired_onboarding_farm.state["story"]["guided_onboarding"]) == Farm.GUIDED_ONBOARDING_STEP_COUNT,"Legacy guided tutorial save is repaired when loaded")
 	var hen_needs: Dictionary = guide_farm.animal_daily_requirements({"kind":"hen","count":2,"feeding":"standard"})
 	check(is_equal_approx(float(hen_needs["feed_kg"]),0.24),"Animal feed need matches the simulation")
 	check(is_equal_approx(float(hen_needs["water_m3"]),0.0005),"Animal water need matches the simulation")
@@ -91,6 +101,13 @@ func run() -> void:
 		app.onboarding.start(farm,app,app._on_onboarding_complete)
 	app.onboarding._highlight_field("plot1")
 	check(not radial.is_open,"Tutorial field highlight does not open the radial menu")
+	var field_screen_position: Vector2 = app.world.get_field_screen_pos("plot1")
+	var field_global_position: Vector2 = app.world.get_global_transform()*field_screen_position
+	var expected_highlight_position: Vector2 = app.onboarding._global_to_highlight_local(field_global_position)
+	var field_ring: Control = app.onboarding.highlight.get_child(app.onboarding.highlight.get_child_count()-1)
+	var actual_highlight_position: Vector2 = field_ring.position+field_ring.size/2.0
+	check(field_ring.size == Vector2(100,100) and actual_highlight_position.distance_to(expected_highlight_position) < 1.0,"Tutorial field marker aligns with its map target")
+	check(field_ring.mouse_filter == Control.MOUSE_FILTER_IGNORE and field_ring.get_child(0).mouse_filter == Control.MOUSE_FILTER_IGNORE,"Tutorial field marker does not intercept clicks")
 	var first_unowned_field: String = ""
 	for field in farm.state["fields"]:
 		if not bool(field["owned"]):
@@ -102,6 +119,10 @@ func run() -> void:
 	check(app.selected_field == first_unowned_field,"Land tutorial highlights an unowned field")
 	app.onboarding._on_next()
 	check(not app.info.visible and farm.owned_count() == 1,"Land tutorial Next does not try to buy the owned starting field")
+	app.onboarding._complete()
+	check(not app.onboarding.is_active and app.onboarding.overlay == null and not app.info.visible,"Completing the tutorial releases the UI without a blocking dialog")
+	var post_tutorial_purchase: Dictionary = farm.act("buyField",{"fieldId":first_unowned_field})
+	check(post_tutorial_purchase.get("ok",false) and bool(farm.field_of(first_unowned_field).get("owned",false)) and int(farm.state["story"]["guided_onboarding"]) == Farm.GUIDED_ONBOARDING_STEP_COUNT and int(farm.state["story"]["starter_guide"]) <= Farm.STARTER_GUIDE.size(),"Buying land remains available after completing guided onboarding")
 	var radial_test_world: Variant = app.world
 	var test_field_point := Vector3(radial_test_world.GRID_X[0]+radial_test_world.FIELD_W/2,0.20,radial_test_world.GRID_Y[0]+radial_test_world.FIELD_H/2)
 	var test_field_pixel: Vector2 = radial_test_world.camera.unproject_position(test_field_point)

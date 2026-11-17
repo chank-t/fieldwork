@@ -114,10 +114,7 @@ func start(farm_ref: Variant, main_ui_ref: Variant, callback: Callable) -> void:
 	_show_step()
 
 func _get_saved_step() -> int:
-	var step: int = int(farm.state.get("story", {}).get("starter_guide", 0))
-	if step >= STEPS.size():
-		step = 0
-	return step
+	return clampi(int(farm.state.get("story", {}).get("guided_onboarding", 0)), 0, STEPS.size())
 
 func _build_ui() -> void:
 	# Full-screen overlay
@@ -265,6 +262,9 @@ func _auto_advance() -> void:
 		_on_next()
 
 func _highlight_target(target: Variant) -> void:
+	if not is_active or not is_instance_valid(highlight):
+		return
+
 	# Clear previous highlight
 	for child in highlight.get_children():
 		child.queue_free()
@@ -299,22 +299,15 @@ func _highlight_field(field_id: String) -> void:
 	if world == null or not is_instance_valid(world):
 		return
 
-	# Find field index
-	var index: int = int(field_id.trim_prefix("plot")) - 1
-	if index < 0 or index >= 24:
+	var world_position: Vector2 = world.get_field_screen_pos(field_id)
+	if world_position.x < 0.0 or world_position.y < 0.0:
 		return
 
-	# Get field screen position
-	var GRID_X = [7.3, 16.6, 25.9, 35.2, 44.5, 53.8]
-	var GRID_Y = [10.8, 18.6, 26.4, 34.2]
-	var FIELD_W: float = 8.55
-	var FIELD_H: float = 6.75
-
-	var world_pos: Vector3 = Vector3(GRID_X[index % 6] + FIELD_W / 2, 0.5, GRID_Y[index / 6] + FIELD_H / 2)
-	var screen_pos: Vector2 = world.camera.unproject_position(world_pos) * world.size / Vector2(world.viewport_3d.size)
+	var global_position: Vector2 = world.get_global_transform() * world_position
+	var highlight_position: Vector2 = _global_to_highlight_local(global_position)
 
 	# Draw pulsing ring
-	var ring = _create_pulsing_ring(screen_pos, 50, Color("#3f6652"))
+	var ring = _create_pulsing_ring(highlight_position, 50, Color("#3f6652"))
 	highlight.add_child(ring)
 
 	# Select the field for the tutorial without triggering the click-only radial menu.
@@ -370,9 +363,12 @@ func _create_pulsing_ring(position: Vector2, radius: float, color: Color) -> Con
 	var container = Control.new()
 	container.position = position - Vector2(radius, radius)
 	container.custom_minimum_size = Vector2(radius * 2, radius * 2)
+	container.size = Vector2(radius * 2, radius * 2)
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var ring = Control.new()
 	ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(ring)
 
 	# Store draw data in the node's metadata
@@ -402,7 +398,7 @@ func _on_next() -> void:
 	current_step += 1
 
 	# Save progress
-	farm.state["story"]["starter_guide"] = current_step
+	farm.state["story"]["guided_onboarding"] = current_step
 	farm.save_file()
 
 	if current_step >= STEPS.size():
@@ -434,7 +430,7 @@ func _on_skip() -> void:
 	if current_step < STEPS.size() - 1:
 		# Skip to completion
 		current_step = STEPS.size() - 1
-		farm.state["story"]["starter_guide"] = current_step
+		farm.state["story"]["guided_onboarding"] = current_step
 		farm._direct("starterGuide", {"skip": true})
 		farm.save_file()
 		_show_step()
@@ -442,11 +438,18 @@ func _on_skip() -> void:
 		_complete()
 
 func _complete() -> void:
+	if not is_active:
+		return
 	is_active = false
-	overlay.visible = false
+	var finished_overlay: Control = overlay
+	overlay = null
+	highlight = null
+	if is_instance_valid(finished_overlay):
+		finished_overlay.visible = false
+		finished_overlay.queue_free()
 
 	# Mark tutorial as complete
-	farm.state["story"]["starter_guide"] = STEPS.size()
+	farm.state["story"]["guided_onboarding"] = STEPS.size()
 	farm.save_file()
 
 	if on_complete != null:
