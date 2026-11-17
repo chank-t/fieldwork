@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Mulch: Straw layer over soil -->
+  <line x1="8" y1="52" x2="56" y2="52" stroke-width="6" stroke="#8B7355"/>  <!-- soil -->
+  <!-- Straw pieces -->
+  <g stroke="#D4A574" stroke-width="2.5">
+    <line x1="12" y1="40" x2="20" y2="46"/>
+    <line x1="18" y1="38" x2="26" y2="44"/>
+    <line x1="24" y1="36" x2="32" y2="42"/>
+    <line x1="30" y1="38" x2="38" y2="44"/>
+    <line x1="36" y1="40" x2="44" y2="46"/>
+    <line x1="42" y1="38" x2="50" y2="44"/>
+    <line x1="10" y1="44" x2="18" y2="50"/>
+    <line x1="22" y1="42" x2="30" y2="48"/>
+    <line x1="34" y1="44" x2="42" y2="50"/>
+    <line x1="46" y1="42" x2="54" y2="48"/>
+  </g>
+  <!-- Moisture retention icon -->
+  <path d="M50 20 Q50 14 54 14 Q58 14 58 20" stroke-width="2" fill="currentColor" fill-opacity="0.15"/>
+  <path d="M50 20 Q50 14 54 14 Q58 14 58 20"/>
+  <circle cx="54" cy="20" r="3" fill="currentColor" fill-opacity="0.4"/>
+  <path d="M54 17 L54 23 M51 20 L57 20" stroke-width="1.5" opacity="0.5"/>
+  <!-- Slug warning -->
+  <circle cx="14" cy="18" r="6" fill="currentColor" fill-opacity="0.15" stroke-dasharray="3 3"/>
+  <path d="M10 18 Q10 14 14 14 Q18 14 18 18" stroke-width="2" stroke-dasharray="3 3"/>
+  <path d="M14 14 L14 10" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <circle cx="12" cy="18" r="1" fill="currentColor" opacity="0.5"/>
+  <circle cx="16" cy="18" r="1" fill="currentColor" opacity="0.5"/>
+</svg>

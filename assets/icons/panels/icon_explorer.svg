@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Explorer: Magnifying glass over map -->
+  <rect x="6" y="6" width="30" height="30" rx="3"/>
+  <line x1="6" y1="18" x2="36" y2="18"/>
+  <line x1="6" y1="30" x2="36" y2="30"/>
+  <line x1="18" y1="6" x2="18" y2="36"/>
+  <!-- Magnifying glass -->
+  <circle cx="48" cy="48" r="10"/>
+  <line x1="54" y1="54" x2="60" y2="60" stroke-width="3"/>
+  <!-- Location pin -->
+  <path d="M20 20 Q20 14 24 14 Q28 14 28 20 Q28 28 20 34 Q12 28 12 20 Q12 14 16 14 Q20 14 20 14" fill="currentColor" fill-opacity="0.2"/>
+  <circle cx="20" cy="20" r="4" fill="currentColor"/>
+</svg>

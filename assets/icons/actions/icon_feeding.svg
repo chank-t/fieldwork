@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Feeding Plan: Clipboard with balanced diet -->
+  <rect x="10" y="8" width="44" height="48" rx="4" fill="currentColor" fill-opacity="0.1"/>
+  <path d="M10 22 L54 22" stroke-width="1.5" opacity="0.3"/>
+  <!-- Standard feed -->
+  <text x="16" y="18" font-size="9" fill="currentColor">Standard</text>
+  <rect x="14" y="26" width="16" height="10" rx="2" fill="#F44336" fill-opacity="0.2" stroke-width="1.5"/>
+  <text x="22" y="33" text-anchor="middle" font-size="8" fill="#F44336">1.0×</text>
+  <!-- Balanced feed -->
+  <text x="42" y="18" font-size="9" fill="currentColor">Balanced</text>
+  <rect x="34" y="26" width="22" height="10" rx="2" fill="#4CAF50" fill-opacity="0.3" stroke-width="2"/>
+  <text x="45" y="33" text-anchor="middle" font-size="8" fill="#4CAF50" font-weight="bold">0.9×</text>
+  <path d="M42 28 L45 31 L50 24" stroke-width="2.5" fill="none" stroke="#4CAF50"/>
+  <!-- Nutrient breakdown -->
+  <line x1="14" y1="42" x2="50" y2="42" stroke-width="1.5" opacity="0.3"/>
+  <text x="16" y="48" font-size="8" fill="currentColor">Protein +12%</text>
+  <text x="16" y="54" font-size="8" fill="currentColor">Energy +8%</text>
+  <text x="38" y="48" font-size="8" fill="currentColor">Cost +10%</text>
+  <text x="38" y="54" font-size="8" fill="currentColor">Health +15%</text>
+</svg>

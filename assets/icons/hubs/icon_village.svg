@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Village hub: Cluster of houses -->
+  <path d="M16 44 L24 34 L32 44 L24 54 Z" fill="currentColor" fill-opacity="0.15"/>
+  <path d="M16 44 L24 34 L32 44 L24 54 Z"/>
+  <rect x="20" y="40" width="8" height="10" rx="1"/>
+
+  <path d="M34 38 L42 28 L50 38 L42 48 Z" fill="currentColor" fill-opacity="0.15"/>
+  <path d="M34 38 L42 28 L50 38 L42 48 Z"/>
+  <rect x="38" y="34" width="8" height="10" rx="1"/>
+
+  <path d="M22 52 L28 44 L34 52 L28 60 Z" fill="currentColor" fill-opacity="0.15"/>
+  <path d="M22 52 L28 44 L34 52 L28 60 Z"/>
+  <rect x="26" y="48" width="6" height="8" rx="1"/>
+
+  <!-- Path between houses -->
+  <path d="M32 44 Q38 48 42 48" stroke-dasharray="4 4"/>
+  <path d="M24 34 Q20 38 16 44" stroke-dasharray="4 4"/>
+  <path d="M28 44 Q24 48 22 52" stroke-dasharray="4 4"/>
+
+  <!-- Tree -->
+  <circle cx="54" cy="50" r="6" stroke-width="2"/>
+  <line x1="54" y1="56" x2="54" y2="60" stroke-width="3"/>
+</svg>

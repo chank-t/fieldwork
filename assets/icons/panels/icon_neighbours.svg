@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Neighbours: Three villagers with trust hearts -->
+  <!-- Villager 1 -->
+  <circle cx="16" cy="20" r="7"/>
+  <ellipse cx="16" cy="40" rx="8" ry="10"/>
+  <line x1="10" y1="30" x2="5" y2="35" stroke-width="2"/>
+  <line x1="22" y1="30" x2="27" y2="35" stroke-width="2"/>
+  <line x1="12" y1="48" x2="10" y2="54" stroke-width="2"/>
+  <line x1="20" y1="48" x2="22" y2="54" stroke-width="2"/>
+  <path d="M16 12 L14 8 L18 8 Z" fill="currentColor" fill-opacity="0.2"/>  <!-- hat -->
+  <!-- Trust hearts -->
+  <path d="M26 16 Q28 14 30 16 Q32 14 30 12 Q28 10 26 12 Q24 14 26 16" fill="currentColor" fill-opacity="0.4"/>
+  <path d="M30 16 Q32 14 34 16 Q36 14 34 12 Q32 10 30 12 Q28 14 30 16" fill="currentColor" fill-opacity="0.4"/>
+  <path d="M34 16 Q36 14 38 16 Q40 14 38 12 Q36 10 34 12 Q32 14 34 16" fill="currentColor" fill-opacity="0.2"/>
+  <path d="M38 16 Q40 14 42 16 Q44 14 42 12 Q40 10 38 12 Q38 14 38 16" stroke-width="1.5" fill="none"/>
+
+  <!-- Villager 2 -->
+  <circle cx="48" cy="20" r="7"/>
+  <ellipse cx="48" cy="40" rx="8" ry="10"/>
+  <line x1="42" y1="30" x2="37" y2="35" stroke-width="2"/>
+  <line x1="54" y1="30" x2="59" y2="35" stroke-width="2"/>
+  <line x1="44" y1="48" x2="42" y2="54" stroke-width="2"/>
+  <line x1="52" y1="48" x2="54" y2="54" stroke-width="2"/>
+  <path d="M48 12 L46 8 L50 8 Z" fill="currentColor" fill-opacity="0.2"/>
+  <!-- Exclamation for quest -->
+  <text x="56" y="16" font-size="12" fill="currentColor" font-weight="bold">!</text>
+</svg>

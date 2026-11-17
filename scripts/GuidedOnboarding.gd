@@ -2,6 +2,8 @@ extends RefCounted
 ## Step-by-step guided onboarding with highlighted UI elements.
 ## Replaces the text-heavy starter guide with interactive highlighting.
 
+const ThemeKit = preload("res://scripts/three_d/GameTheme.gd")
+
 const STEPS = [
 	{
 		"id": "welcome",
@@ -102,7 +104,7 @@ var progress_bar: ProgressBar
 var is_active: bool = false
 var on_complete: Callable
 
-func start(farm_ref: Variant, main_ui_ref: Variant, callback: Callable = null) -> void:
+func start(farm_ref: Variant, main_ui_ref: Variant, callback: Callable) -> void:
 	farm = farm_ref
 	main_ui = main_ui_ref
 	on_complete = callback
@@ -173,7 +175,7 @@ func _build_ui() -> void:
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override("font_size", 20)
 	title_label.add_theme_color_override("font_color", Color("#263a32"))
-	title_label.add_theme_font_override("font", main_ui.ThemeKit.SERIF if main_ui.has("ThemeKit") else null)
+	title_label.add_theme_font_override("font", ThemeKit.SERIF)
 	card_layout.add_child(title_label)
 
 	# Message
@@ -235,22 +237,22 @@ func _show_step() -> void:
 	skip_button.visible = bool(step_data.get("skipable", true))
 	next_button.text = "Complete" if current_step == STEPS.size() - 1 else "Next"
 
-	# Show/hide highlight
-	_highlight_target(step_data.get("target"))
-
 	overlay.visible = true
 	is_active = true
+
+	# Show/hide highlight (deferred to ensure overlay is fully in scene tree)
+	call_deferred("_highlight_target", step_data.get("target"))
 
 	# Auto-advance for non-interactive steps
 	if step_data["action"] in ["none", "complete"]:
 		call_deferred("_auto_advance")
 
 func _auto_advance() -> void:
-	await get_tree().create_timer(3.0).timeout
+	await main_ui.get_tree().create_timer(3.0).timeout
 	if is_active and current_step < STEPS.size():
 		_on_next()
 
-func _highlight_target(target: Dictionary) -> void:
+func _highlight_target(target: Variant) -> void:
 	# Clear previous highlight
 	for child in highlight.get_children():
 		child.queue_free()
@@ -305,7 +307,7 @@ func _highlight_speed_controls() -> void:
 
 	var global_rect: Rect2 = speed_box.get_global_rect()
 	var center: Vector2 = global_rect.position + global_rect.size / 2
-	var local_pos: Vector2 = highlight.to_local(center)
+	var local_pos: Vector2 = _global_to_highlight_local(center)
 
 	var ring = _create_pulsing_ring(local_pos, 40, Color("#dbb86b"))
 	highlight.add_child(ring)
@@ -318,8 +320,8 @@ func _highlight_hub_tab(hub_id: String) -> void:
 		if is_instance_valid(button):
 			var global_rect: Rect2 = button.get_global_rect()
 			var center: Vector2 = global_rect.position + global_rect.size / 2
-			var local_pos: Vector2 = highlight.to_local(center)
-			var ring = _create_pulsing_ring(local_pos, max(global_rect.size.x, global_rect.size.y) / 2 + 10, Color("#6b7a9e"))
+			var local_pos: Vector2 = _global_to_highlight_local(center)
+			var ring = _create_pulsing_ring(local_pos, max(global_rect.size.x, global_rect.size.y) / 2.0 + 10.0, Color("#6b7a9e"))
 			highlight.add_child(ring)
 
 	# Also highlight mobile nav
@@ -329,9 +331,12 @@ func _highlight_hub_tab(hub_id: String) -> void:
 		if is_instance_valid(button):
 			var global_rect: Rect2 = button.get_global_rect()
 			var center: Vector2 = global_rect.position + global_rect.size / 2
-			var local_pos: Vector2 = highlight.to_local(center)
-			var ring = _create_pulsing_ring(local_pos, max(global_rect.size.x, global_rect.size.y) / 2 + 10, Color("#6b7a9e"))
+			var local_pos: Vector2 = _global_to_highlight_local(center)
+			var ring = _create_pulsing_ring(local_pos, max(global_rect.size.x, global_rect.size.y) / 2.0 + 10.0, Color("#6b7a9e"))
 			highlight.add_child(ring)
+
+func _global_to_highlight_local(global_position: Vector2) -> Vector2:
+	return highlight.get_global_transform().affine_inverse() * global_position
 
 func _highlight_animal(animal_id: String) -> void:
 	# Similar to field but for animal positions
@@ -349,14 +354,16 @@ func _create_pulsing_ring(position: Vector2, radius: float, color: Color) -> Con
 	ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	container.add_child(ring)
 
-	# Animated shader or simple tween
-	var tween = create_tween()
-	tween.set_loops()
-	tween.tween_property(ring, "modulate:a", 0.3, 1.0)
-	tween.tween_property(ring, "modulate:a", 0.8, 1.0)
+	# Store draw data in the node's metadata
+	ring.set_meta("_draw_radius", radius)
+	ring.set_meta("_draw_color", color)
 
-	# Draw using _draw
-	ring._draw = func(): _draw_ring(ring, radius, color)
+	# Connect to draw signal
+	ring.connect("draw", _draw_ring.bind(ring, radius, color))
+
+	# Simple pulsing via script - animate modulate:a on process
+	ring.set_script(preload("res://scripts/GuidedOnboardingRing.gd"))
+	ring.call("_init_pulse", 0.3, 0.8, 1.0)
 
 	return container
 

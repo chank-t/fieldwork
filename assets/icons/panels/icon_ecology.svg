@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Soil & Pests: Soil layers with indicators -->
+  <rect x="10" y="16" width="44" height="36" rx="4"/>
+  <!-- Soil layers -->
+  <line x1="10" y1="30" x2="54" y2="30" stroke-width="1.5" opacity="0.5"/>
+  <line x1="10" y1="42" x2="54" y2="42" stroke-width="1.5" opacity="0.5"/>
+  <!-- Moisture bar -->
+  <rect x="14" y="20" width="28" height="6" rx="2" fill="currentColor" fill-opacity="0.3"/>
+  <text x="16" y="25" font-size="8" fill="currentColor" opacity="0.7">H2O</text>
+  <!-- Nutrient bars -->
+  <rect x="14" y="32" width="18" height="5" rx="1" fill="currentColor" fill-opacity="0.3"/>
+  <text x="16" y="36" font-size="7" fill="currentColor" opacity="0.7">N</text>
+  <rect x="34" y="32" width="12" height="5" rx="1" fill="currentColor" fill-opacity="0.3"/>
+  <text x="36" y="36" font-size="7" fill="currentColor" opacity="0.7">P</text>
+  <rect x="14" y="39" width="22" height="5" rx="1" fill="currentColor" fill-opacity="0.3"/>
+  <text x="16" y="43" font-size="7" fill="currentColor" opacity="0.7">K</text>
+  <!-- Pest icons -->
+  <circle cx="50" cy="24" r="4" fill="currentColor" fill-opacity="0.4"/>
+  <path d="M48 22 L52 26 M52 22 L48 26" stroke-width="1.5" stroke="currentColor" opacity="0.7"/>  <!-- pest X -->
+  <circle cx="50" cy="34" r="4" stroke-width="1.5" stroke-dasharray="2 2"/>
+  <path d="M48 32 L52 36 M52 32 L48 36" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+</svg>

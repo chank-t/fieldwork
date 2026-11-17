@@ -25,6 +25,10 @@ const Beyond58 = preload("res://scripts/BeyondFarm.gd")
 const Layout55 = preload("res://scripts/ResponsiveLayout.gd")
 const Performance59 = preload("res://scripts/PerformanceAccessibility.gd")
 const Compass60 = preload("res://scripts/FarmCompass.gd")
+const UIHubs = preload("res://scripts/UIHubs.gd")
+const ContextRadialMenu = preload("res://scripts/ContextRadialMenu.gd")
+const GuidedOnboarding = preload("res://scripts/GuidedOnboarding.gd")
+const UIIntegration = preload("res://scripts/UIIntegration.gd")
 
 const INK = Color("#263a32")
 const MUTED = Color("#687e70")
@@ -62,6 +66,7 @@ var selected_building_kind: String = ""
 var language: String = "en"
 var speed: int = 0
 var speed_accum: float = 0.0
+var speed_box: PanelContainer = null
 var game_running: bool = false
 var pending: Dictionary = {}
 var confirm: ConfirmationDialog
@@ -77,6 +82,13 @@ var speed_buttons: Dictionary = {}
 var sidebar_open: bool = false
 var left_nav_holder: PanelContainer = null
 var hud_values: Dictionary = {}
+
+# New simplified UI system
+var radial_menu: Variant
+var onboarding: Variant
+var current_hub: String = "Farm"
+var current_panel: String = "overview"
+var hub_buttons: Dictionary = {}
 var context_title: Label = null
 var context_card_view: PanelContainer = null
 var context_detail: Label = null
@@ -978,7 +990,7 @@ func _show_game() -> void:
 	topbox.add_child(fps_label59)
 	# Time controls are one segmented group; navigation lives on its own row.
 	speed_buttons.clear()
-	var speed_box: PanelContainer = PanelContainer.new()
+	speed_box = PanelContainer.new()
 	var speed_style: StyleBoxFlat = _style(Color("#e8ecdf"),11)
 	speed_style.set_content_margin_all(3)
 	speed_box.add_theme_stylebox_override("panel",speed_style)
@@ -1068,26 +1080,13 @@ func _show_game() -> void:
 	else:
 		nav_list = VBoxContainer.new()
 	nav_scroll.add_child(nav_list)
-	# Every management screen remains reachable via the grouped sidebar.
-	var groups: Array = [
-		{"heading":tx("EXPLORE","EXPLORAR"),"tabs":[["Farm",tx("Farm overview","Resumen")],["Compass60",tx("Farm Compass","Brújula de la finca")],["Explorer",tx("World guide","Guía del mundo")],["Fields",tx("Fields","Parcelas")],["CropGuide52",tx("Crop guide","Guía de cultivos")],["Valley",tx("Valley map","Mapa del valle")],["Countryside54",tx("Village life","Vida rural")],["Expeditions58",tx("Regional projects","Proyectos regionales")]]},
-		{"heading":tx("MANAGE","GESTIONAR"),"tabs":[["Ecology",tx("Soil & pests","Suelo y plagas")],["Planning",tx("Daily plan","Plan diario")],["Machinery",tx("Machinery","Maquinaria")],["Resources",tx("Resources","Recursos")],["GardenStudio57",tx("Garden studio","Estudio del jardín")],["Buildings",tx("Buildings","Edificios")],["Animals",tx("Animals","Animales")],["Processing",tx("Processing","Elaboración")],["Market",tx("Markets","Mercado")],["Economy",tx("Business strategy","Estrategia")]]},
-		{"heading":tx("COMMUNITY","COMUNIDAD"),"tabs":[["Neighbours",tx("Neighbours","Vecinos")],["Stories",tx("Village stories","Historias del pueblo")],["Community50",tx("Neighbour journeys","Historias vecinales")],["Festivals50",tx("Festivals & seasons","Fiestas y estaciones")],["Certifications50",tx("Professional mastery","Maestría profesional")],["Character",tx("Courses & talents","Cursos y talentos")],["Wardrobe53",tx("Farmer wardrobe","Vestuario del agricultor")],["Story",tx("Story & goals","Historia y objetivos")],["Journal",tx("Journal","Diario")],["Options",tx("Settings","Opciones")]]}
-	]
-	for group in groups:
-		if not horizontal_nav:
-			var heading: Label = _text(str(group["heading"]),11,MUTED)
-			heading.add_theme_constant_override("line_spacing",2)
-			nav_list.add_child(heading)
-		for pair in group["tabs"]:
-			var button: Button = _button(str(pair[1]),_change_tab.bind(str(pair[0])),nav_list,str(pair[0]) == active_tab)
-			nav_buttons[str(pair[0])] = button
-			button.add_theme_font_size_override("font_size",maxi(12,int(float(13 if not horizontal_nav else 14)*ui_scale)))
-			if horizontal_nav:
-				button.custom_minimum_size = Vector2(145,46 * ui_scale)
-		if not horizontal_nav:
-			var divider: HSeparator = HSeparator.new()
-			nav_list.add_child(divider)
+	# New simplified UI: Hub bar (replaces grouped sidebar)
+	hub_buttons = UIIntegration.build_hub_bar(nav_list, self, language, ui_scale, current_hub, _on_hub_selected.bind())
+
+	# Keep the old nav_buttons for compatibility with _update_nav_state
+	for hub_id in UIHubs.get_hub_order():
+		nav_buttons[hub_id] = hub_buttons.get(hub_id)
+
 	var visual_side: VBoxContainer = _vbox(center_row,4)
 	mobile_map_pane = visual_side
 	if compact:
@@ -1157,6 +1156,16 @@ func _show_game() -> void:
 	valley_view.perspective = map_perspective
 	valley_view.reduced_motion59 = reduced_motion
 	valley_view.region_selected.connect(_picked_region)
+
+	# New simplified UI: Radial context menu
+	radial_menu = ContextRadialMenu.new()
+	radial_menu.set_farm(farm)
+	radial_menu.action_selected.connect(_on_radial_action)
+	scene_root.add_child(radial_menu)
+
+	# New simplified UI: Guided onboarding
+	onboarding = GuidedOnboarding.new()
+
 	# Context bar stays visible when switching management tabs and is live-updated.
 	var context_card: PanelContainer = PanelContainer.new()
 	context_card_view = context_card
@@ -1276,6 +1285,12 @@ func _show_game() -> void:
 	_play_ambience()
 	_refresh()
 
+	# Start guided onboarding for new games
+	if farm.state.has("story") and farm.state["story"].has("starter_guide"):
+		var step: int = int(farm.state["story"]["starter_guide"])
+		if step < 10:
+			onboarding.start(farm, self, _on_onboarding_complete)
+
 func _refresh_speed_buttons() -> void:
 	for value in speed_buttons.keys():
 		var button: Button = speed_buttons[value]
@@ -1314,6 +1329,56 @@ func _change_tab(tab: String) -> void:
 	if right_scroll != null and is_instance_valid(right_scroll):
 		right_scroll.scroll_vertical = 0
 	_render_panel()
+
+## ============================================================================
+## NEW SIMPLIFIED UI HANDLERS
+## ============================================================================
+
+func _on_hub_selected(hub_id: String) -> void:
+	current_hub = hub_id
+	current_panel = UIHubs.get_hub_data(hub_id).get("panels", [])[0].get("id", "overview")
+
+	# Update hub button styles
+	for id in hub_buttons.keys():
+		var btn: Button = hub_buttons[id]
+		if is_instance_valid(btn):
+			var hub_data: Dictionary = UIHubs.get_hub_data(id)
+			var hub_color: Color = hub_data.get("color", ACCENT)
+			var is_active: bool = id == hub_id
+			var style_normal = StyleBoxFlat.new()
+			style_normal.bg_color = hub_color if is_active else Color("#f7f4e9")
+			style_normal.set_corner_radius_all(12)
+			style_normal.border_color = hub_color if is_active else Color("#dce9d8")
+			style_normal.set_border_width_all(0 if is_active else 2)
+			btn.add_theme_stylebox_override("normal", style_normal)
+			var style_hover = style_normal.duplicate()
+			style_hover.bg_color = hub_color.lightened(0.15) if is_active else Color("#ecf7e9")
+			btn.add_theme_stylebox_override("hover", style_hover)
+			var style_pressed = style_normal.duplicate()
+			style_pressed.bg_color = hub_color.darkened(0.15) if is_active else Color("#dceedd")
+			btn.add_theme_stylebox_override("pressed", style_pressed)
+
+	_render_hub_panel()
+
+func _on_panel_selected(panel_id: String) -> void:
+	current_panel = panel_id
+	_render_hub_panel()
+
+func _render_hub_panel() -> void:
+	if not game_running or right_body == null:
+		return
+	for child in right_body.get_children():
+		right_body.remove_child(child)
+		child.queue_free()
+
+	# Build panel cards for current hub
+	UIIntegration.build_panel_cards(right_body, current_hub, self, language, ui_scale, current_panel, _on_panel_selected.bind())
+
+func _on_radial_action(action_id: String, args: Dictionary) -> void:
+	UIIntegration.on_radial_action(self, action_id, args)
+
+func _on_onboarding_complete() -> void:
+	_notify(tx("Tutorial complete! Explore the 6 hubs at your own pace.","¡Tutorial completado! Explora los 6 centros a tu ritmo."))
 
 func _update_nav_state() -> void:
 	for id in primary_nav_buttons.keys():
@@ -1373,10 +1438,9 @@ func _picked_field(id: String) -> void:
 		mobile_inspector_open = true
 	if world != null:
 		world.set_selected(id)
-	active_tab = "Fields"
-	_update_nav_state()
-	_update_visual_mode()
-	_render_panel()
+
+	# Show radial menu at field position
+	UIIntegration.on_field_picked(self, radial_menu, id)
 	_update_header()
 
 func _picked_npc(id: String) -> void:
@@ -1394,14 +1458,19 @@ func _picked_garden_slot57(slot: int) -> void:
 	if world != null and is_instance_valid(world):
 		world.active_garden_slot57 = slot
 		world.queue_redraw()
-	if active_tab == "GardenStudio57":
-		if compact_mode:
-			mobile_inspector_open = true
-			_sync_mobile_panels55()
-		_render_panel()
 
-func _picked_machine57(_machine_id: String) -> void:
-	_change_tab("Machinery")
+	# Show radial menu at garden slot position
+	var world_ref: Variant = world
+	if world_ref != null and is_instance_valid(world_ref):
+		var screen_pos: Vector2 = world_ref.camera.unproject_position(Vector3(slot * 10.0 + 5.0, 0.5, -5.0)) * world_ref.size / Vector2(world_ref.viewport_3d.size)
+		radial_menu.show_at(screen_pos, {"type": "garden_slot", "id": str(slot)})
+
+func _picked_machine57(machine_id: String) -> void:
+	# Show radial menu at machine position
+	var world_ref: Variant = world
+	if world_ref != null and is_instance_valid(world_ref):
+		var screen_pos: Vector2 = world_ref.camera.unproject_position(Vector3(0.0, 0.5, 0.0)) * world_ref.size / Vector2(world_ref.viewport_3d.size)
+		radial_menu.show_at(screen_pos, {"type": "machine", "id": machine_id})
 
 func _show_garden_map57() -> void:
 	if compact_mode:
@@ -1417,11 +1486,9 @@ func _choose_garden_slot57(slot: int) -> void:
 func _set_source_garden57(source_id: String) -> void:
 	selected_deco_id57 = source_id
 
-func _picked_animal(_animal_id: String) -> void:
-	active_tab = "Animals"
-	_update_nav_state()
-	_update_visual_mode()
-	_render_panel()
+func _picked_animal(animal_id: String) -> void:
+	# Show radial menu at animal position
+	UIIntegration.on_animal_picked(self, radial_menu, animal_id)
 
 func _picked_decoration(slot: int) -> void:
 	for decoration in farm.state.get("decorations",[]):
@@ -1436,20 +1503,17 @@ func _picked_build_slot(slot: int) -> void:
 	if world != null:
 		world.active_build_slot = selected_build_slot
 		world.queue_redraw()
-	if active_tab == "Buildings":
-		_render_panel()
+
+	# Show radial menu at build slot position (similar to field)
+	var world_ref: Variant = world
+	if world_ref != null and is_instance_valid(world_ref):
+		# Use a simplified position - could be enhanced to show at actual slot position
+		var screen_pos: Vector2 = world_ref.camera.unproject_position(Vector3(slot * 10.0, 0.5, 5.0)) * world_ref.size / Vector2(world_ref.viewport_3d.size)
+		radial_menu.show_at(screen_pos, {"type": "build_slot", "id": str(slot)})
 
 func _picked_building(id: String) -> void:
-	if id == "farmhouse" or id == "market":
-		_enter_building(id)
-		return
-	for b in farm.state["buildings"]:
-		if str(b["id"]) == id:
-			if int(b["level"]) < 1:
-				_notify(tx("Construction is not finished yet.","La obra todavía no ha terminado."))
-			else:
-				_enter_building(str(b["kind"]))
-			return
+	# Show radial menu at building position
+	UIIntegration.on_building_picked(self, radial_menu, id)
 
 func _move_to(x: float, y: float) -> void:
 	if not game_running:

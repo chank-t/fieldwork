@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Compass: Compass rose with needle -->
+  <circle cx="32" cy="32" r="24"/>
+  <circle cx="32" cy="32" r="16" stroke-dasharray="4 4"/>
+  <circle cx="32" cy="32" r="8" fill="currentColor" fill-opacity="0.15"/>
+  <!-- Cardinal directions -->
+  <path d="M32 10 L32 16 M32 48 L32 54 M10 32 L16 32 M48 32 L54 32" stroke-width="3"/>
+  <path d="M18 18 L23 23 M41 23 L46 18 M18 46 L23 41 M41 41 L46 46" stroke-width="2"/>
+  <!-- Needle -->
+  <path d="M32 32 L32 14" stroke-width="3" fill="currentColor" stroke="currentColor" marker-end="url(#arrow)"/>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6 Z" fill="currentColor"/></marker></defs>
+  <!-- N label -->
+  <text x="32" y="12" text-anchor="middle" font-size="10" fill="currentColor" font-family="system-ui">N</text>
+</svg>

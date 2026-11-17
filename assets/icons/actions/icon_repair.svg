@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Repair: Wrench -->
+  <path d="M16 48 L24 40 L36 28 L40 32 L28 44 L16 48 Z" fill="currentColor" fill-opacity="0.2" stroke-width="3"/>
+  <path d="M42 20 L48 26 L36 38 L30 32 L42 20 Z" stroke-width="2.5" fill="currentColor" fill-opacity="0.15"/>
+  <circle cx="30" cy="32" r="4" fill="currentColor" fill-opacity="0.3"/>
+  <!-- Bolt/spark -->
+  <path d="M50 14 L46 22 L50 22 L44 30 L50 26 L46 26 L50 14 Z" fill="#F44336" fill-opacity="0.4"/>
+</svg>

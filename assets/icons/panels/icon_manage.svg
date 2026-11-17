@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Manage Plot: Field with tool icons around -->
+  <rect x="16" y="16" width="32" height="32" rx="4"/>
+  <line x1="16" y1="28" x2="48" y2="28"/>
+  <line x1="16" y1="40" x2="48" y2="40"/>
+  <line x1="28" y1="16" x2="28" y2="48"/>
+  <line x1="40" y1="16" x2="40" y2="48"/>
+  <!-- Tools around -->
+  <circle cx="8" cy="20" r="6" stroke-width="2"/>
+  <path d="M5 20 L11 20 M8 17 L8 23" stroke-width="2"/>  <!-- plus -->
+  <circle cx="56" cy="20" r="6" stroke-width="2"/>
+  <path d="M53 20 L59 20" stroke-width="2"/>  <!-- minus -->
+  <circle cx="8" cy="44" r="6" stroke-width="2"/>
+  <path d="M5 44 L11 44 M8 41 L8 47" stroke-width="2"/>
+  <circle cx="56" cy="44" r="6" stroke-width="2"/>
+  <path d="M53 44 L59 44" stroke-width="2"/>
+</svg>

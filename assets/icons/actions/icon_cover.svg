@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Cover Crop: Clover/legume covering field -->
+  <line x1="8" y1="52" x2="56" y2="52" stroke-width="4" stroke="#8B7355"/>  <!-- soil -->
+  <!-- Clover plants -->
+  <g fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="1.5">
+    <circle cx="16" cy="34" r="5"/>
+    <circle cx="22" cy="30" r="5"/>
+    <circle cx="19" cy="27" r="5"/>
+    <circle cx="30" cy="34" r="5"/>
+    <circle cx="36" cy="30" r="5"/>
+    <circle cx="33" cy="27" r="5"/>
+    <circle cx="44" cy="34" r="5"/>
+    <circle cx="50" cy="30" r="5"/>
+    <circle cx="47" cy="27" r="5"/>
+    <circle cx="16" cy="44" r="5"/>
+    <circle cx="22" cy="40" r="5"/>
+    <circle cx="19" cy="37" r="5"/>
+    <circle cx="30" cy="44" r="5"/>
+    <circle cx="36" cy="40" r="5"/>
+    <circle cx="33" cy="37" r="5"/>
+    <circle cx="44" cy="44" r="5"/>
+    <circle cx="50" cy="40" r="5"/>
+    <circle cx="47" cy="37" r="5"/>
+  </g>
+  <!-- Nitrogen fixation icon -->
+  <circle cx="54" cy="18" r="8" fill="currentColor" fill-opacity="0.15"/>
+  <text x="54" y="21" text-anchor="middle" font-size="10" fill="currentColor" font-weight="bold">N₂</text>
+  <path d="M50 20 L58 20 M54 16 L54 24" stroke-width="1.5" opacity="0.5"/>
+  <!-- Days remaining -->
+  <rect x="6" y="6" width="16" height="10" rx="2" fill="currentColor" fill-opacity="0.2"/>
+  <text x="14" y="13" font-size="7" fill="currentColor">4 days</text>
+</svg>

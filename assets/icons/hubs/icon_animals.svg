@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Animals hub: Cow silhouette -->
+  <ellipse cx="32" cy="38" rx="18" ry="12"/>
+  <path d="M18 30 Q14 26 16 20 Q18 16 22 16 Q26 16 28 20 Q30 26 26 30"/>
+  <path d="M46 30 Q50 26 48 20 Q46 16 42 16 Q38 16 36 20 Q34 26 38 30"/>
+  <ellipse cx="32" cy="24" rx="8" ry="7"/>  <!-- head -->
+  <ellipse cx="27" cy="22" rx="2" ry="2" fill="currentColor"/>  <!-- eye -->
+  <ellipse cx="37" cy="22" rx="2" ry="2" fill="currentColor"/>  <!-- eye -->
+  <path d="M28 28 Q32 30 36 28"/>  <!-- nose -->
+  <line x1="20" y1="48" x2="16" y2="58" stroke-width="3"/>  <!-- legs -->
+  <line x1="28" y1="48" x2="26" y2="58" stroke-width="3"/>
+  <line x1="36" y1="48" x2="38" y2="58" stroke-width="3"/>
+  <line x1="44" y1="48" x2="48" y2="58" stroke-width="3"/>
+  <path d="M50 42 Q54 40 56 44"/>  <!-- tail -->
+</svg>

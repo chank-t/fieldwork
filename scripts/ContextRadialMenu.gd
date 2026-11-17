@@ -32,19 +32,19 @@ func _ready() -> void:
 func set_farm(farm_ref: Variant) -> void:
 	farm = farm_ref
 
-func show_at(position: Vector2, target: Dictionary) -> void:
+func show_at(screen_pos: Vector2, target: Dictionary) -> void:
 	if is_open:
-		hide()
+		close_menu()
 
 	current_target = target
-	center_pos = position
+	center_pos = screen_pos
 	_build_menu()
 
 	# Position menu at click location (clamped to viewport)
 	var viewport_size = get_viewport_rect().size
-	var menu_diameter = RADIUS * 2 + ITEM_SIZE
-	var clamped_x = clampf(position.x, menu_diameter / 2, viewport_size.x - menu_diameter / 2)
-	var clamped_y = clampf(position.y, menu_diameter / 2, viewport_size.y - menu_diameter / 2)
+	var menu_diameter = RADIUS * 2.0 + ITEM_SIZE
+	var clamped_x = clampf(screen_pos.x, menu_diameter / 2.0, viewport_size.x - menu_diameter / 2.0)
+	var clamped_y = clampf(screen_pos.y, menu_diameter / 2.0, viewport_size.y - menu_diameter / 2.0)
 	center_pos = Vector2(clamped_x, clamped_y)
 
 	global_position = Vector2.ZERO
@@ -56,17 +56,18 @@ func show_at(position: Vector2, target: Dictionary) -> void:
 	var tween = create_tween()
 	tween.tween_property(background, "color", Color(0, 0, 0, 0.3), ANIMATION_TIME)
 
-	for i, button in item_buttons:
+	for i in range(item_buttons.size()):
+		var button: Button = item_buttons[i]
 		button.scale = Vector2.ZERO
 		button.modulate = Color(1, 1, 1, 0)
 		var delay = i * 0.03
 		tween.tween_property(button, "scale", Vector2.ONE, ANIMATION_TIME).set_delay(delay).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(button, "modulate", Color(1, 1, 1, 1), ANIMATION_TIME).set_delay(delay)
 
-	# Close on any input outside
-	get_viewport().gui_input.connect(_on_viewport_input)
+	# Close on any input outside (handled by background gui_input)
+	# get_viewport().gui_input.connect(_on_viewport_input)
 
-func hide() -> void:
+func close_menu() -> void:
 	if not is_open:
 		return
 	is_open = false
@@ -74,7 +75,8 @@ func hide() -> void:
 	var tween = create_tween()
 	tween.tween_property(background, "color", Color(0, 0, 0, 0), ANIMATION_TIME)
 
-	for i, button in item_buttons:
+	for i in range(item_buttons.size()):
+		var button: Button = item_buttons[i]
 		var delay = (item_buttons.size() - i - 1) * 0.02
 		tween.tween_property(button, "scale", Vector2.ZERO, ANIMATION_TIME * 0.7).set_delay(delay).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 		tween.tween_property(button, "modulate", Color(1, 1, 1, 0), ANIMATION_TIME * 0.7).set_delay(delay)
@@ -89,7 +91,7 @@ func _cleanup() -> void:
 	item_buttons.clear()
 	menu_items.clear()
 	current_target = {}
-	get_viewport().gui_input.disconnect(_on_viewport_input)
+	# get_viewport().gui_input.disconnect(_on_viewport_input)
 
 func _build_menu() -> void:
 	menu_items = _generate_actions(current_target)
@@ -101,7 +103,8 @@ func _build_menu() -> void:
 	var angle_step = TAU / count
 	var start_angle = -TAU / 4  # Start at top
 
-	for i, item in menu_items:
+	for i in range(menu_items.size()):
+		var item: Dictionary = menu_items[i]
 		var angle = start_angle + i * angle_step
 		var offset = Vector2(cos(angle), sin(angle)) * RADIUS
 		var pos = center_pos + offset
@@ -115,7 +118,7 @@ func _build_menu() -> void:
 		# Style
 		var style_normal = StyleBoxFlat.new()
 		style_normal.bg_color = Color("#f7f4e9")
-		style_normal.set_corner_radius_all(ITEM_SIZE / 2)
+		style_normal.set_corner_radius_all(ITEM_SIZE / 2.0)
 		style_normal.border_color = Color("#8baf99")
 		style_normal.set_border_width_all(2)
 		button.add_theme_stylebox_override("normal", style_normal)
@@ -146,7 +149,7 @@ func _build_menu() -> void:
 		button.tooltip_text = _get_localized(item["label"])
 
 		# Position
-		button.position = pos - Vector2(ITEM_SIZE / 2, ITEM_SIZE / 2)
+		button.position = pos - Vector2(ITEM_SIZE / 2.0, ITEM_SIZE / 2.0)
 
 		# Action
 		var action_id = item["action"]
@@ -188,21 +191,21 @@ func _field_actions(field_id: String) -> Array[Dictionary]:
 	var actions: Array[Dictionary] = []
 
 	if not owned:
-		actions.append({"action": "buyField", "label": {"en": "Buy Land", "es": "Comprar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_buy.png"})
+		actions.append({"action": "buyField", "label": {"en": "Buy Land", "es": "Comprar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_buy.svg"})
 	else:
 		if not has_crop:
-			actions.append({"action": "plant", "label": {"en": "Plant", "es": "Sembrar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_plant.png"})
-			actions.append({"action": "coverCrop", "label": {"en": "Cover Crop", "es": "Cubrir"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_cover.png"})
-			actions.append({"action": "aerateSoil", "label": {"en": "Aerate", "es": "Airear"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_aerate.png"})
+			actions.append({"action": "plant", "label": {"en": "Plant", "es": "Sembrar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_plant.svg"})
+			actions.append({"action": "coverCrop", "label": {"en": "Cover Crop", "es": "Cubrir"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_cover.svg"})
+			actions.append({"action": "aerateSoil", "label": {"en": "Aerate", "es": "Airear"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_aerate.svg"})
 		else:
 			if development >= 0.99:
-				actions.append({"action": "harvest", "label": {"en": "Harvest", "es": "Cosechar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_harvest.png"})
-			actions.append({"action": "irrigate", "label": {"en": "Water +15mm", "es": "Regar +15mm"}, "args": {"fieldId": field_id, "mm": 15.0}, "icon": "res://assets/icon_water.png"})
-			actions.append({"action": "inspect", "label": {"en": "Inspect", "es": "Inspeccionar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_inspect.png"})
-			actions.append({"action": "treat", "label": {"en": "Treat Pests", "es": "Tratar Plagas"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_treat.png"})
-			actions.append({"action": "fertilize", "label": {"en": "Fertilize", "es": "Fertilizar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_fertilize.png"})
-			actions.append({"action": "mulch", "label": {"en": "Mulch", "es": "Acolchar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_mulch.png"})
-			actions.append({"action": "compost", "label": {"en": "Compost", "es": "Compost"}, "args": {"fieldId": field_id}, "icon": "res://assets/icon_compost.png"})
+				actions.append({"action": "harvest", "label": {"en": "Harvest", "es": "Cosechar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_harvest.svg"})
+			actions.append({"action": "irrigate", "label": {"en": "Water +15mm", "es": "Regar +15mm"}, "args": {"fieldId": field_id, "mm": 15.0}, "icon": "res://assets/icons/actions/icon_water.svg"})
+			actions.append({"action": "inspect", "label": {"en": "Inspect", "es": "Inspeccionar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_inspect.svg"})
+			actions.append({"action": "treat", "label": {"en": "Treat Pests", "es": "Tratar Plagas"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_treat.svg"})
+			actions.append({"action": "fertilize", "label": {"en": "Fertilize", "es": "Fertilizar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_fertilize.svg"})
+			actions.append({"action": "mulch", "label": {"en": "Mulch", "es": "Acolchar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_mulch.svg"})
+			actions.append({"action": "compost", "label": {"en": "Compost", "es": "Compost"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_compost.svg"})
 
 	return actions
 
@@ -210,11 +213,11 @@ func _animal_actions(animal_id: String) -> Array[Dictionary]:
 	var actions: Array[Dictionary] = []
 	for animal in farm.state.get("animals", []):
 		if str(animal.get("id", "")) == animal_id:
-			actions.append({"action": "feed", "label": {"en": "Feed", "es": "Alimentar"}, "args": {"animalId": animal_id}, "icon": "res://assets/icon_feed.png"})
-			actions.append({"action": "animalCare", "label": {"en": "Care", "es": "Cuidar"}, "args": {"animalId": animal_id}, "icon": "res://assets/icon_care.png"})
-			actions.append({"action": "vetVisit", "label": {"en": "Vet Visit", "es": "Veterinario"}, "args": {"animalId": animal_id}, "icon": "res://assets/icon_vet.png"})
-			actions.append({"action": "feedingPlan", "label": {"en": "Feeding Plan", "es": "Plan Alimentación"}, "args": {"animalId": animal_id, "mode": "balanced"}, "icon": "res://assets/icon_feeding.png"})
-			actions.append({"action": "sellAnimal", "label": {"en": "Sell", "es": "Vender"}, "args": {"animalId": animal_id}, "icon": "res://assets/icon_sell.png"})
+			actions.append({"action": "feed", "label": {"en": "Feed", "es": "Alimentar"}, "args": {"animalId": animal_id}, "icon": "res://assets/icons/actions/icon_feed.svg"})
+			actions.append({"action": "animalCare", "label": {"en": "Care", "es": "Cuidar"}, "args": {"animalId": animal_id}, "icon": "res://assets/icons/actions/icon_care.svg"})
+			actions.append({"action": "vetVisit", "label": {"en": "Vet Visit", "es": "Veterinario"}, "args": {"animalId": animal_id}, "icon": "res://assets/icons/actions/icon_vet.svg"})
+			actions.append({"action": "feedingPlan", "label": {"en": "Feeding Plan", "es": "Plan Alimentación"}, "args": {"animalId": animal_id, "mode": "balanced"}, "icon": "res://assets/icons/actions/icon_feeding.svg"})
+			actions.append({"action": "sellAnimal", "label": {"en": "Sell", "es": "Vender"}, "args": {"animalId": animal_id}, "icon": "res://assets/icons/actions/icon_sell.svg"})
 			break
 	return actions
 
@@ -222,16 +225,16 @@ func _building_actions(building_id: String) -> Array[Dictionary]:
 	var actions: Array[Dictionary] = []
 
 	if building_id == "farmhouse" or building_id == "market":
-		actions.append({"action": "enterBuilding", "label": {"en": "Enter", "es": "Entrar"}, "args": {"building": building_id}, "icon": "res://assets/icon_enter.png"})
+		actions.append({"action": "enterBuilding", "label": {"en": "Enter", "es": "Entrar"}, "args": {"building": building_id}, "icon": "res://assets/icons/actions/icon_enter.svg"})
 	else:
 		for b in farm.state.get("buildings", []):
 			if str(b.get("id", "")) == building_id or str(b.get("kind", "")) == building_id:
 				var level: int = int(b.get("level", 0))
 				if level == 0:
-					actions.append({"action": "completeBuilding", "label": {"en": "Finish Build", "es": "Terminar Obra"}, "args": {"buildingId": building_id}, "icon": "res://assets/icon_build.png"})
+					actions.append({"action": "completeBuilding", "label": {"en": "Finish Build", "es": "Terminar Obra"}, "args": {"buildingId": building_id}, "icon": "res://assets/icons/actions/icon_build.svg"})
 				else:
-					actions.append({"action": "enterBuilding", "label": {"en": "Enter", "es": "Entrar"}, "args": {"building": str(b["kind"])}, "icon": "res://assets/icon_enter.png"})
-					actions.append({"action": "upgradeBuilding", "label": {"en": "Upgrade", "es": "Mejorar"}, "args": {"buildingId": building_id}, "icon": "res://assets/icon_upgrade.png"})
+					actions.append({"action": "enterBuilding", "label": {"en": "Enter", "es": "Entrar"}, "args": {"building": str(b["kind"])}, "icon": "res://assets/icons/actions/icon_enter.svg"})
+					actions.append({"action": "upgradeBuilding", "label": {"en": "Upgrade", "es": "Mejorar"}, "args": {"buildingId": building_id}, "icon": "res://assets/icons/actions/icon_upgrade.svg"})
 				break
 	return actions
 
@@ -252,13 +255,13 @@ func _garden_slot_actions(slot_id: String) -> Array[Dictionary]:
 		var kind: String = str(decoration.get("kind", ""))
 		var completed: bool = bool(decoration.get("completed", false))
 		if not completed:
-			actions.append({"action": "craftDecoration", "label": {"en": "Continue", "es": "Continuar"}, "args": {"slot": slot, "kind": kind}, "icon": "res://assets/icon_craft.png"})
-		actions.append({"action": "removeDecoration", "label": {"en": "Remove", "es": "Quitar"}, "args": {"slot": slot}, "icon": "res://assets/icon_remove.png"})
+			actions.append({"action": "craftDecoration", "label": {"en": "Continue", "es": "Continuar"}, "args": {"slot": slot, "kind": kind}, "icon": "res://assets/icons/actions/icon_craft.svg"})
+		actions.append({"action": "removeDecoration", "label": {"en": "Remove", "es": "Quitar"}, "args": {"slot": slot}, "icon": "res://assets/icons/actions/icon_remove.svg"})
 	else:
 		# Show available decorations
 		for deco_id in farm.content.get("decorations", {}).keys():
 			var deco: Dictionary = farm.content["decorations"][deco_id]
-			actions.append({"action": "craftDecoration", "label": {"en": farm.n(deco), "es": farm.n(deco)}, "args": {"slot": slot, "kind": deco_id}, "icon": "res://assets/icon_deco.png"})
+			actions.append({"action": "craftDecoration", "label": {"en": farm.n(deco), "es": farm.n(deco)}, "args": {"slot": slot, "kind": deco_id}, "icon": "res://assets/icons/actions/icon_deco.svg"})
 
 	return actions.slice(0, 8)  # Max 8 items
 
@@ -277,7 +280,7 @@ func _build_slot_actions(slot_id: String) -> Array[Dictionary]:
 		for building_id in farm.content.get("buildings", {}).keys():
 			var building: Dictionary = farm.content["buildings"][building_id]
 			if str(building.get("scope", "farm")) == "farm":
-				actions.append({"action": "build", "label": {"en": farm.n(building), "es": farm.n(building)}, "args": {"kind": building_id, "slot": slot}, "icon": "res://assets/icon_build.png"})
+				actions.append({"action": "build", "label": {"en": farm.n(building), "es": farm.n(building)}, "args": {"kind": building_id, "slot": slot}, "icon": "res://assets/icons/actions/icon_build.svg"})
 
 	return actions.slice(0, 8)
 
@@ -288,31 +291,25 @@ func _machine_actions(machine_id: String) -> Array[Dictionary]:
 	if machine.is_empty():
 		# Buy machine
 		var def: Dictionary = farm.content.get("machines", {}).get(machine_id, {})
-		actions.append({"action": "buyMachine", "label": {"en": "Buy " + farm.n(def), "es": "Comprar " + farm.n(def)}, "args": {"machineId": machine_id}, "icon": "res://assets/icon_buy.png"})
+		actions.append({"action": "buyMachine", "label": {"en": "Buy " + farm.n(def), "es": "Comprar " + farm.n(def)}, "args": {"machineId": machine_id}, "icon": "res://assets/icons/actions/icon_buy.svg"})
 	else:
 		var broken: bool = farm.machine_efficiency(machine_id) <= 0.0
 		if broken:
-			actions.append({"action": "repairMachine", "label": {"en": "Repair", "es": "Reparar"}, "args": {"machineId": machine_id}, "icon": "res://assets/icon_repair.png"})
-		actions.append({"action": "maintainMachine", "label": {"en": "Maintain", "es": "Mantenimiento"}, "args": {"machineId": machine_id}, "icon": "res://assets/icon_maintain.png"})
-		actions.append({"action": "sellMachine", "label": {"en": "Sell", "es": "Vender"}, "args": {"machineId": machine_id}, "icon": "res://assets/icon_sell.png"})
+			actions.append({"action": "repairMachine", "label": {"en": "Repair", "es": "Reparar"}, "args": {"machineId": machine_id}, "icon": "res://assets/icons/actions/icon_repair.svg"})
+		actions.append({"action": "maintainMachine", "label": {"en": "Maintain", "es": "Mantenimiento"}, "args": {"machineId": machine_id}, "icon": "res://assets/icons/actions/icon_maintain.svg"})
+		actions.append({"action": "sellMachine", "label": {"en": "Sell", "es": "Vender"}, "args": {"machineId": machine_id}, "icon": "res://assets/icons/actions/icon_sell.svg"})
 
 	return actions
 
 func _on_item_pressed(action_id: String, args: Dictionary) -> void:
 	action_selected.emit(action_id, args)
-	hide()
+	close_menu()
 
 func _on_background_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
-		hide()
+		close_menu()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		hide()
-
-func _on_viewport_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		hide()
-	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		hide()
+		close_menu()
 
 func _get_localized(dict_or_str: Variant) -> String:
 	if typeof(dict_or_str) == TYPE_DICTIONARY:

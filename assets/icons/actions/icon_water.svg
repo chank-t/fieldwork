@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Water: Watering can pouring drops -->
+  <path d="M18 30 Q18 18 30 18 Q42 18 42 30" stroke-width="3" fill="currentColor" fill-opacity="0.15"/>
+  <path d="M18 30 Q18 18 30 18 Q42 18 42 30"/>
+  <line x1="42" y1="30" x2="42" y2="40" stroke-width="3"/>
+  <path d="M42 40 Q46 42 46 46 Q42 50 38 46 Q34 42 38 38" stroke-width="3"/>
+  <!-- Water drops -->
+  <path d="M34 36 L32 40 L36 40 Z" fill="currentColor" fill-opacity="0.4"/>
+  <path d="M38 40 L36 44 L40 44 Z" fill="currentColor" fill-opacity="0.4"/>
+  <path d="M30 38 L28 42 L32 42 Z" fill="currentColor" fill-opacity="0.3"/>
+  <path d="M40 38 L38 42 L42 42 Z" fill="currentColor" fill-opacity="0.3"/>
+  <!-- Soil moisture -->
+  <line x1="12" y1="52" x2="52" y2="52" stroke-width="4" opacity="0.3"/>
+  <line x1="12" y1="52" x2="36" y2="52" stroke-width="4" stroke="#3f6652"/>
+</svg>

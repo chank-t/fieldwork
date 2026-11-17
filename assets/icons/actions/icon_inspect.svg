@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Inspect: Magnifying glass over field -->
+  <rect x="12" y="12" width="40" height="40" rx="4" stroke-width="2" fill="currentColor" fill-opacity="0.05"/>
+  <line x1="12" y1="28" x2="52" y2="28" stroke-width="1.5" opacity="0.3"/>
+  <line x1="12" y1="44" x2="52" y2="44" stroke-width="1.5" opacity="0.3"/>
+  <line x1="28" y1="12" x2="28" y2="52" stroke-width="1.5" opacity="0.3"/>
+  <line x1="44" y1="12" x2="44" y2="52" stroke-width="1.5" opacity="0.3"/>
+  <!-- Magnifying glass -->
+  <circle cx="32" cy="32" r="14" stroke-width="3"/>
+  <line x1="42" y1="42" x2="52" y2="52" stroke-width="3"/>
+  <!-- Focus crosshair -->
+  <line x1="28" y1="32" x2="36" y2="32" stroke-width="2" stroke-dasharray="3 3"/>
+  <line x1="32" y1="28" x2="32" y2="36" stroke-width="2" stroke-dasharray="3 3"/>
+  <!-- Info panels -->
+  <rect x="4" y="4" width="20" height="12" rx="2" fill="currentColor" fill-opacity="0.15" stroke-width="1.5"/>
+  <text x="14" y="12" font-size="7" fill="currentColor">Soil</text>
+  <line x1="6" y1="10" x2="10" y2="10" stroke-width="2" stroke="#4CAF50"/>
+  <line x1="6" y1="14" x2="14" y2="14" stroke-width="2" stroke="#F44336"/>
+  <rect x="40" y="4" width="20" height="12" rx="2" fill="currentColor" fill-opacity="0.15" stroke-width="1.5"/>
+  <text x="50" y="12" font-size="7" fill="currentColor">Pests</text>
+  <circle cx="46" cy="10" r="3" stroke-width="1.5" fill="none"/>
+  <path d="M44 8 L48 12 M48 8 L44 12" stroke-width="1.5"/>
+</svg>

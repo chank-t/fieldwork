@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Plant: Seedling going into soil -->
+  <line x1="8" y1="52" x2="56" y2="52" stroke-width="4"/>  <!-- ground -->
+  <path d="M32 52 L32 28" stroke-width="3"/>  <!-- stem -->
+  <path d="M32 28 L26 34 M32 28 L38 34" stroke-width="2.5"/>  <!-- leaves -->
+  <path d="M32 34 L28 38 M32 34 L36 38" stroke-width="2"/>
+  <circle cx="32" cy="24" r="4" fill="currentColor" fill-opacity="0.3"/>
+  <!-- Seed packet -->
+  <rect x="44" y="12" width="14" height="18" rx="2" stroke-width="2"/>
+  <line x1="44" y1="20" x2="58" y2="20" stroke-width="2"/>
+  <path d="M48 16 L54 16 M48 19 L52 19" stroke-width="1.5"/>
+  <path d="M50 14 L50 22 M47 17 L53 17" stroke-width="1" opacity="0.5"/>
+</svg>
