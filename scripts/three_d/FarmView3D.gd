@@ -32,6 +32,7 @@ var active_garden_slot57: int = -1
 var active_build_slot: int = -1
 var plot_roots: Dictionary = {}
 var plot_signatures: Dictionary = {}
+var plot_tags: Dictionary = {}
 var entities: Node3D
 var slots: Node3D
 var selection: Node3D
@@ -43,6 +44,7 @@ var sync_accum: float = 0.0
 var move_cooldown: float = 0.0
 var ground: MeshInstance3D
 var water_material: ShaderMaterial
+var ground_material: ShaderMaterial
 var rain: CPUParticles3D
 var feedback: Node3D
 var feedback_age: float = 0.0
@@ -65,7 +67,17 @@ func focus_field(field_id: String) -> void:
 	desired_size = 24.0
 
 func _build_scene() -> void:
-	ground = Models.box(stage,Vector3(32,-0.65,25),Vector3(106,1,98),Color("#91ad70"))
+	# One large shaded ground plane that fades into the horizon haze.
+	ground = MeshInstance3D.new()
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(420,420)
+	ground.mesh = plane
+	ground.position = Vector3(32,-0.15,27)
+	ground_material = ShaderMaterial.new()
+	ground_material.shader = preload("res://scripts/three_d/ground.gdshader")
+	ground_material.set_shader_parameter("haze_color",HAZE)
+	ground.material_override = ground_material
+	stage.add_child(ground)
 	# Roads match the gaps in the saved plot grid.
 	Models.box(stage,Vector3(34,-0.09,8.9),Vector3(68,0.12,1.5),Color("#d5bd8b"))
 	Models.box(stage,Vector3(33,-0.09,45),Vector3(70,0.12,2.2),Color("#d5bd8b"))
@@ -102,6 +114,15 @@ func _build_scene() -> void:
 		Models.pine(stage,Vector3(-12+i*4.7,0,-11-sin(i*1.7)*4),4.2+(i%4)*0.6)
 	for i in range(9):
 		Models.ball(stage,Vector3(-25+i*13,-0.6,-32-sin(i)*6),Vector3(23,13+(i%3)*5,22),Color("#829b80").lightened((i%3)*0.04))
+	# Outer countryside so the edge of the farm reads as more valley, not a cliff.
+	for i in range(34):
+		var a: float = i*TAU/34.0 + sin(i*3.1)*0.08
+		var r: float = 74.0 + fmod(i*13.7,16.0)
+		var p := Vector3(32+cos(a)*r,0,27+sin(a)*r*0.92)
+		if p.z < -8: continue
+		Models.tree(stage,p,Color("#6f9158").lightened(fmod(i*0.37,0.12)))
+	for i in range(7):
+		Models.ball(stage,Vector3(-48+i*26,-1.2,-58-sin(i*1.3)*8),Vector3(48,24+(i%3)*7,36),Color("#9db394").lightened((i%2)*0.05))
 	for i in range(80):
 		var x: float = -15+fmod(i*7.371,96)
 		var z: float = 50+fmod(i*4.381,14)
@@ -175,7 +196,14 @@ func _plot(field: Dictionary, index: int) -> void:
 	if owned and show_growth_labels and not crop.is_empty():
 		status += " · %d%%" % (float(crop.get("development",0))*100)
 	if owned and overlay_mode != "none" and overlay_numbers59: status += " · %d%%" % (Beauty.overlay_value(overlay_mode,field)*100)
-	Models.label(node,status,Vector3(0,0.8,FIELD_H/2+0.2),32)
+	if scenic: return
+	var tag: Label3D = Models.label(node,status,Vector3(0,1.1,FIELD_H/2+0.2),44)
+	# Plot tags are rescaled with the zoom so they stay readable (see _tick).
+	tag.set_meta("full_text",status)
+	tag.set_meta("short_text","%02d" % (index+1))
+	tag.pixel_size = _plot_tag_pixel_size()
+	Models.refresh_tag(tag)
+	plot_tags[id] = tag
 
 func _building_anchor(index: int) -> Vector3:
 	return Vector3(7.6+(index/2%12)*4.42,0,7.5 if index%2 == 0 else 51.8)
@@ -281,11 +309,13 @@ func _sync() -> void:
 	_update_selection()
 	var hour: int = int(farm.state["time"]["hour"])
 	var night: bool = hour >= 20 or hour < 6
-	sunlight.light_energy = 0.20 if night else 0.85
-	sunlight.light_color = Color("#a5bfd9") if night else (Color("#ffc286") if hour >= 17 else Color("#ffe5bb"))
-	environment.ambient_light_energy = 0.32 if night else 0.36
-	var seasonal: Array[Color] = [Color("#91ad70"),Color("#a8ae71"),Color("#b5a077"),Color("#c4d1bd")]
-	ground.material_override = Models.material(seasonal[int(farm.state["time"]["season"])%4])
+	var golden: bool = hour >= 17 or hour < 8
+	sunlight.light_energy = 0.14 if night else (0.46 if golden else 0.50)
+	sunlight.light_color = Color("#9fb7d6") if night else (Color("#ffd29a") if golden else Color("#fff0d4"))
+	environment.ambient_light_energy = 0.16 if night else 0.22
+	environment.ambient_light_color = Color("#9fb0c8") if night else (Color("#f0e2cf") if golden else Color("#dfe9ec"))
+	var seasonal: Array[Color] = [Color("#78a25a"),Color("#a1a85c"),Color("#b39a62"),Color("#c4cfbb")]
+	ground_material.set_shader_parameter("grass_color",seasonal[int(farm.state["time"]["season"])%4])
 	water_material.set_shader_parameter("animate",not reduced_motion)
 	rain.emitting = show_ambient_effects and not reduced_motion and str(farm.state["weather"]["kind"]) in ["rain","storm","rainy"] and performance_mode59 != "eco"
 
@@ -295,8 +325,25 @@ func _update_selection() -> void:
 	selection.visible = i >= 0 and i < 24
 	if selection.visible: selection.position = Vector3(GRID_X[i%6]+FIELD_W/2,0.23,GRID_Y[floori(float(i)/6.0)]+FIELD_H/2)
 
+func _plot_tag_pixel_size() -> float:
+	# Aim for ~14 px tall text whatever the zoom level or panel height.
+	var visible_height: float = camera.size if camera != null else camera_size
+	return clampf(12.5*visible_height/maxf(200.0,size.y)/44.0,0.008,0.06)
+
 func _tick(delta: float) -> void:
 	if farm == null or farm.state.is_empty(): return
+	var tag_size: float = _plot_tag_pixel_size()
+	# When plots are small on screen (phones, far zoom) show just the number.
+	var plot_pixels: float = FIELD_W/maxf(0.0001,tag_size*44.0/12.5)
+	var compact_tags: bool = plot_pixels < 62.0
+	for tag in plot_tags.values():
+		if not is_instance_valid(tag): continue
+		var wanted: String = str(tag.get_meta("short_text" if compact_tags else "full_text",tag.text))
+		var wanted_size: float = tag_size*(0.85 if compact_tags else 1.0)
+		if tag.text != wanted or not is_equal_approx(tag.pixel_size,wanted_size):
+			tag.text = wanted
+			tag.pixel_size = wanted_size
+			Models.refresh_tag(tag)
 	sync_accum += delta
 	if sync_accum >= 0.25:
 		sync_accum = 0

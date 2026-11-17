@@ -21,7 +21,8 @@ func set_avatar(value: Dictionary) -> void:
 	if stage != null: _rebuild()
 
 func _build_scene() -> void:
-	camera_target = Vector3(0,0,0)
+	environment.background_color = Color("#e8e2d2")
+	camera_target = Vector3(0,0.4,0)
 	target = camera_target
 	yaw = 0.22
 	pitch = 0.72
@@ -32,7 +33,7 @@ func _build_scene() -> void:
 func _rebuild() -> void:
 	if room != null: room.free()
 	room = Models.root(stage)
-	Models.box(room,Vector3(0,-0.15,0),Vector3(15,0.3,11),Color("#a3b87f") if outdoors else Color("#c29b71"))
+	Models.box(room,Vector3(0,-0.15,0),Vector3(15,0.3,11),Color("#93b06c") if outdoors else Color("#c9a275"))
 	if not outdoors:
 		Models.box(room,Vector3(0,1.8,-5.3),Vector3(15,3.6,0.3),Color("#e6d5b0"))
 		Models.box(room,Vector3(-7.4,1.8,0),Vector3(0.25,3.6,11),Color("#d2c19e"))
@@ -41,6 +42,14 @@ func _rebuild() -> void:
 		Models.box(room,Vector3(0,2.1,-4.94),Vector3(3.2,1.8,0.08),Color("#aad0cc"))
 		Models.box(room,Vector3(0,2.1,-4.87),Vector3(0.12,1.85,0.05),Color("#efdfb7"))
 		Models.box(room,Vector3(0,2.1,-4.87),Vector3(3.2,0.12,0.05),Color("#efdfb7"))
+		# Skirting, a rug and a potted plant make the room feel lived in.
+		Models.box(room,Vector3(0,0.12,-5.12),Vector3(15,0.24,0.08),Color("#a07a55"))
+		Models.box(room,Vector3(-7.25,0.12,0),Vector3(0.08,0.24,11),Color("#a07a55"))
+		Models.box(room,Vector3(1.0,0.02,2.2),Vector3(5.2,0.03,3.0),Color("#b5644e"))
+		Models.box(room,Vector3(1.0,0.035,2.2),Vector3(4.4,0.03,2.3),Color("#d9b77a"))
+		Models.cylinder(room,Vector3(6.3,0.35,-4.3),0.38,0.7,Color("#b2694a"),0.45)
+		Models.ball(room,Vector3(6.3,1.15,-4.3),Vector3(1.1,1.0,1.1),Color("#5f8c4f"))
+		Models.ball(room,Vector3(6.1,1.6,-4.2),Vector3(0.7,0.8,0.7),Color("#6f9c58"))
 	for i in range(items.size()):
 		var x: float = -5.0+i*(10.0/maxi(1,items.size()-1))
 		var node: Node3D = Models.root(room,Vector3(x,0,-1.5))
@@ -68,7 +77,9 @@ func _rebuild() -> void:
 				for j in range(3): Models.box(node,Vector3(-0.65+j*0.6,1.15,0),Vector3(0.4,0.4,0.65),Color("#75938a").lightened(j*0.05))
 			else: Models.cylinder(node,Vector3(0,1.3,0),0.45,0.7,Color("#c7b27e"))
 		Models.hitbox(node,"prop",str(i),Vector3(0,0.8,0),Vector3(2.5,2,2))
-		Models.label(node,_localized(str(items[i])),Vector3(0,2.8,0),36)
+		var tag: Label3D = Models.label(node,_localized(str(items[i])),Vector3(0,2.8,0),34)
+		tag.no_depth_test = true
+		Models.refresh_tag(tag)
 	visitor = Models.farmer(room,appearance)
 	visitor.position = destination
 

@@ -25,6 +25,7 @@ var touch_moved: bool = false
 var elapsed: float = 0.0
 var last_preset: String = ""
 var hovered: Dictionary = {}
+const HAZE := Color("#cfdcd3")
 
 func _ready() -> void:
 	clip_contents = true
@@ -42,19 +43,27 @@ func _ready() -> void:
 	viewport_3d.add_child(stage)
 	environment = Environment.new()
 	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color("#bdcfc2")
+	environment.background_color = HAZE
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("#c3d3cc")
-	environment.ambient_light_energy = 0.36
+	environment.ambient_light_color = Color("#dfe9ec")
+	environment.ambient_light_energy = 0.22
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	environment.tonemap_exposure = 1.0
+	environment.tonemap_white = 1.6
+	environment.adjustment_enabled = true
+	environment.adjustment_saturation = 1.12
+	environment.adjustment_contrast = 1.06
 	var world_environment := WorldEnvironment.new()
 	world_environment.environment = environment
 	stage.add_child(world_environment)
 	sunlight = DirectionalLight3D.new()
 	sunlight.rotation_degrees = Vector3(-48,-32,0)
-	sunlight.light_color = Color("#ffe4b6")
-	sunlight.light_energy = 0.85
+	sunlight.light_color = Color("#fff0d4")
+	sunlight.light_energy = 0.50
 	sunlight.shadow_enabled = true
+	sunlight.shadow_opacity = 0.72
+	sunlight.shadow_blur = 1.6
+	sunlight.shadow_bias = 0.04
 	sunlight.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	sunlight.directional_shadow_max_distance = 180.0
 	stage.add_child(sunlight)

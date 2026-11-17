@@ -19,17 +19,17 @@ const OPTIONS = {
 }
 const NAMES = {
 	"hair":["Short crop|Corto", "Waves|Ondulado", "Braids|Trenzas", "Bald|Sin pelo", "Curly|Rizado", "Ponytail|Coleta", "Bun|Recogido", "Long|Largo", "Undercut|Degradado"],
-	"skin":["Fair|Claro", "Warm beige|Beige calido", "Golden tan|Bronceado", "Warm brown|Moreno calido", "Deep brown|Moreno oscuro", "Rich brown|Marron profundo", "Peach|Melocoton", "Olive|Oliva"],
-	"outfit":["Forest green|Verde bosque", "Harvest gold|Oro cosecha", "Brick red|Rojo teja", "River blue|Azul rio", "Plum|Ciruela", "Denim|Vaquero", "Terracotta|Terracota", "Violet|Violeta", "Ochre|Ocre", "Linen|Lino", "Sage|Salvia"],
-	"hair_color":["Dark brown|Castano oscuro", "Black|Negro", "Chestnut|Castano", "Light brown|Castano claro", "Blonde|Rubio", "Copper|Cobrizo", "Silver|Plateado", "Platinum|Platino", "Aubergine|Berenjena"],
-	"pants":["Field green|Verde campo", "Denim|Vaquero", "Earth brown|Marron tierra", "Charcoal|Carbon", "Canvas|Lona", "Olive|Oliva"],
+	"skin":["Fair|Claro", "Warm beige|Beige cálido", "Golden tan|Bronceado", "Warm brown|Moreno cálido", "Deep brown|Moreno oscuro", "Rich brown|Marrón profundo", "Peach|Melocotón", "Olive|Oliva"],
+	"outfit":["Forest green|Verde bosque", "Harvest gold|Oro cosecha", "Brick red|Rojo teja", "River blue|Azul río", "Plum|Ciruela", "Denim|Vaquero", "Terracotta|Terracota", "Violet|Violeta", "Ochre|Ocre", "Linen|Lino", "Sage|Salvia"],
+	"hair_color":["Dark brown|Castaño oscuro", "Black|Negro", "Chestnut|Castaño", "Light brown|Castaño claro", "Blonde|Rubio", "Copper|Cobrizo", "Silver|Plateado", "Platinum|Platino", "Aubergine|Berenjena"],
+	"pants":["Field green|Verde campo", "Denim|Vaquero", "Earth brown|Marrón tierra", "Charcoal|Carbón", "Canvas|Lona", "Olive|Oliva"],
 	"boots":["Leather|Cuero", "Black|Negro", "Tan|Canela", "Sand|Arena"],
 	"hat":["None|Ninguno", "Straw hat|Sombrero de paja", "Work cap|Gorra de trabajo", "Beanie|Gorro", "Ranger hat (certificate)|Sombrero explorador (certificado)"],
-	"accessory":["None|Ninguno", "Scarf|Bufanda", "Bandana|Panuelo", "Glasses|Gafas", "Flower|Flor", "Festival laurel (festival)|Laurel festivo (festival)"],
+	"accessory":["None|Ninguno", "Scarf|Bufanda", "Bandana|Pañuelo", "Glasses|Gafas", "Flower|Flor", "Festival laurel (festival)|Laurel festivo (festival)"],
 	"facial_hair":["None|Ninguno", "Stubble|Barba corta", "Moustache|Bigote", "Full beard|Barba"],
 	"body":["Regular|Normal", "Compact|Compacto", "Broad|Ancho"],
 	"eyes":["Brown|Marrones", "Green|Verdes", "Blue|Azules", "Hazel|Avellana"],
-	"pronouns":["They/them|Elle", "She/her|Ella", "He/him|El"]
+	"pronouns":["They/them|Elle", "She/her|Ella", "He/him|Él"]
 }
 
 static func defaults() -> Dictionary:

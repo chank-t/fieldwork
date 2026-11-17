@@ -2,6 +2,7 @@ extends RefCounted
 ## Shared, original low-poly geometry. No sprites or external model downloads.
 ## Meshes and materials are cached; crops use instancing in FarmView3D.
 const Style = preload("res://scripts/FarmerStyle.gd")
+const GameFont = preload("res://assets/fonts/FieldSans.ttf")
 static var materials: Dictionary = {}
 static var meshes: Dictionary = {}
 
@@ -9,9 +10,11 @@ static func material(color: Color) -> StandardMaterial3D:
 	var key: String = color.to_html()
 	if not materials.has(key):
 		var result := StandardMaterial3D.new()
-		result.albedo_color = color.srgb_to_linear()
-		result.roughness = 0.80
-		result.metallic = 0.04
+		# albedo_color is already interpreted as sRGB by the engine; converting
+		# here as well darkened and over-saturated every model.
+		result.albedo_color = color
+		result.roughness = 0.85
+		result.metallic = 0.0
 		result.ao_enabled = true
 		result.ao_light_affect = 0.25
 		materials[key] = result
@@ -67,12 +70,46 @@ static func label(parent: Node3D, text_value: String, pos: Vector3, font_size: i
 	node.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	node.font_size = font_size
 	node.pixel_size = 0.020
-	node.modulate = Color("#fffae8")
-	node.outline_modulate = Color("#203b32")
-	node.outline_size = 5
+	node.modulate = Color("#fffcf0")
+	node.outline_modulate = Color("#14261e")
+	node.outline_size = 4
+	node.render_priority = 2
+	node.outline_render_priority = 1
 	node.no_depth_test = false
 	parent.add_child(node)
+	# A rounded backing keeps names readable on bright grass and crops.
+	var pill := MeshInstance3D.new()
+	pill.mesh = QuadMesh.new()
+	pill.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	pill.position = pos
+	parent.add_child(pill)
+	node.set_meta("pill",pill)
+	_fit_pill(node)
 	return node
+
+## Use after changing a tag's text, pixel size or depth test.
+static func refresh_tag(node: Label3D) -> void:
+	_fit_pill(node)
+
+static func _fit_pill(node: Label3D) -> void:
+	var pill: MeshInstance3D = node.get_meta("pill",null)
+	if pill == null or not is_instance_valid(pill): return
+	pill.visible = node.text.strip_edges() != "" and node.visible
+	var font: Font = ThemeDB.fallback_font
+	var text_size: Vector2 = font.get_string_size(node.text,HORIZONTAL_ALIGNMENT_LEFT,-1,node.font_size)
+	var reference: float = 0.020
+	var dimensions := Vector2(text_size.x + node.font_size*0.9, node.font_size*1.35) * reference
+	var mat: ShaderMaterial = pill.material_override
+	var shader_path: String = "res://scripts/three_d/pill_nodepth.gdshader" if node.no_depth_test else "res://scripts/three_d/pill.gdshader"
+	if mat == null or mat.shader.resource_path != shader_path:
+		mat = ShaderMaterial.new()
+		mat.shader = load(shader_path)
+		mat.render_priority = 0
+		pill.material_override = mat
+	(pill.mesh as QuadMesh).size = dimensions
+	mat.set_shader_parameter("size",dimensions)
+	pill.scale = Vector3.ONE * (node.pixel_size/reference)
+	pill.position = node.position
 
 static func hitbox(parent: Node3D, kind: String, id: String, center: Vector3, dimensions: Vector3) -> void:
 	var body := StaticBody3D.new()
@@ -314,7 +351,7 @@ static func crop_mesh(kind: String, stage: int) -> ArrayMesh:
 	var result: ArrayMesh = st.commit()
 	var mat := StandardMaterial3D.new()
 	mat.vertex_color_use_as_albedo = true
-	mat.vertex_color_is_srgb = false
+	mat.vertex_color_is_srgb = true
 	mat.roughness = 0.95
 	result.surface_set_material(0,mat)
 	meshes[key] = result

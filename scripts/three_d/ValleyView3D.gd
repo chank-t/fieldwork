@@ -16,9 +16,37 @@ func set_selected(value: String) -> void:
 	_update_marker()
 
 func _build_scene() -> void:
-	Models.box(stage,Vector3(32,-1.2,27),Vector3(77,2,65),Color("#89a773"))
+	var ground := MeshInstance3D.new()
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(360,360)
+	ground.mesh = plane
+	ground.position = Vector3(32,-0.2,27)
+	var ground_material := ShaderMaterial.new()
+	ground_material.shader = preload("res://scripts/three_d/ground.gdshader")
+	ground_material.set_shader_parameter("grass_color",Color("#80a65c"))
+	ground_material.set_shader_parameter("haze_color",HAZE)
+	ground_material.set_shader_parameter("haze_start",60.0)
+	ground_material.set_shader_parameter("haze_end",130.0)
+	ground.material_override = ground_material
+	stage.add_child(ground)
+	# A ring of soft hills and scattered woodland frames the valley.
 	for i in range(12):
-		Models.ball(stage,Vector3(-3+i*6.5,-0.3,-3-sin(i)*3),Vector3(13,5+i%4,13),Color("#9aad85"))
+		Models.ball(stage,Vector3(-3+i*6.5,-0.3,-3-sin(i)*3),Vector3(13,5+i%4,13),Color("#7fa268").lightened((i%3)*0.04))
+	for i in range(9):
+		Models.ball(stage,Vector3(-30+i*12,-1.0,-16-sin(i*1.7)*5),Vector3(26,14+(i%3)*5,20),Color("#86a678"))
+	for i in range(28):
+		var a: float = i*TAU/28.0+0.4
+		var r: float = 44.0+fmod(i*9.3,10.0)
+		var p := Vector3(32+cos(a)*r,0,27+sin(a)*r*0.85)
+		if p.z < 2: continue
+		Models.tree(stage,p,Color("#638d52").lightened(fmod(i*0.29,0.10)))
+	for i in range(40):
+		var p := Vector3(4+fmod(i*17.3,58),0,8+fmod(i*11.9,42))
+		var clear: bool = true
+		for loc in RegionData.LOCATIONS:
+			if Vector2(p.x,p.z).distance_to(Vector2(loc["xy"].x*64,loc["xy"].y*54)) < 7.5: clear = false
+		if Vector2(p.x,p.z).distance_to(Vector2(0.52*64,0.42*54)) < 9: clear = false
+		if clear: Models.ball(stage,p+Vector3(0,0.2,0),Vector3(1.2,0.7,1.2),Color("#6f9a55"))
 	for loc in RegionData.LOCATIONS:
 		var point: Vector2 = loc["xy"]
 		var pos := Vector3(point.x*64,0,point.y*54)
@@ -41,7 +69,9 @@ func _build_scene() -> void:
 				for i in range(8): Models.cylinder(node,Vector3(sin(i)*3.6,0.7,cos(i)*3.6),0.08,1.2,Color("#95a765"))
 			"hills", "quarry":
 				for i in range(4): Models.ball(node,Vector3((i%2)*2-1,1.0,(i/2)*2-1),Vector3(4,3+i%2,4),Color("#c3b18b") if str(loc["id"]) == "hills" else Color("#aaac9a"))
-		var tag: Label3D = Models.label(node,"",Vector3(0,6.2,0),72)
+		var tag: Label3D = Models.label(node,"",Vector3(0,6.2,0),60)
+		tag.no_depth_test = true
+		Models.refresh_tag(tag)
 		tags[str(loc["id"])] = tag
 		# Raised roads connect actual destinations; they are scenery only.
 		var center := Vector3(0.52*64,0.03,0.42*54)
@@ -68,7 +98,9 @@ func _tick(_delta: float) -> void:
 	var lang: String = "en" if farm == null else str(farm.language)
 	if lang != saved_language:
 		saved_language = lang
-		for loc in RegionData.LOCATIONS: tags[str(loc["id"])].text = str(loc["label_es"] if lang == "es" else loc["label"])
+		for loc in RegionData.LOCATIONS:
+			tags[str(loc["id"])].text = str(loc["label_es"] if lang == "es" else loc["label"])
+			Models.refresh_tag(tags[str(loc["id"])])
 	if marker != null and not reduced_motion59: marker.position.y = 0.4+sin(elapsed*2)*0.09
 
 func _on_picked(kind: String, id: String) -> void:

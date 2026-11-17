@@ -72,6 +72,7 @@ var modal: Control = null
 var inside: Control = null
 var selected_npc: String = "ines"
 var nav_buttons: Dictionary = {}
+var speed_buttons: Dictionary = {}
 # 5.5 responsive presentation remains separate from the farm simulation.
 var sidebar_open: bool = false
 var left_nav_holder: PanelContainer = null
@@ -81,6 +82,9 @@ var context_card_view: PanelContainer = null
 var context_detail: Label = null
 var context_moisture: ProgressBar = null
 var context_growth: ProgressBar = null
+var context_moisture_label: Label = null
+var context_growth_label: Label = null
+var context_growth_col: VBoxContainer = null
 var context_manage: Button = null
 var context_water: Button = null
 var context_harvest: Button = null
@@ -357,16 +361,77 @@ func _button(value: String, cb: Callable, parent: Node, primary: bool = false) -
 	b.focus_mode = Control.FOCUS_ALL
 	b.add_theme_font_size_override("font_size",maxi(12,int(round(14.0 * ui_scale))))
 	b.add_theme_stylebox_override("normal", _style(Color("#24563c") if high_contrast and primary else (ACCENT if primary else (Color("#f1f9eb") if high_contrast else ACCENT2)),9))
-	b.add_theme_stylebox_override("hover", _style(Color("#a9d2b1"),9))
-	b.add_theme_stylebox_override("pressed", _style(Color("#b6c8a9"),9))
+	b.add_theme_stylebox_override("hover", _style(Color("#355a47") if primary else Color("#d6e0cc"),9))
+	b.add_theme_stylebox_override("pressed", _style(Color("#2c4b3b") if primary else Color("#c5d3b9"),9))
 	b.add_theme_stylebox_override("disabled", _style(Color("#e0e2d7"),9))
 	b.add_theme_color_override("font_disabled_color",Color("#7b8475"))
 	b.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT,9,Color("#f3b24e")))
 	b.add_theme_color_override("font_color", Color.WHITE if primary else INK)
-	b.add_theme_color_override("font_hover_color", INK)
+	b.add_theme_color_override("font_hover_color", Color.WHITE if primary else INK)
+	b.add_theme_color_override("font_pressed_color", Color.WHITE if primary else INK)
 	b.pressed.connect(cb)
 	parent.add_child(b)
 	return b
+
+func _group_digits(value: int) -> String:
+	var digits: String = str(absi(value))
+	var out: String = ""
+	var sep: String = "." if language == "es" else ","
+	while digits.length() > 3:
+		out = sep + digits.right(3) + out
+		digits = digits.left(digits.length()-3)
+	return ("-" if value < 0 else "") + digits + out
+
+func _plot_name(id: String) -> String:
+	return tx("Plot ","Parcela ") + id.trim_prefix("plot")
+
+func _money(value: float) -> String:
+	# Whole euros for large sums; cents only where they carry information.
+	var text: String = _group_digits(int(round(value)))
+	if absf(value) < 1000.0 and not is_equal_approx(value,round(value)):
+		var cents: String = "%.2f" % absf(value)
+		text = ("-" if value < 0 else "") + _group_digits(int(absf(value))) + ("," if language == "es" else ".") + cents.right(2)
+	return (text + " €") if language == "es" else ("€" + text)
+
+func _icon(parent: Node, path: String, side: float = 20.0) -> TextureRect:
+	var icon: TextureRect = TextureRect.new()
+	icon.texture = load(path)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.custom_minimum_size = Vector2(side,side)*ui_scale
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(icon)
+	return icon
+
+func _tab_style(active: bool) -> StyleBoxFlat:
+	var style: StyleBoxFlat = _style(ACCENT if active else Color(0,0,0,0),9)
+	style.content_margin_left = 13.0
+	style.content_margin_right = 13.0
+	return style
+
+func _style_tab(button: Button, active: bool) -> void:
+	button.add_theme_stylebox_override("normal",_tab_style(active))
+	var hover: StyleBoxFlat = _tab_style(active)
+	if not active: hover.bg_color = Color("#dfe6d5")
+	button.add_theme_stylebox_override("hover",hover)
+	button.add_theme_color_override("font_color",Color.WHITE if active else INK)
+	button.add_theme_color_override("font_hover_color",Color.WHITE if active else INK)
+
+func _stat_tile(parent: Node, icon_path: String, title: String, value: String, value_color: Color = INK) -> void:
+	var tile: PanelContainer = PanelContainer.new()
+	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tile.add_theme_stylebox_override("panel",_style(Color("#eef2e6"),10,Color("#dde6d3")))
+	parent.add_child(tile)
+	var row: HBoxContainer = _hbox(tile,9)
+	_icon(row,icon_path,28.0)
+	var col: VBoxContainer = _vbox(row,0)
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var caption: Label = _line(col,title.to_upper(),10,MUTED)
+	caption.autowrap_mode = TextServer.AUTOWRAP_OFF
+	var amount: Label = _line(col,value,17,value_color)
+	amount.autowrap_mode = TextServer.AUTOWRAP_OFF
+	amount.remove_theme_font_override("font")
 
 func _line(parent: Node, value: String, font_size: int = 14, color: Color = INK) -> Label:
 	var label: Label = _text(value,font_size,color)
@@ -518,7 +583,7 @@ func _show_start_menu() -> void:
 	var body: VBoxContainer = _vbox(frame,14)
 	var logo: Label = _line(body,"FieldWork",46,ACCENT)
 	logo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var subtitle: Label = _line(body,tx("THE LIVING VALLEY  |  NATIVE GODOT EDITION","EL VALLE VIVO  |  EDICION NATIVA GODOT"),16,MUTED)
+	var subtitle: Label = _line(body,tx("THE LIVING VALLEY  |  NATIVE GODOT EDITION","EL VALLE VIVO  |  EDICIÓN NATIVA GODOT"),16,MUTED)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_line(body,tx("A peaceful farm that rewards careful decisions. Begin with one field, learn the soil, and make the valley your own.","Una finca tranquila con decisiones importantes. Empieza con una parcela y haz tuyo el valle."),15)
 	_button(tx("Create your farmer","Crear agricultor"),_show_creator,body,true)
@@ -528,7 +593,7 @@ func _show_start_menu() -> void:
 		for suffix in ["", ".bak", ".bak2"]:
 			if FileAccess.file_exists(str(save_path)+str(suffix)):
 				cont.disabled = false
-	_button(tx("Language: English / Espanol","Idioma: English / Espanol"),_toggle_menu_language,body)
+	_button(tx("Language: English / Espanol","Idioma: English / Español"),_toggle_menu_language,body)
 	_button(tx("How to play","Cómo jugar"),_show_rules,body)
 	var foot: Label = _line(body,"Godot 4.6  ·  Offline",12,MUTED)
 	foot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -622,9 +687,9 @@ func _show_creator() -> void:
 	body.add_child(portrait)
 	var name_input: LineEdit = _field(body,"Alex",tx("Your name","Tu nombre"))
 	var farm_input: LineEdit = _field(body,"Little Valley",tx("Farm name","Nombre de finca"))
-	_caption(body,tx("Your appearance","Tu aspecto"),tx("All cosmetic choices are free and can be changed later in your wardrobe.","Toda la personalizacion es gratuita y podras cambiarla despues en el vestuario."))
+	_caption(body,tx("Your appearance","Tu aspecto"),tx("All cosmetic choices are free and can be changed later in your wardrobe.","Toda la personalización es gratuita y podrás cambiarla después en el vestuario."))
 	var look_editor: Dictionary = _build_avatar_editor53(body,portrait,Style53.defaults(),{})
-	_line(body,tx("Starting background","Formacion inicial"),14)
+	_line(body,tx("Starting background","Formación inicial"),14)
 	var bg_ids: Array = farm.content.get("backgrounds",{}).keys()
 	var bg_labels: Array = []
 	for key in bg_ids:
@@ -640,7 +705,7 @@ func _show_creator() -> void:
 	update_perk.call()
 	_line(body,tx("Game mode and difficulty","Modo de juego y dificultad"),14)
 	var modes: OptionButton = _select(body,["story","freeplay","challenge"],[tx("Story","Historia"),tx("Free play","Libre"),tx("Challenge","Desafio")])
-	var difficulties: OptionButton = _select(body,["relaxed","standard","hard"],[tx("Relaxed","Tranquilo"),tx("Standard","Normal"),tx("Hard","Dificil")])
+	var difficulties: OptionButton = _select(body,["relaxed","standard","hard"],[tx("Relaxed","Tranquilo"),tx("Standard","Normal"),tx("Hard","Difícil")])
 	difficulties.select(1)
 	var seed_group: VBoxContainer = _vbox(body,4)
 	_line(seed_group,tx("World seed","Semilla del mundo"),14)
@@ -683,14 +748,24 @@ func _confirm_action(title: String, message: String, callback: Callable) -> void
 	popup.canceled.connect(func(): popup.queue_free())
 	popup.popup_centered(Vector2i(530,240))
 
+const HUD_ICONS = {"level":"res://assets/icon_xp.png","cash":"res://assets/icon_coins.png","water":"res://assets/icon_watering_can.png","time":"","weather":""}
+
 func _hud_chip(parent: Node, key: String) -> void:
 	var tile: PanelContainer = PanelContainer.new()
-	tile.add_theme_stylebox_override("panel",_style(Color("#eef4e7"),9,Color("#d9e7d4")))
+	var chip_style: StyleBoxFlat = _style(Color("#ffffff"),20,Color("#dfe6d6"))
+	chip_style.content_margin_top = 5.0
+	chip_style.content_margin_bottom = 5.0
+	chip_style.content_margin_left = 8.0 if str(HUD_ICONS.get(key,"")) != "" else 12.0
+	tile.add_theme_stylebox_override("panel",chip_style)
 	parent.add_child(tile)
-	var value: Label = _text("",13,INK)
+	var row: HBoxContainer = _hbox(tile,6)
+	if str(HUD_ICONS.get(key,"")) != "":
+		_icon(row,str(HUD_ICONS[key]),20.0)
+	var value: Label = _text("",14,INK)
 	value.autowrap_mode = TextServer.AUTOWRAP_OFF
 	value.clip_text = false
-	tile.add_child(value)
+	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(value)
 	hud_values[key] = value
 
 func _toolbar_button(parent: Node, caption: String, action: Callable, important: bool = false) -> Button:
@@ -774,12 +849,15 @@ func _update_context_51() -> void:
 	var terrain: Dictionary = farm.content["terrains"][str(field["terrain"])]
 	var crop: Dictionary = field["crop"]
 	var plant_name: String = tx("Unclaimed land","Terreno disponible") if not owned else (tx("Unplanted","Sin sembrar") if crop.is_empty() else farm.n(farm.content["crops"][str(crop["id"])]))
-	context_title.text = selected_field.to_upper() + "  ·  " + plant_name
+	context_title.text = _plot_name(selected_field) + "  ·  " + plant_name
 	if compact_mode and plot_status_label != null and is_instance_valid(plot_status_label):
 		plot_status_label.text = context_title.text
 	var water: float = 100.0 * clampf(float(field["soil"]["water"]) / maxf(1.0,float(field["soil"]["capacity"])),0.0,1.0)
 	var development: float = float(crop.get("development",0.0)) * 100.0
-	context_detail.text = farm.n(terrain) + " / " + Fields52.localized(Fields52.PLOTS[str(field.get("plot_type","open"))],language) + "  ·  " + tx("Moisture ","Humedad ") + str(int(water)) + "%  ·  " + (tx("Growth ","Crecimiento ") + str(int(development)) + "%" if not crop.is_empty() else tx("Ready for your next plan","Lista para planificar"))
+	context_detail.text = farm.n(terrain) + "  ·  " + Fields52.localized(Fields52.PLOTS[str(field.get("plot_type","open"))],language) + ("" if not crop.is_empty() or not owned else "  ·  " + tx("Ready for your next plan","Lista para planificar"))
+	if context_moisture_label != null:
+		context_moisture_label.text = tx("Moisture","Humedad") + "  " + str(int(water)) + "%"
+		context_growth_label.text = tx("Growth","Crecimiento") + "  " + str(int(development)) + "%"
 	if owned and not crop.is_empty():
 		var priorities: PackedStringArray = []
 		if Fields52.water_factor(field,crop) < 0.98: priorities.append(tx("water","agua"))
@@ -794,6 +872,7 @@ func _update_context_51() -> void:
 	context_moisture.add_theme_stylebox_override("fill",_style(Color("#cb945f") if water < 25.0 else Color("#4b9ab3"),5))
 	context_growth.value = development
 	context_growth.visible = owned and not crop.is_empty()
+	if context_growth_col != null: context_growth_col.visible = context_growth.visible
 	context_manage.text = tx("Buy land","Comprar") if not owned else tx("Manage","Gestionar")
 	context_water.disabled = not owned
 	context_harvest.disabled = not owned or crop.is_empty() or development < 99.5
@@ -868,10 +947,19 @@ func _show_game() -> void:
 	top.add_theme_stylebox_override("panel", _style(PANEL,12))
 	base.add_child(top)
 	# 5.1: a compact, readable HUD, with the farm as the main canvas.
+	var top_style: StyleBoxFlat = _style(PANEL,14,Color("#e1e5d6"))
+	top_style.shadow_color = Color(0.15,0.22,0.16,0.10)
+	top_style.shadow_size = 6
+	top_style.shadow_offset = Vector2(0,2)
+	top_style.content_margin_top = 7.0
+	top_style.content_margin_bottom = 7.0
+	top.add_theme_stylebox_override("panel",top_style)
 	var topbox: HBoxContainer = _hbox(top,9)
-	var brand: Label = _text("FieldWork",18 if compact_mode else 19,ACCENT)
+	var brand: Label = _text("FieldWork",22,ACCENT)
+	brand.add_theme_font_override("font",ThemeKit.SERIF)
 	brand.autowrap_mode = TextServer.AUTOWRAP_OFF
-	brand.custom_minimum_size.x = 106 if compact_mode else 170
+	brand.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	brand.custom_minimum_size.x = 112 if compact_mode else 150
 	topbox.add_child(brand)
 	header_label = _text("",12,MUTED)
 	header_label.visible = false # Retained for scripts and compatibility.
@@ -888,27 +976,58 @@ func _show_game() -> void:
 	fps_label59.visible = show_fps59
 	fps_label59.autowrap_mode = TextServer.AUTOWRAP_OFF
 	topbox.add_child(fps_label59)
+	# Time controls are one segmented group; navigation lives on its own row.
+	speed_buttons.clear()
+	var speed_box: PanelContainer = PanelContainer.new()
+	var speed_style: StyleBoxFlat = _style(Color("#e8ecdf"),11)
+	speed_style.set_content_margin_all(3)
+	speed_box.add_theme_stylebox_override("panel",speed_style)
+	speed_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var speed_row: HBoxContainer = _hbox(speed_box,2)
+	var speed_steps: Array = [["❚❚",0,tx("Pause","Pausa")],["1×",1,"1x"],["4×",4,"4x"]]
+	if not compact_mode: speed_steps.append(["12×",12,"12x"])
+	for step in speed_steps:
+		var sb: Button = _toolbar_button(speed_row,str(step[0]),_set_speed.bind(int(step[1])))
+		sb.tooltip_text = str(step[2])
+		sb.custom_minimum_size = Vector2(40.0 if compact_mode else 44.0,34.0*ui_scale)
+		speed_buttons[int(step[1])] = sb
+	var plus_hour: Button = _toolbar_button(speed_row,"+1h",func():_direct("tick",{"hours":1}))
+	plus_hour.custom_minimum_size = Vector2(44.0,34.0*ui_scale)
+	plus_hour.tooltip_text = tx("Advance one hour","Avanzar una hora")
+	_style_tab(plus_hour,false)
+	_refresh_speed_buttons()
 	var clock_scroll: ScrollContainer = ScrollContainer.new()
 	clock_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	clock_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	clock_scroll.custom_minimum_size = Vector2(0,58.0 if compact_mode else 52.0)
+	clock_scroll.custom_minimum_size = Vector2(0,46.0)
 	clock_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	base.add_child(clock_scroll)
-	var clock_line: HBoxContainer = _hbox(clock_scroll,6)
+	var clock_line: HBoxContainer = _hbox(clock_scroll,4)
 	clock_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	for pair in [[tx("Pause","Pausa"),0],["1x",1],["4x",4]]:
-		_toolbar_button(clock_line,str(pair[0]),_set_speed.bind(int(pair[1])))
 	if not compact_mode:
-		_toolbar_button(clock_line,"12x",_set_speed.bind(12))
-	_toolbar_button(clock_line,"+1h",func():_direct("tick",{"hours":1}))
-	if not compact_mode:
+		topbox.add_child(speed_box)
+		base.add_child(clock_scroll)
 		for pair in [["Farm",tx("Farm","Finca")],["Compass60",tx("Goals","Metas")],["Fields",tx("Fields","Parcelas")],["Valley",tx("Valley","Valle")],["Animals",tx("Livestock","Ganado")],["Market",tx("Market","Mercado")],["Buildings",tx("Build","Construir")],["GardenStudio57",tx("Garden","Jardín")]]:
 			var tab_id: String = str(pair[0])
-			primary_nav_buttons[tab_id] = _toolbar_button(clock_line,str(pair[1]),_change_tab.bind(tab_id),tab_id == active_tab)
-		_toolbar_button(clock_line,tx("All screens","Todas"),_show_screen_picker,true)
-		_toolbar_button(clock_line,tx("Sidebar","Menú"),_toggle_sidebar)
+			var tab_button: Button = _toolbar_button(clock_line,str(pair[1]),_change_tab.bind(tab_id),tab_id == active_tab)
+			tab_button.custom_minimum_size.y = 38.0*ui_scale
+			_style_tab(tab_button,tab_id == active_tab)
+			primary_nav_buttons[tab_id] = tab_button
+		var nav_spacer: Control = Control.new()
+		nav_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		clock_line.add_child(nav_spacer)
+		var all_button: Button = _toolbar_button(clock_line,"☰  "+tx("All screens","Todas las secciones"),_show_screen_picker)
+		all_button.custom_minimum_size.y = 38.0*ui_scale
+		all_button.add_theme_stylebox_override("normal",_style(Color("#ffffff"),9,Color("#cfd9c6")))
+		var side_button: Button = _toolbar_button(clock_line,tx("Sidebar","Menú lateral"),_toggle_sidebar)
+		side_button.custom_minimum_size.y = 38.0*ui_scale
+		side_button.add_theme_stylebox_override("normal",_style(Color("#ffffff"),9,Color("#cfd9c6")))
 	else:
-		_toolbar_button(clock_line,tx("Sections","Secciones"),_show_screen_picker,true)
+		base.add_child(clock_scroll)
+		clock_line.add_child(speed_box)
+		var phone_spacer: Control = Control.new()
+		phone_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		clock_line.add_child(phone_spacer)
+		_toolbar_button(clock_line,"☰  "+tx("Sections","Secciones"),_show_screen_picker,true)
 	var compact: bool = compact_mode
 	var horizontal_nav: bool = layout_band < 2
 	compact_mode = compact
@@ -1057,18 +1176,26 @@ func _show_game() -> void:
 	context_detail.autowrap_mode = TextServer.AUTOWRAP_OFF
 	context_detail.clip_text = true
 	context_labels.add_child(context_detail)
-	var progress_row: HBoxContainer = _hbox(context_labels,5)
+	var progress_row: HBoxContainer = _hbox(context_labels,14)
+	var moisture_col: VBoxContainer = _vbox(progress_row,2)
+	moisture_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	context_moisture_label = _line(moisture_col,"",11,MUTED)
 	context_moisture = ProgressBar.new()
 	context_moisture.show_percentage = false
-	context_moisture.custom_minimum_size = Vector2(72,7)
+	context_moisture.custom_minimum_size = Vector2(72,8)
 	context_moisture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	progress_row.add_child(context_moisture)
+	context_moisture.add_theme_stylebox_override("background",_style(Color("#e3e7da"),5))
+	moisture_col.add_child(context_moisture)
+	context_growth_col = _vbox(progress_row,2)
+	context_growth_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	context_growth_label = _line(context_growth_col,"",11,MUTED)
 	context_growth = ProgressBar.new()
 	context_growth.show_percentage = false
-	context_growth.custom_minimum_size = Vector2(70,7)
+	context_growth.custom_minimum_size = Vector2(70,8)
 	context_growth.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	context_growth.add_theme_stylebox_override("background",_style(Color("#e3e7da"),5))
 	context_growth.add_theme_stylebox_override("fill",_style(Color("#82ac61"),5))
-	progress_row.add_child(context_growth)
+	context_growth_col.add_child(context_growth)
 	var context_actions: HBoxContainer = HBoxContainer.new()
 	context_actions.add_theme_constant_override("h_separation",5)
 	context_actions.add_theme_constant_override("v_separation",3)
@@ -1084,20 +1211,34 @@ func _show_game() -> void:
 	movement_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	movement_scroll.custom_minimum_size.y = 49.0 * ui_scale
 	visual_side.add_child(movement_scroll)
-	movement_bar = _hbox(movement_scroll,4)
+	movement_bar = _hbox(movement_scroll,8)
 	var movement: HBoxContainer = movement_bar
-	_line(movement,tx("Walk:","Mover:"),12,MUTED)
-	for pair in [["<",-1,0],["^",0,-1],["v",0,1],[">",1,0]]:
-		var b: Button = _button(str(pair[0]),_walk_step.bind(int(pair[1]),int(pair[2])),movement)
-		b.custom_minimum_size = Vector2(Performance59.touch_target(ui_scale) if compact else 45.0,Performance59.touch_target(ui_scale) if compact else 46.0)
-		b.tooltip_text = tx("Tap to move; hold to keep walking", "Pulsa para mover; manten pulsado para caminar")
+	movement.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var control_size: float = 42.0 if compact else 40.0
+	var walk_group: HBoxContainer = _control_group(movement, "" if compact else tx("Walk","Mover"))
+	for pair in [["←",-1,0],["↑",0,-1],["↓",0,1],["→",1,0]]:
+		var b: Button = _button(str(pair[0]),_walk_step.bind(int(pair[1]),int(pair[2])),walk_group)
+		b.custom_minimum_size = Vector2(control_size,control_size)
+		b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		b.add_theme_font_size_override("font_size",17)
+		b.tooltip_text = tx("Tap to move; hold to keep walking", "Pulsa para mover; mantén pulsado para caminar")
 		if compact:
 			b.button_down.connect(_touch_direction59.bind(Vector2(int(pair[1]),int(pair[2])),true))
 			b.button_up.connect(_touch_direction59.bind(Vector2.ZERO,false))
-	_button("+",func():world.change_zoom(0.25),movement)
-	_button("-",func():world.change_zoom(-0.25),movement)
-	_button("1:1",func():world.reset_camera(),movement)
-	_button(tx("Scenic view","Vista amplia"),_show_panorama,movement,true)
+	var camera_group: HBoxContainer = _control_group(movement, "" if compact else tx("Camera","Cámara"))
+	for pair in [["+",0.25,tx("Zoom in","Acercar")],["−",-0.25,tx("Zoom out","Alejar")],["⟲",0.0,tx("Reset camera","Restablecer cámara")]]:
+		var amount: float = float(pair[1])
+		var zb: Button = _button(str(pair[0]),(func():world.change_zoom(amount)) if amount != 0.0 else (func():world.reset_camera()),camera_group)
+		zb.custom_minimum_size = Vector2(control_size,control_size)
+		zb.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		zb.add_theme_font_size_override("font_size",17)
+		zb.tooltip_text = str(pair[2])
+	var movement_spacer: Control = Control.new()
+	movement_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	movement.add_child(movement_spacer)
+	var scenic: Button = _button(tx("Wide","Amplia") if compact else tx("Scenic view","Vista amplia"),_show_panorama,movement,true)
+	scenic.size_flags_horizontal = Control.SIZE_SHRINK_END
+	scenic.custom_minimum_size = Vector2(0,control_size)
 	var right_holder: PanelContainer = PanelContainer.new()
 	mobile_detail_pane = right_holder
 	right_holder.custom_minimum_size = Vector2(0,0) if compact else Vector2(Layout55.inspector_width(get_viewport_rect().size.x),0)
@@ -1121,7 +1262,7 @@ func _show_game() -> void:
 	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	base.add_child(status_label)
 	confirm = ConfirmationDialog.new()
-	confirm.title = tx("Confirm farm action","Confirmar accion")
+	confirm.title = tx("Confirm farm action","Confirmar acción")
 	confirm.confirmed.connect(_commit_pending)
 	layer.add_child(confirm)
 	info = AcceptDialog.new()
@@ -1135,9 +1276,31 @@ func _show_game() -> void:
 	_play_ambience()
 	_refresh()
 
+func _refresh_speed_buttons() -> void:
+	for value in speed_buttons.keys():
+		var button: Button = speed_buttons[value]
+		if is_instance_valid(button):
+			_style_tab(button,int(value) == speed)
+
+func _control_group(parent: Node, title: String) -> HBoxContainer:
+	var holder: PanelContainer = PanelContainer.new()
+	var style: StyleBoxFlat = _style(Color("#eef1e6"),11)
+	style.set_content_margin_all(3)
+	if title != "": style.content_margin_left = 10.0
+	holder.add_theme_stylebox_override("panel",style)
+	holder.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	parent.add_child(holder)
+	var row: HBoxContainer = _hbox(holder,3)
+	if title != "":
+		var caption: Label = _line(row,title,11,MUTED)
+		caption.clip_text = false
+		caption.custom_minimum_size.x = 0
+	return row
+
 func _set_speed(value: int) -> void:
 	speed = value
 	speed_accum = 0.0
+	_refresh_speed_buttons()
 	if game_running:
 		status_label.text = tx("Time: ","Tiempo: ") + (tx("paused","pausado") if speed == 0 else str(speed) + "x")
 		_update_header()
@@ -1156,9 +1319,7 @@ func _update_nav_state() -> void:
 	for id in primary_nav_buttons.keys():
 		var primary: Button = primary_nav_buttons[id]
 		if is_instance_valid(primary):
-			var active: bool = str(id) == active_tab
-			primary.add_theme_stylebox_override("normal",_style(ACCENT if active else ACCENT2,9))
-			primary.add_theme_color_override("font_color",Color.WHITE if active else INK)
+			_style_tab(primary,str(id) == active_tab)
 	for id in mobile_nav_buttons.keys():
 		var mobile: Button = mobile_nav_buttons[id]
 		if is_instance_valid(mobile):
@@ -1266,8 +1427,8 @@ func _picked_decoration(slot: int) -> void:
 	for decoration in farm.state.get("decorations",[]):
 		if int(decoration["slot"]) == slot:
 			var name: String = farm.n(FarmScript.DECORATIONS[str(decoration["kind"])])
-			var status: String = tx("Complete","Terminado") if bool(decoration["completed"]) else tx("Under construction","En construccion")
-			_notify(name + "  /  " + tx("Garden position ","Posicion jardin ") + str(slot+1) + "\n" + status)
+			var status: String = tx("Complete","Terminado") if bool(decoration["completed"]) else tx("Under construction","En construcción")
+			_notify(name + "  /  " + tx("Garden position ","Posición jardín ") + str(slot+1) + "\n" + status)
 			return
 
 func _picked_build_slot(slot: int) -> void:
@@ -1285,7 +1446,7 @@ func _picked_building(id: String) -> void:
 	for b in farm.state["buildings"]:
 		if str(b["id"]) == id:
 			if int(b["level"]) < 1:
-				_notify(tx("Construction is not finished yet.","La obra todavia no ha terminado."))
+				_notify(tx("Construction is not finished yet.","La obra todavía no ha terminado."))
 			else:
 				_enter_building(str(b["kind"]))
 			return
@@ -1389,24 +1550,25 @@ func _update_header() -> void:
 	if compact_mode:
 		header_label.text = "LVL " + str(s["level"]) + "  |  XP " + str(220-int(s["xp_to_next"])) + "/220  |  EUR " + str(int(s["cash"])) + "  |  D" + str(s["day"]) + " " + str(s["hour"]) + ":00"
 	else:
-		header_label.text = "LEVEL " + str(s["level"]) + "  |  " + str(220-int(s["xp_to_next"])) + "/220 XP  |  EUR " + str(snappedf(float(s["cash"]),0.01)) + "  |  " + str(s["fields"]) + "/" + str(FarmScript.MAX_FIELDS) + " " + tx("fields","parcelas") + "  |  " + tx("Day ","Dia ") + str(s["day"]) + "  " + str(s["hour"]) + ":00"
+		header_label.text = "LEVEL " + str(s["level"]) + "  |  " + str(220-int(s["xp_to_next"])) + "/220 XP  |  EUR " + str(snappedf(float(s["cash"]),0.01)) + "  |  " + str(s["fields"]) + "/" + str(FarmScript.MAX_FIELDS) + " " + tx("fields","parcelas") + "  |  " + tx("Day ","Día ") + str(s["day"]) + "  " + str(s["hour"]) + ":00"
 	status_label.text = farm.weather_text() + "    |    " + str(snappedf(float(s["water"]),0.1)) + " m3 " + tx("water","agua") + "   |   " + str(s["season"])
 	if not hud_values.is_empty():
 		if hud_values.has("level"):
-			(hud_values["level"] as Label).text = "LV " + str(s["level"])
-		(hud_values["cash"] as Label).text = "€ " + str(int(s["cash"]))
-		(hud_values["time"] as Label).text = tx("DAY ","DÍA ") + str(s["day"]) + " · " + str(s["hour"]) + ":00"
+			(hud_values["level"] as Label).text = tx("Level ","Nivel ") + str(s["level"])
+		(hud_values["cash"] as Label).text = _money(float(s["cash"]))
+		(hud_values["time"] as Label).text = "◷  " + tx("Day ","Día ") + str(s["day"]) + "  ·  " + str(s["hour"]).pad_zeros(2) + ":00"
 		if hud_values.has("water"):
-			(hud_values["water"] as Label).text = "H₂O " + str(int(float(s["water"]))) + " m³"
+			(hud_values["water"] as Label).text = _group_digits(int(float(s["water"]))) + " m³"
 		if hud_values.has("weather"):
-			(hud_values["weather"] as Label).text = str(s["season"]) + " · " + ({"clear":"despejado","rain":"lluvia","heat":"calor"}.get(str(farm.state["weather"].get("kind","clear")),"despejado") if language == "es" else str(farm.state["weather"].get("kind","clear")))
+			var weather_kind: String = str(farm.state["weather"].get("kind","clear"))
+			(hud_values["weather"] as Label).text = {"clear":"☀","rain":"☂","heat":"☀"}.get(weather_kind,"☁") + "  " + str(s["season"]) + " · " + ({"clear":"despejado","rain":"lluvia","heat":"calor"}.get(str(farm.state["weather"].get("kind","clear")),"despejado") if language == "es" else str(farm.state["weather"].get("kind","clear")))
 	_update_context_51()
 	if plot_status_label != null and is_instance_valid(plot_status_label):
 		var plot: Dictionary = farm.field_of(selected_field)
 		if not plot.is_empty():
 			var terrain: Dictionary = farm.content["terrains"][str(plot["terrain"])]
 			var crop_title: String = tx("Fallow","Barbecho") if plot["crop"].is_empty() else farm.n(farm.content["crops"][str(plot["crop"]["id"])])
-			plot_status_label.tooltip_text = tx("Selected: ","Parcela elegida: ") + selected_field.to_upper() + "  |  " + farm.n(terrain) + "  |  " + (crop_title if plot["owned"] else tx("For sale","En venta"))
+			plot_status_label.tooltip_text = tx("Selected: ","Parcela elegida: ") + _plot_name(selected_field) + "  |  " + farm.n(terrain) + "  |  " + (crop_title if plot["owned"] else tx("For sale","En venta"))
 
 func _refresh() -> void:
 	_update_header()
@@ -1596,7 +1758,7 @@ func _direct(kind: String, args: Dictionary = {}) -> void:
 	_refresh()
 	if not saved59.is_empty() and not bool(saved59.get("ok",false)):
 		speed = 0
-		_notify(tx("The action succeeded but autosave failed: ","La accion se ha completado, pero el guardado automatico fallo: ") + str(saved59.get("error","Unknown write error")))
+		_notify(tx("The action succeeded but autosave failed: ","La acción se ha completado, pero el guardado automático fallo: ") + str(saved59.get("error","Unknown write error")))
 
 func _process(delta: float) -> void:
 	if game_running and show_fps59 and fps_label59 != null and is_instance_valid(fps_label59):
@@ -1741,15 +1903,21 @@ func _panel_farm() -> void:
 	var player: Dictionary = farm.state["player"]
 	_caption(right_body, str(player["farm"]),tx("Your new beginning in a living valley","Tu comienzo en un valle lleno de vida"))
 	var s: Dictionary = farm.status()
-	_line(right_body,"EUR " + str(s["cash"]) + "   |   " + str(s["fields"]) + "/" + str(FarmScript.MAX_FIELDS) + " " + tx("plots","parcelas"),20,ACCENT)
-	_line(right_body,tx("Water reserve: ","Reserva de agua: ") + str(snappedf(float(s["water"]),0.1)) + " m3")
-	_line(right_body,tx("Storage: ","Almacen: ") + str(snappedf(float(s["inventory"]),0.1)) + "/" + str(s["capacity"]) + " kg")
-	_line(right_body,tx("Reputation: ","Reputacion: ") + str(farm.state["economy"]["reputation"]))
+	var tiles: GridContainer = GridContainer.new()
+	tiles.columns = 2
+	tiles.add_theme_constant_override("h_separation",8)
+	tiles.add_theme_constant_override("v_separation",8)
+	right_body.add_child(tiles)
+	_stat_tile(tiles,"res://assets/icon_coins.png",tx("Cash","Dinero"),_money(float(s["cash"])),ACCENT)
+	_stat_tile(tiles,"res://assets/icon_seeds.png",tx("Plots","Parcelas"),str(s["fields"]) + " / " + str(FarmScript.MAX_FIELDS))
+	_stat_tile(tiles,"res://assets/icon_watering_can.png",tx("Water reserve","Reserva de agua"),_group_digits(int(float(s["water"]))) + " m³")
+	_stat_tile(tiles,"res://assets/icon_wheat_bundle.png",tx("Storage","Almacén"),_group_digits(int(float(s["inventory"]))) + " / " + _group_digits(int(s["capacity"])) + " kg")
+	_stat_tile(tiles,"res://assets/icon_welfare.png",tx("Reputation","Reputación"),str(farm.state["economy"]["reputation"]))
 	var living: Dictionary = farm.field_of(selected_field)
 	if living.get("owned",false):
 		var soil_v: String = Visual.soil_visual(living["soil"])
-		var conditions: Dictionary = {"dry":tx("Dry soil","Suelo seco"),"wet":tx("Wet soil","Suelo humedo"),"balanced":tx("Balanced moisture","Humedad equilibrada")}
-		_line(right_body,tx("Selected field: ","Parcela elegida: ")+selected_field.to_upper()+" · "+str(conditions.get(soil_v,"")),14,DANGER if soil_v=="dry" else ACCENT)
+		var conditions: Dictionary = {"dry":tx("Dry soil","Suelo seco"),"wet":tx("Wet soil","Suelo húmedo"),"balanced":tx("Balanced moisture","Humedad equilibrada")}
+		_line(right_body,tx("Selected field: ","Parcela elegida: ")+_plot_name(selected_field)+" · "+str(conditions.get(soil_v,"")),14,DANGER if soil_v=="dry" else ACCENT)
 		if not living["crop"].is_empty():
 			_line(right_body,farm.n(farm.content["crops"][str(living["crop"]["id"])])+" · "+Visual.crop_stage_text(float(living["crop"]["development"]),language=="es"),14)
 	_level_progress(right_body)
@@ -1757,7 +1925,7 @@ func _panel_farm() -> void:
 	var quality: float = farm.soil_health(selected_field)
 	_line(right_body,tx("Soil vitality: ","Vitalidad del suelo: ") + str(int(quality*100.0)) + "%",13,ACCENT if quality >= 0.85 else DANGER)
 	var bank: Dictionary = farm.operating_budget()
-	_line(right_body,tx("Fixed daily maintenance: EUR ","Mantenimiento fijo diario: EUR ") + str(snappedf(float(bank["fixed_daily"]),0.01)),13,MUTED)
+	_line(right_body,tx("Fixed daily maintenance: ","Mantenimiento fijo diario: ") + _money(float(float(bank["fixed_daily"]))),13,MUTED)
 	_button(tx("Open daily planner","Abrir plan diario"),_change_tab.bind("Planning"),right_body)
 	var objective: Dictionary = farm.season_goal_info()
 	if not objective.is_empty():
@@ -1808,12 +1976,12 @@ func _panel_farm() -> void:
 	var first: Dictionary = farm.field_of(selected_field)
 	if first.is_empty() or not first["owned"]:
 		first = farm.field_of("plot1")
-	_line(right_body,tx("Selected field: ","Parcela seleccionada: ") + str(first["id"]))
+	_line(right_body,tx("Selected field: ","Parcela seleccionada: ") + _plot_name(str(first["id"])))
 	_line(right_body,tx("Water: ","Agua: ") + str(snappedf(float(first["soil"]["water"]),0.1)) + " mm")
 	_line(right_body,tx("Soil N / P / K: ","Suelo N / P / K: ") + str(snappedf(float(first["soil"]["n"]),0.1)) + " / " + str(snappedf(float(first["soil"]["p"]),0.1)) + " / " + str(snappedf(float(first["soil"]["k"]),0.1)))
 	_button(tx("Manage this field","Gestionar parcela"),_change_tab.bind("Fields"),right_body,true)
 	_button(tx("Scout pests & natural allies","Revisar plagas y aliados"),_change_tab.bind("Ecology"),right_body)
-	_button(tx("Scenic farm view","Vista panoramica de finca"),_show_panorama,right_body,true)
+	_button(tx("Scenic farm view","Vista panorámica de finca"),_show_panorama,right_body,true)
 	_button(tx("Explore the farm","Explorar la finca"),_show_illustrated_view,right_body)
 	_button(tx("Explore the valley map","Explorar el mapa del valle"),_change_tab.bind("Valley"),right_body)
 	_button(tx("Visit the village market","Ir al mercado"),_enter_building.bind("market"),right_body)
@@ -1826,7 +1994,7 @@ func _panel_farm() -> void:
 		_button(tx("Review community consequences","Ver consecuencias comunitarias"),_change_tab.bind("Stories"),right_body,true)
 	var event: Dictionary = farm.state["events"]["active"]
 	if not event.is_empty():
-		_caption(right_body,tx("Valley decision pending","Decision pendiente"))
+		_caption(right_body,tx("Valley decision pending","Decisión pendiente"))
 		_line(right_body,Chains.title(str(event["id"]),language) if str(event.get("arc","")) != "" else Decisions.title(str(event["id"]),language))
 		_button(tx("Review choices","Ver opciones"),_show_decision_board,right_body,true)
 
@@ -1881,7 +2049,7 @@ func _panel_explorer() -> void:
 	for field in farm.state["fields"]:
 		if not bool(field["owned"]):
 			continue
-		var name: String = str(field["id"]).to_upper() + "  ·  " + farm.n(farm.content["terrains"][str(field["terrain"])])
+		var name: String = _plot_name(str(field["id"])) + "  ·  " + farm.n(farm.content["terrains"][str(field["terrain"])])
 		var crop_name: String = tx("Fallow","En barbecho") if field["crop"].is_empty() else farm.n(farm.content["crops"][str(field["crop"]["id"])])
 		_button(name + " / " + crop_name,_jump_to_field.bind(str(field["id"])),right_body)
 	_caption(right_body,tx("YOUR BUILDINGS","TUS EDIFICIOS"))
@@ -1899,13 +2067,13 @@ func _panel_explorer() -> void:
 		_button(str(pair[1]),_change_tab.bind(str(pair[0])),right_body)
 
 func _panel_expeditions58() -> void:
-	_caption(right_body,tx("Beyond the Farm  ·  5.8","Mas alla de la finca  ·  5.8"),tx("Take part in lasting regional projects, collaborate with neighbours and choose your field profession.","Participa en proyectos regionales duraderos, colabora con vecinos y elige tu profesion de campo."))
+	_caption(right_body,tx("Beyond the Farm  ·  5.8","Más allá de la finca  ·  5.8"),tx("Take part in lasting regional projects, collaborate with neighbours and choose your field profession.","Participa en proyectos regionales duraderos, colabora con vecinos y elige tu profesión de campo."))
 	var rural58: Dictionary = farm.state["countryside54"]["beyond58"]
 	var current_region58: String = str(farm.state["overworld"].get("last_region","village"))
 	var day58: int = int(farm.state["time"]["day"])
 	_line(right_body,tx("Regional projects completed: ","Proyectos regionales terminados: ") + str(rural58["completed"]) + "/" + str(Beyond58.PROJECTS.size()),16,ACCENT)
-	_line(right_body,tx("Current region: ","Region actual: ") + farm.n(FarmScript.REGIONS.get(current_region58,FarmScript.REGIONS["village"])),13,MUTED)
-	_caption(right_body,tx("Choose your field profession","Elige tu profesion de campo"))
+	_line(right_body,tx("Current region: ","Región actual: ") + farm.n(FarmScript.REGIONS.get(current_region58,FarmScript.REGIONS["village"])),13,MUTED)
+	_caption(right_body,tx("Choose your field profession","Elige tu profesión de campo"))
 	var profession58: String = str(rural58["profession"])
 	_line(right_body,tx("Current: ","Actual: ") + (tx("Undecided","Sin elegir") if profession58 == "none" else Beyond58.label(Beyond58.PROFESSIONS[profession58],language)),15,ACCENT)
 	var can_retrain58: bool = int(rural58["profession_change_day"]) < 1 or day58 - int(rural58["profession_change_day"]) >= 12
@@ -1915,7 +2083,7 @@ func _panel_expeditions58() -> void:
 		_line(right_body,Beyond58.label(info58,language,"detail"),12,MUTED)
 		var profession_button58: Button = _button(tx("Selected","Seleccionada") if profession58 == str(profession_id58) else (tx("Select", "Elegir") if profession58 == "none" else tx("Retrain for EUR 90","Cambiar por 90 EUR")),_ask.bind("chooseProfession58",{"profession":str(profession_id58)}),right_body)
 		profession_button58.disabled = profession58 == str(profession_id58) or not can_retrain58
-	_caption(right_body,tx("Regional expeditions","Expediciones regionales"),tx("Three persistent chapters in every region. Only one chapter per region per day.","Tres capitulos permanentes por region. Maximo un capitulo por region y dia."))
+	_caption(right_body,tx("Regional expeditions","Expediciones regionales"),tx("Three persistent chapters in every region. Only one chapter per region per day.","Tres capítulos permanentes por región. Máximo un capítulo por región y día."))
 	var region_ids58: Array = Beyond58.REGION_ORDER
 	var region_names58: Array = []
 	for region_id58 in region_ids58:
@@ -1935,35 +2103,35 @@ func _panel_expeditions58() -> void:
 	_line(right_body,Beyond58.label(project58,language,"story"),13,MUTED)
 	_line(right_body,tx("Local partner: ","Colaborador: ") + farm.n(npc58) + "  ·  " + tx("Trust ","Confianza ") + str(farm.npc_trust(partner58)) + "/10",13)
 	if selected_region != current_region58:
-		_line(right_body,tx("Travel to this region to work on the project.","Viaja a esta region para trabajar en el proyecto."),13,MUTED)
-		_button(tx("Travel to project region","Viajar a la region"),_ask.bind("explore",{"regionId":selected_region}),right_body,true)
+		_line(right_body,tx("Travel to this region to work on the project.","Viaja a esta región para trabajar en el proyecto."),13,MUTED)
+		_button(tx("Travel to project region","Viajar a la región"),_ask.bind("explore",{"regionId":selected_region}),right_body,true)
 	if chapter58 < 3:
-		_line(right_body,tx("Next chapter ","Proximo capitulo ") + str(chapter58 + 1) + "/3  ·  " + Beyond58.step_label(project58,chapter58,language),15,INK)
+		_line(right_body,tx("Next chapter ","Próximo capítulo ") + str(chapter58 + 1) + "/3  ·  " + Beyond58.step_label(project58,chapter58,language),15,INK)
 		var fee58: float = float(project58["fee"]) * (0.85 if profession58 == "pathfinder" else 1.0) * (1.0 + 0.30 * float(chapter58))
 		var energy58: float = float(project58["energy"]) * (0.80 if profession58 == "pathfinder" else 1.0)
-		_line(right_body,"EUR " + str(snappedf(fee58,0.01)) + "  ·  " + str(project58["hours"]) + " h  ·  " + tx("Energy ","Energia ") + str(snappedf(energy58,0.1)),13,MUTED)
+		_line(right_body,_money(float(fee58)) + "  ·  " + str(project58["hours"]) + " h  ·  " + tx("Energy ","Energía ") + str(snappedf(energy58,0.1)),13,MUTED)
 		if chapter58 == 1:
 			var material58: String = str(project58["material"])
 			_line(right_body,tx("Required: ","Necesitas: ") + str(project58["quantity"]) + " kg " + farm.n(farm.content["goods"].get(material58,{})) + "  (" + str(snappedf(farm.stock(material58),0.1)) + " kg)",13,MUTED)
 		var cooldown58: bool = int(rural58["chapter_days"].get(selected_region,-1)) == day58
 		if cooldown58:
-			_line(right_body,tx("Next chapter available tomorrow.","El siguiente capitulo estara disponible manana."),13,DANGER)
-		var project_button58: Button = _button(tx("Work on the next chapter","Trabajar en el siguiente capitulo"),_ask.bind("advanceProject58",{"regionId":selected_region,"approach":"protect"}),right_body,true)
+			_line(right_body,tx("Next chapter available tomorrow.","El siguiente capítulo estará disponible mañana."),13,DANGER)
+		var project_button58: Button = _button(tx("Work on the next chapter","Trabajar en el siguiente capítulo"),_ask.bind("advanceProject58",{"regionId":selected_region,"approach":"protect"}),right_body,true)
 		project_button58.disabled = cooldown58 or selected_region != current_region58
 		if chapter58 == 2:
-			var trade_button58: Button = _button(tx("Finish with trade (+EUR 65, less reputation)","Terminar con comercio (+65 EUR, menos reputacion)"),_ask.bind("advanceProject58",{"regionId":selected_region,"approach":"trade"}),right_body)
+			var trade_button58: Button = _button(tx("Finish with trade (+EUR 65, less reputation)","Terminar con comercio (+65 EUR, menos reputación)"),_ask.bind("advanceProject58",{"regionId":selected_region,"approach":"trade"}),right_body)
 			trade_button58.disabled = cooldown58 or selected_region != current_region58
 	else:
 		_line(right_body,tx("Completed! Your project and relationship improvements are permanent.","Completado. Las mejoras del proyecto y las relaciones son permanentes."),14,ACCENT)
 	_caption(right_body,tx("Your expedition journal","Tu diario de expediciones"))
 	var records58: Array = rural58["history"]
 	if records58.is_empty():
-		_line(right_body,tx("No project chapters completed yet.","Todavia no has completado capitulos."),13,MUTED)
+		_line(right_body,tx("No project chapters completed yet.","Todavía no has completado capítulos."),13,MUTED)
 	else:
 		for index58 in range(records58.size() - 1,maxi(-1,records58.size() - 9),-1):
 			var record58: Dictionary = records58[index58]
 			var area58: Dictionary = Beyond58.PROJECTS[str(record58["region"])]
-			_line(right_body,tx("Day ","Dia ") + str(record58["day"]) + "  ·  " + Beyond58.label(area58,language) + "  " + str(record58["stage"]) + "/3",12,MUTED)
+			_line(right_body,tx("Day ","Día ") + str(record58["day"]) + "  ·  " + Beyond58.label(area58,language) + "  " + str(record58["stage"]) + "/3",12,MUTED)
 	_button(tx("Valley map and travel","Mapa del valle y viajes"),_change_tab.bind("Valley"),right_body)
 	_button(tx("Local activities and villagers","Actividades y vecinos"),_change_tab.bind("Countryside54"),right_body)
 
@@ -1986,30 +2154,30 @@ func _panel_countryside54() -> void:
 	region_picker.item_selected.connect(_picked_countryside_region54.bind(region_keys))
 	_line(right_body,tx("Selected: ","Seleccionada: ") + farm.n(FarmScript.REGIONS.get(selected_region,FarmScript.REGIONS["village"])),15,ACCENT)
 	if selected_region != current_region:
-		_line(right_body,tx("Travel here before joining local activities. Your last travelled region is remembered.","Viaja aqui antes de participar en actividades locales. El juego recuerda tu ultimo destino."),12,MUTED)
+		_line(right_body,tx("Travel here before joining local activities. Your last travelled region is remembered.","Viaja aquí antes de participar en actividades locales. El juego recuerda tu último destino."),12,MUTED)
 		_button(tx("Travel to selected region","Viajar a la zona elegida"),_ask.bind("explore",{"regionId":selected_region}),right_body,true)
-	_caption(right_body,tx("Scenic discoveries","Descubrimientos del paisaje"),tx("One-time discoveries; progress is saved in your journal.","Descubrimientos unicos; tu progreso queda guardado."))
+	_caption(right_body,tx("Scenic discoveries","Descubrimientos del paisaje"),tx("One-time discoveries; progress is saved in your journal.","Descubrimientos únicos; tu progreso queda guardado."))
 	for site_id in Country54.locations_in(selected_region):
 		var site_info: Dictionary = Country54.SITES[site_id]
 		_line(right_body,Country54.label(site_info,language) + "  ·  " + (tx("Discovered","Descubierto") if countryside_state["discovered"].has(site_id) else tx("Unexplored","Sin explorar")),15,ACCENT)
 		_line(right_body,Country54.label(site_info,language,"description"),12,MUTED)
 		if not countryside_state["discovered"].has(site_id):
-			var discover_button: Button = _button(tx("Explore site","Explorar lugar") + "  · EUR " + str(site_info["cost"]),_ask.bind("discoverSite54",{"siteId":str(site_id)}),right_body)
+			var discover_button: Button = _button(tx("Explore site","Explorar lugar") + "  · " + _money(float(site_info["cost"])),_ask.bind("discoverSite54",{"siteId":str(site_id)}),right_body)
 			discover_button.disabled = selected_region != current_region
-	_caption(right_body,tx("Regional activity","Actividad de la zona"),tx("One activity per location and simulated day; each has real costs.","Una actividad por lugar y dia simulado, con costes reales."))
+	_caption(right_body,tx("Regional activity","Actividad de la zona"),tx("One activity per location and simulated day; each has real costs.","Una actividad por lugar y día simulado, con costes reales."))
 	for activity_id in Country54.activities_in(selected_region):
 		var activity_info: Dictionary = Country54.ACTIVITIES[activity_id]
 		_line(right_body,Country54.label(activity_info,language),15,ACCENT)
 		_line(right_body,Country54.label(activity_info,language,"description"),12,MUTED)
 		var already_done: bool = int(countryside_state["activity_days"].get(activity_id,-1)) == day
-		var detail: String = "EUR " + str(activity_info["fee"]) + " · " + str(activity_info["hours"]) + "h · " + tx("Energy ","Energia ") + str(activity_info["energy"])
+		var detail: String = _money(float(activity_info["fee"])) + " · " + str(activity_info["hours"]) + "h · " + tx("Energy ","Energía ") + str(activity_info["energy"])
 		_line(right_body,detail,12,MUTED)
 		var activity_button: Button = _button(tx("Done today","Completado hoy") if already_done else tx("Join activity","Participar"),_ask.bind("countrysideActivity54",{"activityId":str(activity_id)}),right_body)
 		activity_button.disabled = already_done or selected_region != current_region
-	_caption(right_body,tx("Neighbours here now","Vecinos presentes ahora"),tx("Schedules change during the day and every seventh market day.","Las rutinas cambian durante el dia y cada septimo dia de mercado."))
+	_caption(right_body,tx("Neighbours here now","Vecinos presentes ahora"),tx("Schedules change during the day and every seventh market day.","Las rutinas cambian durante el día y cada septimo día de mercado."))
 	var villagers: Array = Country54.villagers_at(selected_region,day,hour)
 	if villagers.is_empty():
-		_line(right_body,tx("Nobody is scheduled here at this hour.","No hay vecinos previstos aqui a esta hora."),13,MUTED)
+		_line(right_body,tx("Nobody is scheduled here at this hour.","No hay vecinos previstos aquí a esta hora."),13,MUTED)
 	for npc_id in villagers:
 		var npc_data: Dictionary = farm.content["npcs"].get(str(npc_id),{})
 		var met_today: bool = int(countryside_state["met_days"].get(npc_id,-1)) == day
@@ -2021,7 +2189,7 @@ func _panel_countryside54() -> void:
 	_button(tx("Full valley travel map","Mapa del valle"),_change_tab.bind("Valley"),right_body)
 	_button(tx("Talk and help neighbours","Hablar y ayudar a vecinos"),_change_tab.bind("Neighbours"),right_body)
 	_button(tx("Explore regional projects","Explorar proyectos regionales"),_change_tab.bind("Expeditions58"),right_body,true)
-	_button(tx("Farmhands and automation","Trabajadores y automatizacion"),_change_tab.bind("Planning"),right_body)
+	_button(tx("Farmhands and automation","Trabajadores y automatización"),_change_tab.bind("Planning"),right_body)
 
 func _picked_countryside_region54(index: int, keys: Array) -> void:
 	if index < 0 or index >= keys.size():
@@ -2033,32 +2201,32 @@ func _picked_countryside_region54(index: int, keys: Array) -> void:
 
 func _panel_valley() -> void:
 	_caption(right_body,tx("The living valley","El valle vivo"),tx("Choose a region on the map, then prepare for your trip.","Elige una zona en el mapa y prepara tu viaje."))
-	_line(right_body,tx("Every region offers travel, forage and unique gathering opportunities.","Cada region ofrece viaje, recoleccion y materiales unicos."),13,MUTED)
+	_line(right_body,tx("Every region offers travel, forage and unique gathering opportunities.","Cada región ofrece viaje, recolección y materiales únicos."),13,MUTED)
 	var region: Dictionary = FarmScript.REGIONS.get(selected_region,{})
 	if region.is_empty():
 		selected_region = "village"
 		region = FarmScript.REGIONS[selected_region]
 	_line(right_body,farm.n(region),21,ACCENT)
 	_line(right_body,farm.n(region,"description"),14,MUTED)
-	_line(right_body,tx("Travel time: ","Duracion del viaje: ") + str(region["hours"]) + " h",15)
-	_line(right_body,tx("Travel expense: EUR ","Coste de viaje: EUR ") + str(region["fee"]),15)
+	_line(right_body,tx("Travel time: ","Duración del viaje: ") + str(region["hours"]) + " h",15)
+	_line(right_body,tx("Travel expense: ","Coste de viaje: ") + _money(float(region["fee"])),15)
 	_line(right_body,tx("Wildlife encounter chance (game): ","Riesgo de fauna (juego): ") + str(int(float(region["risk"])*100.0)) + "%",13,DANGER)
 	var goods: Dictionary = farm.content["goods"]
 	var found: String = str(region["find"])
-	_line(right_body,tx("Possible forage: ","Recoleccion posible: ") + farm.n(goods.get(found,{})),14)
+	_line(right_body,tx("Possible forage: ","Recolección posible: ") + farm.n(goods.get(found,{})),14)
 	if FarmScript.MATERIAL_SITES.has(selected_region):
 		var site: Dictionary = FarmScript.MATERIAL_SITES[selected_region]
 		_line(right_body,tx("Gather: ","Materiales: ") + farm.n(goods[str(site["good"])]) + "  " + str(site["kg"]) + "kg",14,ACCENT)
-		_line(right_body,tx("Field effort: ","Esfuerzo: ") + str(site["hours"]) + " h  |  " + tx("Energy ","Energia ") + str(site["energy"]) + "  |  EUR " + str(site["fee"]),13,MUTED)
-		_button(tx("Gather resources here","Recoger materiales aqui"),_ask.bind("gatherMaterials",{"regionId":selected_region}),right_body)
+		_line(right_body,tx("Field effort: ","Esfuerzo: ") + str(site["hours"]) + " h  |  " + tx("Energy ","Energía ") + str(site["energy"]) + "  |  " + _money(float(site["fee"])),13,MUTED)
+		_button(tx("Gather resources here","Recoger materiales aquí"),_ask.bind("gatherMaterials",{"regionId":selected_region}),right_body)
 	_button(tx("Travel here, with quoted cost","Viajar con coste previsto"),_ask.bind("explore",{"regionId":selected_region}),right_body,true)
 	_button(tx("Activities, scenic trails and villagers","Actividades, senderos y vecinos"),_change_tab.bind("Countryside54"),right_body,true)
 	_button(tx("Regional projects and professions","Proyectos y profesiones"),_change_tab.bind("Expeditions58"),right_body)
-	_caption(right_body,tx("Outdoor equipment & stamina","Equipo y energia"))
+	_caption(right_body,tx("Outdoor equipment & stamina","Equipo y energía"))
 	var wildlife: Dictionary = farm.state["wildlife"]
-	_line(right_body,tx("Energy: ","Energia: ") + str(int(wildlife["energy"])) + "/100",15)
+	_line(right_body,tx("Energy: ","Energía: ") + str(int(wildlife["energy"])) + "/100",15)
 	_line(right_body,tx("Outdoor kit: ","Equipo de campo: ") + (tx("Owned","Comprado") if wildlife["gear"] else tx("Not owned","Sin comprar")),14)
-	_line(right_body,tx("Recovery hours: ","Horas de recuperacion: ") + str(wildlife["venom_hours"]),14,DANGER if int(wildlife["venom_hours"]) > 0 else MUTED)
+	_line(right_body,tx("Recovery hours: ","Horas de recuperación: ") + str(wildlife["venom_hours"]),14,DANGER if int(wildlife["venom_hours"]) > 0 else MUTED)
 	if not wildlife["gear"]:
 		_button(tx("Buy outdoor kit: EUR 120","Comprar equipo: 120 EUR"),_ask.bind("buyGear",{}),right_body)
 	_button(tx("Rest four game hours","Descansar cuatro horas"),_ask.bind("rest",{}),right_body)
@@ -2094,7 +2262,7 @@ func _panel_fields() -> void:
 			if not matches or (term != "" and not (str(field["id"]).to_lower() + " " + crop_name.to_lower()).contains(term)):
 				continue
 			var field_id: String = str(field["id"])
-			var label: String = field_id.to_upper() + " · " + crop_name + (" · " + tx("owned","propia") if field["owned"] else " · " + tx("for sale","en venta"))
+			var label: String = _plot_name(field_id) + " · " + crop_name + (" · " + tx("owned","propia") if field["owned"] else " · " + tx("for sale","en venta"))
 			if not crop.is_empty():
 				label += " · "+str(int(float(crop.get("development",0.0))*100.0))+"%"
 				if float(crop.get("development",0.0)) >= 0.995:
@@ -2130,7 +2298,7 @@ func _panel_fields() -> void:
 	_line(right_body,farm.n(terrain,"benefit"),13)
 	_line(right_body,farm.n(terrain,"risk"),13,DANGER)
 	if not f["owned"]:
-		_line(right_body,tx("Land price: EUR ","Precio terreno: EUR ") + str(farm.land_price(selected_field)),17)
+		_line(right_body,tx("Land price: ","Precio terreno: ") + _money(float(farm.land_price(selected_field))),17)
 		_button(tx("Purchase this field","Comprar parcela"),_ask.bind("buyField",{"fieldId":selected_field}),right_body,true)
 		return
 	var soil: Dictionary = f["soil"]
@@ -2149,13 +2317,13 @@ func _panel_fields() -> void:
 				continue
 			var candidate_info: Dictionary = Fields52.PLOTS[layout_id]
 			layout_ids.append(layout_id)
-			layout_names.append(Fields52.localized(candidate_info,language)+"  ·  EUR "+str(candidate_info["cost"]))
+			layout_names.append(Fields52.localized(candidate_info,language)+"  ·  "+_money(float(candidate_info["cost"])))
 		if not layout_ids.is_empty():
 			var layout_picker: OptionButton = _select(right_body,layout_ids,layout_names)
 			_button(tx("Convert plot (confirm price)","Transformar parcela (confirmar precio)"),func():_ask("configurePlot",{"fieldId":selected_field,"plotType":str(layout_picker.get_item_metadata(layout_picker.selected))}),right_body)
-		_line(right_body,tx("Layout changes require empty land, real cash and one conversion per game day.","Los cambios requieren suelo libre, dinero real y un cambio por dia de juego."),12,MUTED)
+		_line(right_body,tx("Layout changes require empty land, real cash and one conversion per game day.","Los cambios requieren suelo libre, dinero real y un cambio por día de juego."),12,MUTED)
 	if int(f.get("cover_until",0)) > int(farm.state["time"]["total"]):
-		_line(right_body,tx("Cover crop protects this field for ","Cubierta vegetal protege durante ")+str(int(ceil(float(int(f["cover_until"])-int(farm.state["time"]["total"]))/24.0)))+tx(" more days"," dias mas"),13,ACCENT)
+		_line(right_body,tx("Cover crop protects this field for ","Cubierta vegetal protege durante ")+str(int(ceil(float(int(f["cover_until"])-int(farm.state["time"]["total"]))/24.0)))+tx(" more days"," días más"),13,ACCENT)
 	if crop.is_empty():
 		if int(f.get("cover_until",0)) > int(farm.state["time"]["total"]):
 			_line(right_body,tx("Protective cover is still growing. Plant cash crops when it finishes.","La cubierta vegetal sigue creciendo. Siembra cuando termine."),14,ACCENT)
@@ -2188,12 +2356,12 @@ func _panel_fields() -> void:
 				plant_preview.text = farm.message(str(quote.get("error","Planting is unavailable")))
 				return
 			var hours: int = int(ceil(Fields52.duration(definition,{"harvest_cycles":0}) / float(Fields52.VARIETIES[variety_id]["growth"])))
-			plant_preview.text = tx("Effect: ","Efecto: ")+farm.n(definition)+" starts growing · "+tx("base time ","tiempo base ")+str(hours)+tx(" game hours · estimated cost EUR "," horas de juego · coste estimado EUR ")+str(quote["cost"])+tx(". Weather, soil and care can change growth speed."," El clima, el suelo y los cuidados pueden cambiar la velocidad.")
+			plant_preview.text = tx("Effect: ","Efecto: ")+farm.n(definition)+" starts growing · "+tx("base time ","tiempo base ")+str(hours)+tx(" game hours · estimated cost "," horas de juego · coste estimado ") + _money(float(quote["cost"]))+tx(". Weather, soil and care can change growth speed."," El clima, el suelo y los cuidados pueden cambiar la velocidad.")
 		picker.item_selected.connect(func(_index):update_plant_preview.call())
 		variety_picker.item_selected.connect(func(_index):update_plant_preview.call())
 		update_plant_preview.call()
 		_button(tx("Plant selected crop and variety","Sembrar cultivo y variedad"),func():_ask("plant",{"fieldId":selected_field,"cropId":str(picker.get_item_metadata(picker.selected)),"variety":str(variety_picker.get_item_metadata(variety_picker.selected))}),right_body,true)
-		_line(right_body,tx("Early seeds mature faster but yield less. Resilient seeds cost more and tolerate drought.","La semilla temprana madura antes pero rinde menos. La resistente cuesta mas y soporta sequia."),12,MUTED)
+		_line(right_body,tx("Early seeds mature faster but yield less. Resilient seeds cost more and tolerate drought.","La semilla temprana madura antes pero rinde menos. La resistente cuesta más y soporta sequia."),12,MUTED)
 	else:
 		var crop_info: Dictionary = farm.content["crops"][str(crop["id"])]
 		_line(right_body,farm.n(crop_info) + "   " + str(int(float(crop["development"])*100)) + "%",18,ACCENT)
@@ -2219,18 +2387,18 @@ func _panel_fields() -> void:
 		_line(right_body,tx("A factor below 100% reduces crop growth or biomass gain.","Un factor inferior al 100% redueix el creixement o la biomassa del cultiu."),12,MUTED)
 		var harvest_button: Button = _button(tx("Harvest ready crop","Recoger cosecha"),_ask.bind("harvest",{"fieldId":selected_field}),right_body,true)
 		harvest_button.disabled = float(crop["development"]) < 0.995
-	_line(right_body,tx("Root-zone water: ","Agua en raiz: ") + str(snappedf(float(soil["water"]),0.1)) + " / " + str(soil["capacity"]) + " mm")
+	_line(right_body,tx("Root-zone water: ","Agua en raíz: ") + str(snappedf(float(soil["water"]),0.1)) + " / " + str(soil["capacity"]) + " mm")
 	_line(right_body,"N " + str(snappedf(float(soil["n"]),0.1)) + "  P " + str(snappedf(float(soil["p"]),0.1)) + "  K " + str(snappedf(float(soil["k"]),0.1)),13)
-	_line(right_body,tx("Organic matter ","Materia organica ")+str(snappedf(float(soil["organic_matter"]),0.01))+"% · "+tx("Compaction ","Compactacion ")+str(int(float(soil["compaction"])*100.0))+"% · "+tx("Erosion ","Erosion ")+str(int(float(soil["erosion"])*100.0))+"%",13,ACCENT if farm.soil_health(selected_field)>=0.85 else DANGER)
+	_line(right_body,tx("Organic matter ","Materia orgánica ")+str(snappedf(float(soil["organic_matter"]),0.01))+"% · "+tx("Compaction ","Compactación ")+str(int(float(soil["compaction"])*100.0))+"% · "+tx("Erosion ","Erosión ")+str(int(float(soil["erosion"])*100.0))+"%",13,ACCENT if farm.soil_health(selected_field)>=0.85 else DANGER)
 	var care_row: HBoxContainer = _hbox(right_body)
 	_button(tx("Aerate soil","Airear suelo"),_ask.bind("aerateSoil",{"fieldId":selected_field}),care_row)
 	_button(tx("Plant hedgerow","Plantar seto"),_ask.bind("plantHedgerow",{"fieldId":selected_field}),care_row)
 	if crop.is_empty() and int(f.get("cover_until",0)) <= int(farm.state["time"]["total"]):
-		_button(tx("Sow protective cover crop (4 days)","Sembrar cubierta protectora (4 dias)"),_ask.bind("coverCrop",{"fieldId":selected_field}),right_body)
+		_button(tx("Sow protective cover crop (4 days)","Sembrar cubierta protectora (4 días)"),_ask.bind("coverCrop",{"fieldId":selected_field}),right_body)
 	if crop.is_empty():
-		_caption(right_body,tx("Crop rotation planner","Planificador de rotacion"))
+		_caption(right_body,tx("Crop rotation planner","Planificador de rotación"))
 		for idea in farm.rotation_advice(selected_field,3):
-			_line(right_body,str(idea["name"])+" · "+str(int(idea["score"]))+"/100"+(tx(" (same family penalty)"," (penalizacion por repetir familia)") if bool(idea["repeat"]) else ""),13,ACCENT if not bool(idea["repeat"]) else DANGER)
+			_line(right_body,str(idea["name"])+" · "+str(int(idea["score"]))+"/100"+(tx(" (same family penalty)"," (penalización por repetir familia)") if bool(idea["repeat"]) else ""),13,ACCENT if not bool(idea["repeat"]) else DANGER)
 	var ir: HBoxContainer = _hbox(right_body)
 	_line(ir,tx("Irrigate (mm)","Riego (mm)"),13)
 	var irrigation: SpinBox = _spin(ir,15,1,60,1)
@@ -2257,7 +2425,7 @@ func _panel_fields() -> void:
 		if not bool(quote.get("ok",false)):
 			fertilizer_preview.text = farm.message(str(quote.get("error","Fertilizer is unavailable")))
 			return
-		fertilizer_preview.text = tx("Effect: adds ","Efecto: añade ")+str(quantity.value)+" kg "+element.to_upper()+tx(" to this soil · estimated cost EUR "," a este suelo · coste estimado EUR ")+str(quote["cost"])
+		fertilizer_preview.text = tx("Effect: adds ","Efecto: añade ")+str(quantity.value)+" kg "+element.to_upper()+tx(" to this soil · estimated cost "," a este suelo · coste estimado ") + _money(float(quote["cost"]))
 	elements.item_selected.connect(func(_index):update_fertilizer_preview.call())
 	quantity.value_changed.connect(func(_value):update_fertilizer_preview.call())
 	update_fertilizer_preview.call()
@@ -2282,7 +2450,7 @@ func _panel_crop_guide52() -> void:
 	_caption(right_body,tx("Crop guide · 5.2","Guía de cultivos · 5.2"),tx("All 27 crops, their plot needs and seed strategies.","Los 27 cultivos, sus parcelas y estrategias de semilla."))
 	var f: Dictionary = farm.field_of(selected_field)
 	if not f.is_empty():
-		_line(right_body,tx("Selected field: ","Parcela seleccionada: ") + selected_field.to_upper()+" · "+Fields52.localized(Fields52.PLOTS[str(f.get("plot_type","open"))],language),14,ACCENT)
+		_line(right_body,tx("Selected field: ","Parcela seleccionada: ") + _plot_name(selected_field)+" · "+Fields52.localized(Fields52.PLOTS[str(f.get("plot_type","open"))],language),14,ACCENT)
 	var crop_ids: Array = farm.content["crops"].keys()
 	var crop_labels: Array = []
 	for crop_id in crop_ids:
@@ -2299,8 +2467,8 @@ func _panel_crop_guide52() -> void:
 		_line(details,farm.n(entry),21,ACCENT)
 		_line(details,str(entry["description"].get(language,entry["description"]["en"])),14,MUTED)
 		_line(details,tx("Plot: ","Parcela: ")+Fields52.crop_group(entry,language=="es"),14)
-		_line(details,tx("Growing hours: ","Horas de crecimiento: ")+str(entry["growHours"])+" · "+tx("seed cost/ha: EUR ","semilla/ha: EUR ")+str(entry["seedCost"]),13)
-		_line(details,tx("Base market price: EUR ","Precio base en mercado: EUR ")+str(farm.content["goods"][crop_id]["basePrice"])+"/kg",13)
+		_line(details,tx("Growing hours: ","Horas de crecimiento: ")+str(entry["growHours"])+" · "+tx("seed cost/ha: ","semilla/ha: ") + _money(float(entry["seedCost"])),13)
+		_line(details,tx("Base market price: ","Precio base en mercado: ") + _money(float(farm.content["goods"][crop_id]["basePrice"]))+"/kg",13)
 		if bool(entry.get("perennial",false)):
 			_line(details,tx("Perennial: regrowth after each harvest takes ","Perenne: cada rebrote necesita ")+str(entry["regrowHours"])+tx(" hours."," horas."),13,ACCENT)
 		if not f.is_empty() and bool(f["owned"]):
@@ -2320,25 +2488,25 @@ func _panel_ecology() -> void:
 	_line(right_body,"Water " + str(snappedf(float(soil["water"]),0.1)) + " mm  /  " + str(soil["capacity"]) + " mm")
 	_line(right_body,"N " + str(snappedf(float(soil["n"]),0.1)) + " kg   P " + str(snappedf(float(soil["p"]),0.1)) + " kg   K " + str(snappedf(float(soil["k"]),0.1)) + " kg")
 	_line(right_body,"Organic N " + str(snappedf(float(soil["organic_n"]),0.1)) + "   Mulch " + str(int(float(soil["mulch"])*100)) + "%",13,MUTED)
-	_line(right_body,tx("Soil organic matter: ","Materia organica del suelo: ")+str(snappedf(float(soil["organic_matter"]),0.01))+"%",14,ACCENT)
-	_line(right_body,tx("Compaction: ","Compactacion: ")+str(int(float(soil["compaction"])*100.0))+"%  ·  "+tx("Erosion: ","Erosion: ")+str(int(float(soil["erosion"])*100.0))+"%",13)
+	_line(right_body,tx("Soil organic matter: ","Materia orgánica del suelo: ")+str(snappedf(float(soil["organic_matter"]),0.01))+"%",14,ACCENT)
+	_line(right_body,tx("Compaction: ","Compactación: ")+str(int(float(soil["compaction"])*100.0))+"%  ·  "+tx("Erosion: ","Erosión: ")+str(int(float(soil["erosion"])*100.0))+"%",13)
 	_line(right_body,tx("Soil vitality: ","Vitalidad del suelo: ")+Life.soil_label(f,language=="es")+" ("+str(int(farm.soil_health(selected_field)*100.0))+"%)",14,ACCENT)
 	_line(right_body,tx("Hedgerow: ","Seto natural: ")+(tx("planted","plantado") if bool(f.get("hedgerow",false)) else tx("not planted","sin plantar")),13)
 	var scouted: bool = int(f.get("scouted_day",-1)) == int(farm.state["time"]["day"])
-	_button(tx("Scout pests (EUR 14)","Inspeccion tecnica de plagas (14 EUR)"),_ask.bind("scoutField",{"fieldId":selected_field}),right_body,true)
+	_button(tx("Scout pests (EUR 14)","Inspección técnica de plagas (14 EUR)"),_ask.bind("scoutField",{"fieldId":selected_field}),right_body,true)
 	if not scouted:
-		_line(right_body,tx("Detailed pest readings are unknown today. Scout to obtain fresh measurements; old reports remain dated.","Las mediciones exactas de plagas son desconocidas hoy. Contrata una inspeccion para obtener datos actuales."),13,DANGER)
+		_line(right_body,tx("Detailed pest readings are unknown today. Scout to obtain fresh measurements; old reports remain dated.","Las mediciones exactas de plagas son desconocidas hoy. Contrata una inspección para obtener datos actuales."),13,DANGER)
 	else:
 		_line(right_body,tx("Fresh field report for today","Informe de campo actualizado hoy"),13,ACCENT)
 	if float(soil["water"]) < 30:
 		_line(right_body,tx("DRY: growth may slow. Consider water or mulch.","SECO: el crecimiento puede bajar. Considera riego o acolchado."),13,DANGER)
 	elif float(soil["water"]) > 125:
-		_line(right_body,tx("WET: monitor slugs and root rot.","HUMEDO: vigila babosas y podredumbre de raiz."),13,DANGER)
+		_line(right_body,tx("WET: monitor slugs and root rot.","HÚMEDO: vigila babosas y podredumbre de raíz."),13,DANGER)
 	_caption(right_body,tx("Eight pest groups","Ocho grupos de plagas"))
 	var report: Dictionary = f.get("scout_report",{})
 	var old_day: int = int(f.get("scouted_day",-1))
 	if old_day >= 0:
-		_line(right_body,tx("Report day: ","Informe del dia: ")+str(old_day)+(tx(" (outdated)"," (desactualizado)") if not scouted else ""),12,MUTED)
+		_line(right_body,tx("Report day: ","Informe del día: ")+str(old_day)+(tx(" (outdated)"," (desactualizado)") if not scouted else ""),12,MUTED)
 	for pest in FarmScript.PEST_IDS:
 		var info: Dictionary = farm.content["pests"][pest]
 		var caption: String = farm.n(info) + ": " + (str(snappedf(float(report.get("pests",{}).get(pest,0.0)),0.1)) if old_day >= 0 else "?")
@@ -2353,10 +2521,10 @@ func _panel_ecology() -> void:
 	_line(right_body,tx("Educational game values, not real pest thresholds or fertilizer advice.","Datos de videojuego, no consejos agricolas reales."),12,MUTED)
 
 func _panel_planning() -> void:
-	_caption(right_body,tx("Tomorrow starts today","El manana empieza hoy"),tx("Forecast probabilities are estimates. Outcomes remain uncertain.","Las probabilidades son orientativas; el clima real sigue siendo incierto."))
+	_caption(right_body,tx("Tomorrow starts today","El mañana empieza hoy"),tx("Forecast probabilities are estimates. Outcomes remain uncertain.","Las probabilidades son orientativas; el clima real sigue siendo incierto."))
 	_line(right_body,tx("Current weather: ","Tiempo actual: ")+farm.weather_text(),14,ACCENT)
 	for report in farm.farm_forecast():
-		_line(right_body,tx("Day ","Dia ")+str(report["day"])+" · "+str(report["summary"])+" · "+str(report["rain_percent"])+"% "+tx("rain risk","prob. lluvia")+" · "+str(report["temperature"])+"°C",13)
+		_line(right_body,tx("Day ","Día ")+str(report["day"])+" · "+str(report["summary"])+" · "+str(report["rain_percent"])+"% "+tx("rain risk","prob. lluvia")+" · "+str(report["temperature"])+"°C",13)
 	_caption(right_body,tx("Your soil at a glance","Tus suelos de un vistazo"))
 	var healthy: int = 0
 	var degraded: int = 0
@@ -2372,15 +2540,15 @@ func _panel_planning() -> void:
 			vacant += 1
 	_line(right_body,tx("Healthy fields ","Parcelas sanas ")+str(healthy)+" · "+tx("Need care ","Requieren cuidados ")+str(degraded)+" · "+tx("Fallow ","Barbecho ")+str(vacant),14)
 	_button(tx("Improve selected field","Mejorar parcela seleccionada"),_change_tab.bind("Fields"),right_body,true)
-	_caption(right_body,tx("Recommended next crops","Cultivos recomendados para rotacion"))
+	_caption(right_body,tx("Recommended next crops","Cultivos recomendados para rotación"))
 	for suggestion in farm.rotation_advice(selected_field,4):
-		_line(right_body,str(suggestion["name"])+"  "+str(int(suggestion["score"]))+"/100"+(tx(" · rotation risk"," · riesgo de repeticion") if suggestion["repeat"] else ""),13)
-	_caption(right_body,tx("Tomorrow's budget commitments","Compromisos economicos de manana"))
+		_line(right_body,str(suggestion["name"])+"  "+str(int(suggestion["score"]))+"/100"+(tx(" · rotation risk"," · riesgo de repetición") if suggestion["repeat"] else ""),13)
+	_caption(right_body,tx("Tomorrow's budget commitments","Compromisos economicos de mañana"))
 	var b: Dictionary = farm.operating_budget()
-	_line(right_body,tx("Buildings per day: EUR ","Edificios al dia: EUR ")+str(snappedf(float(b["building_upkeep"]),0.01)),13)
-	_line(right_body,tx("Machines per day: EUR ","Maquinas al dia: EUR ")+str(snappedf(float(b["machine_upkeep"]),0.01)),13)
-	_line(right_body,tx("Seven days of fixed costs: EUR ","Siete dias de costes fijos: EUR ")+str(snappedf(float(b["week_fixed"]),0.01)),14,ACCENT)
-	_line(right_body,tx("Estimated animal feed/day: ","Pienso estimado/dia: ")+str(snappedf(float(b["feed_estimate"]),0.1))+" kg · "+tx("water/day: ","agua/dia: ")+str(snappedf(float(b["water_estimate"]),0.1))+" m³",13,MUTED)
+	_line(right_body,tx("Buildings per day: ","Edificios al día: ") + _money(float(float(b["building_upkeep"]))),13)
+	_line(right_body,tx("Machines per day: ","Máquinas al día: ") + _money(float(float(b["machine_upkeep"]))),13)
+	_line(right_body,tx("Seven days of fixed costs: ","Siete días de costes fijos: ") + _money(float(float(b["week_fixed"]))),14,ACCENT)
+	_line(right_body,tx("Estimated animal feed/day: ","Pienso estimado/día: ")+str(snappedf(float(b["feed_estimate"]),0.1))+" kg · "+tx("water/day: ","agua/día: ")+str(snappedf(float(b["water_estimate"]),0.1))+" m³",13,MUTED)
 	_line(right_body,tx("Variable costs (seeds, water, feed, labour) are NOT included.","Los costes variables (semillas, agua, pienso, mano de obra) NO estan incluidos."),12,MUTED)
 	_button(tx("Review business strategy","Revisar estrategia"),_change_tab.bind("Economy"),right_body)
 
@@ -2417,7 +2585,7 @@ func _panel_garden_studio57() -> void:
 		var needs57: Array = []
 		for good57 in spec57["materials"].keys():
 			needs57.append(str(spec57["materials"][good57]) + " kg " + str(good57) + " (" + str(snappedf(farm.stock(str(good57)),0.1)) + ")")
-		cost_label57.text = "EUR " + str(spec57["fee"]) + " · " + str(spec57["hours"]) + "h · " + tx("Level ", "Nivel ") + str(spec57["level"]) + "\n" + ", ".join(PackedStringArray(needs57))
+		cost_label57.text = _money(float(spec57["fee"])) + " · " + str(spec57["hours"]) + "h · " + tx("Level ", "Nivel ") + str(spec57["level"]) + "\n" + ", ".join(PackedStringArray(needs57))
 	design_menu57.item_selected.connect(func(_idx57: int): refresh_cost57.call())
 	refresh_cost57.call()
 	var craft57: Button = _button(tx("Build at selected position", "Construir en posición elegida"),func():_ask("craftDecoration",{"decorationId":str(design_menu57.get_item_metadata(design_menu57.selected)),"slot":selected_garden_slot57}),right_body,true)
@@ -2462,8 +2630,8 @@ func _panel_machinery() -> void:
 		_line(right_body,farm.n(definition,"description"),13,MUTED)
 		var machine: Dictionary = farm.state["life"]["machines"].get(id,{})
 		if machine.is_empty():
-			_line(right_body,"EUR "+str(definition["cost"])+" · "+tx("daily EUR ","diario EUR ")+str(definition["upkeep"]),13)
-			_button(tx("Purchase machine","Comprar maquina"),_ask.bind("buyMachine",{"machineId":id}),right_body,true)
+			_line(right_body,_money(float(definition["cost"]))+" · "+tx("daily ","al día ") + _money(float(definition["upkeep"])),13)
+			_button(tx("Purchase machine","Comprar máquina"),_ask.bind("buyMachine",{"machineId":id}),right_body,true)
 		else:
 			var broken: bool = int(machine["broken_until"]) > int(farm.state["time"]["total"])
 			_line(right_body,tx("Condition ","Estado ")+str(int(float(machine["condition"])*100))+"% · "+tx("jobs ","usos ")+str(machine["hours_used"])+(tx(" · OUT OF ORDER"," · AVERIADA") if broken else ""),13,DANGER if broken or float(machine["condition"])<0.35 else ACCENT)
@@ -2472,7 +2640,7 @@ func _panel_machinery() -> void:
 	_line(right_body,tx("Breakdowns recorded: ","Averias registradas: ")+str(farm.state["life"]["machine_breakdowns"]),13,MUTED)
 
 func _panel_economy() -> void:
-	_caption(right_body,tx("Choose how your farm grows","Elige como crece tu finca"),tx("Specializations offer trade-offs, not guaranteed wins. First selection is free; retraining costs EUR 240 and has a 12-day cooldown.","Las especializaciones tienen ventajas e inconvenientes. La primera eleccion es gratis; cambiar cuesta 240 EUR y requiere 12 dias."))
+	_caption(right_body,tx("Choose how your farm grows","Elige como crece tu finca"),tx("Specializations offer trade-offs, not guaranteed wins. First selection is free; retraining costs EUR 240 and has a 12-day cooldown.","Las especializaciones tienen ventajas e inconvenientes. La primera elección es gratis; cambiar cuesta 240 EUR y requiere 12 días."))
 	var current_path: String = str(farm.state["life"]["path"])
 	_line(right_body,tx("Current strategy: ","Estrategia actual: ")+farm.n(Life.PATHS[current_path]),17,ACCENT)
 	for id in Life.PATHS.keys():
@@ -2483,10 +2651,10 @@ func _panel_economy() -> void:
 			_button(tx("Choose this strategy","Elegir esta estrategia"),_ask.bind("choosePath",{"path":id}),right_body)
 	_caption(right_body,tx("Operating budget","Presupuesto operativo"))
 	var b: Dictionary = farm.operating_budget()
-	_line(right_body,tx("Available money: EUR ","Dinero disponible: EUR ")+str(snappedf(float(b["cash"]),0.01)),17,ACCENT)
-	_line(right_body,tx("Building maintenance / day: EUR ","Coste de edificios / dia: EUR ")+str(snappedf(float(b["building_upkeep"]),0.01)),13)
-	_line(right_body,tx("Equipment maintenance / day: EUR ","Coste maquinaria / dia: EUR ")+str(snappedf(float(b["machine_upkeep"]),0.01)),13)
-	_line(right_body,tx("Cash coverage for FIXED costs: ","Cobertura SOLO gastos fijos: ")+(tx("No fixed costs","Sin costes fijos") if float(b["days_runway"])<0 else str(int(b["days_runway"]))+tx(" days"," dias")),14)
+	_line(right_body,tx("Available money: ","Dinero disponible: ") + _money(float(float(b["cash"]))),17,ACCENT)
+	_line(right_body,tx("Building maintenance / day: ","Coste de edificios / día: ") + _money(float(float(b["building_upkeep"]))),13)
+	_line(right_body,tx("Equipment maintenance / day: ","Coste maquinaria / día: ") + _money(float(float(b["machine_upkeep"]))),13)
+	_line(right_body,tx("Cash coverage for FIXED costs: ","Cobertura SOLO gastos fijos: ")+(tx("No fixed costs","Sin costes fijos") if float(b["days_runway"])<0 else str(int(b["days_runway"]))+tx(" days"," días")),14)
 	_line(right_body,tx("Future sales are uncertain; this excludes feed, water, land, crop labour and purchases.","Las ventas son inciertas; no incluye pienso, agua, terrenos, mano de obra ni compras."),12,MUTED)
 	_caption(right_body,tx("Premium harvest inventory","Cosecha premium almacenada"))
 	var any_quality: bool = false
@@ -2496,11 +2664,11 @@ func _panel_economy() -> void:
 		any_quality = true
 		_line(right_body,farm.n(farm.content["goods"][id])+": "+str(snappedf(farm.premium_stock(str(id)),0.1))+tx(" kg (28% base price bonus)"," kg (+28% sobre precio base)"),13,ACCENT)
 	if not any_quality:
-		_line(right_body,tx("No premium-quality crops stored yet.","Todavia no hay cosechas de calidad premium."),13,MUTED)
+		_line(right_body,tx("No premium-quality crops stored yet.","Todavía no hay cosechas de calidad premium."),13,MUTED)
 	_button(tx("Go to market","Ir al mercado"),_change_tab.bind("Market"),right_body,true)
 
 func _panel_buildings() -> void:
-	_caption(right_body,tx("Buildings and landscapes","Edificios y decoracion"),tx("Construction is timed; completed buildings can be visited.","Las obras requieren tiempo y los edificios se pueden visitar."))
+	_caption(right_body,tx("Buildings and landscapes","Edificios y decoración"),tx("Construction is timed; completed buildings can be visited.","Las obras requieren tiempo y los edificios se pueden visitar."))
 	var catalog: Dictionary = farm.content["buildings"]
 	var building_ids: Array = catalog.keys()
 	var building_names: Array = []
@@ -2545,27 +2713,27 @@ func _panel_buildings() -> void:
 		world.queue_redraw()
 	)
 	_line(right_body,tx("Tip: click any free numbered circle on the map to choose its construction position.","Consejo: pulsa un circulo numerado libre del mapa para elegir donde construir."),12,ACCENT)
-	_button(tx("Build in selected position","Construir en posicion elegida"),func():_ask("build",{"buildingId":str(pick.get_item_metadata(pick.selected)),"fieldId":selected_field,"slot":int(slot_select.get_item_metadata(slot_select.selected))}),right_body,true)
+	_button(tx("Build in selected position","Construir en posición elegida"),func():_ask("build",{"buildingId":str(pick.get_item_metadata(pick.selected)),"fieldId":selected_field,"slot":int(slot_select.get_item_metadata(slot_select.selected))}),right_body,true)
 	_button(tx("Visit your farmhouse","Visitar la casa"),_enter_building.bind("farmhouse"),right_body)
 	_caption(right_body,tx("Your structures","Tus construcciones"))
 	if farm.state["buildings"].is_empty():
-		_line(right_body,tx("No structures built yet. A storehouse makes the next harvest easier.","No has construido nada. Un almacen te ayudara a guardar cosechas."),13,MUTED)
+		_line(right_body,tx("No structures built yet. A storehouse makes the next harvest easier.","No has construido nada. Un almacén te ayudara a guardar cosechas."),13,MUTED)
 	for b in farm.state["buildings"]:
 		var bdef: Dictionary = catalog[str(b["kind"])]
 		var title: String = farm.n(bdef) + "  L" + str(b["level"])
 		if int(b["target"]) > int(b["level"]):
 			title += "  (" + str(maxi(0,int(b["ready_at"])-int(farm.state["time"]["total"]))) + "h)"
-		_line(right_body,title+(" · "+tx("slot ","posicion ")+str(int(b.get("slot",-1))+1) if str(b.get("field",""))=="" else " · "+str(b["field"])),14)
+		_line(right_body,title+(" · "+tx("slot ","posición ")+str(int(b.get("slot",-1))+1) if str(b.get("field",""))=="" else " · "+str(b["field"])),14)
 		var row: HBoxContainer = _hbox(right_body)
 		var visit: Button = _button(tx("Visit","Visitar"),_enter_building.bind(str(b["kind"])),row)
 		visit.disabled = int(b["level"]) < 1
 		var upgrade: Button = _button(tx("Upgrade","Mejorar"),_ask.bind("upgrade",{"buildingId":str(b["kind"]),"fieldId":str(b["field"])}),row)
 		upgrade.disabled = int(b["level"]) < 1 or int(b["target"]) > int(b["level"]) or int(b["level"]) >= int(bdef["maxLevel"])
 		if str(b.get("field","")) == "" and int(b["level"]) > 0:
-			_button(tx("Move here (EUR 45)","Mover aqui (45 EUR)"),_ask.bind("relocateBuilding",{"buildingId":str(b["id"]),"slot":int(slot_select.get_item_metadata(slot_select.selected))}),right_body)
+			_button(tx("Move here (EUR 45)","Mover aquí (45 EUR)"),_ask.bind("relocateBuilding",{"buildingId":str(b["id"]),"slot":int(slot_select.get_item_metadata(slot_select.selected))}),right_body)
 
 func _panel_animals() -> void:
-	_caption(right_body,tx("Animal care","Cuidado de animales"),tx("Feed and water influence welfare and produce","Pienso y agua afectan al bienestar y la produccion"))
+	_caption(right_body,tx("Animal care","Cuidado de animales"),tx("Feed and water influence welfare and produce","Pienso y agua afectan al bienestar y la producción"))
 	_line(right_body,tx("Stored feed: ","Pienso: ") + str(snappedf(farm.stock("feed"),0.1)) + " kg",17,ACCENT)
 	var daily_feed: float = 0.0
 	var daily_water: float = 0.0
@@ -2577,7 +2745,7 @@ func _panel_animals() -> void:
 		var feed_days: float = farm.stock("feed") / daily_feed if daily_feed > 0.0 else 0.0
 		var water_days: float = float(farm.state["water"]["stored"]) / daily_water if daily_water > 0.0 else 0.0
 		_line(right_body,tx("Daily herd demand: ","Necesidad diaria del ganado: ")+str(snappedf(daily_feed,0.01))+tx(" kg feed · "," kg de pienso · ")+str(snappedf(daily_water,0.001))+" m³ "+tx("water","de agua"),14,ACCENT)
-		_line(right_body,tx("At current herd demand, reserves cover: ","Al ritmo de consumo del ganado, las reservas cubren: ")+str(snappedf(feed_days,0.1))+tx(" days of feed · "," dias de pienso · ")+str(snappedf(water_days,0.1))+tx(" days of water"," dias de agua"),13,DANGER if feed_days < 1.0 or water_days < 1.0 else MUTED)
+		_line(right_body,tx("At current herd demand, reserves cover: ","Al ritmo de consumo del ganado, las reservas cubren: ")+str(snappedf(feed_days,0.1))+tx(" days of feed · "," días de pienso · ")+str(snappedf(water_days,0.1))+tx(" days of water"," días de agua"),13,DANGER if feed_days < 1.0 or water_days < 1.0 else MUTED)
 		if feed_days < 1.0 or water_days < 1.0:
 			_line(right_body,tx("Replenish the short reserve before advancing to the next day; shortages stop production and lower welfare.","Repón la reserva escasa antes de avanzar al día siguiente; la falta de suministros detiene la producción y reduce el bienestar."),12,DANGER)
 	var animals: Dictionary = farm.content["animals"]
@@ -2605,7 +2773,7 @@ func _panel_animals() -> void:
 	animal.item_selected.connect(func(_index):update_purchase_preview.call())
 	update_purchase_preview.call()
 	_button(tx("Buy animals","Comprar animales"),func():_ask("buyAnimal",{"animalId":str(animal.get_item_metadata(animal.selected)),"count":int(count.value)}),right_body,true)
-	_line(right_body,tx("Animals need their appropriate completed housing. Mixed species share housing space.","Cada especie necesita su alojamiento. Las especies compartidas suman ocupacion."),13,MUTED)
+	_line(right_body,tx("Animals need their appropriate completed housing. Mixed species share housing space.","Cada especie necesita su alojamiento. Las especies compartidas suman ocupación."),13,MUTED)
 	var feed_row: HBoxContainer = _hbox(right_body)
 	_line(feed_row,tx("Buy feed kg","Comprar pienso kg"),13)
 	var feed: SpinBox = _spin(feed_row,40,1,400,5)
@@ -2616,7 +2784,7 @@ func _panel_animals() -> void:
 		if not bool(quote.get("ok",false)):
 			feed_preview.text = farm.message(str(quote.get("error","Feed purchase is unavailable")))
 			return
-		feed_preview.text = tx("Effect: feed stock ","Efecto: pienso almacenado ")+str(snappedf(farm.stock("feed"),0.1))+" → "+str(snappedf(farm.stock("feed")+feed.value,0.1))+tx(" kg · estimated cost EUR "," kg · coste estimado EUR ")+str(quote["cost"])
+		feed_preview.text = tx("Effect: feed stock ","Efecto: pienso almacenado ")+str(snappedf(farm.stock("feed"),0.1))+" → "+str(snappedf(farm.stock("feed")+feed.value,0.1))+tx(" kg · estimated cost "," kg · coste estimado ") + _money(float(quote["cost"]))
 	feed.value_changed.connect(func(_value):update_feed_preview.call())
 	update_feed_preview.call()
 	_button(tx("Buy feed","Comprar pienso"),func():_ask("buySupply",{"goodId":"feed","kg":feed.value}),right_body)
@@ -2626,7 +2794,7 @@ func _panel_animals() -> void:
 	for i in range(farm.state["animals"].size()):
 		var a: Dictionary = farm.state["animals"][i]
 		_line(right_body,farm.n(animals[str(a["kind"])]) + " x" + str(a["count"]) + " · "+tx("welfare ","bienestar ") + str(int(float(a["condition"])*100)) + "%",14)
-		_line(right_body,tx("Health ","Salud ")+str(int(float(a["health"])*100))+"%  ·  "+tx("Nutrition ","Nutricion ")+str(int(float(a["nutrition"])*100))+"%  ·  "+tx("Age ","Edad ")+str(a["age_days"])+tx(" days"," dias"),13,ACCENT if float(a["health"])>=0.7 else DANGER)
+		_line(right_body,tx("Health ","Salud ")+str(int(float(a["health"])*100))+"%  ·  "+tx("Nutrition ","Nutrición ")+str(int(float(a["nutrition"])*100))+"%  ·  "+tx("Age ","Edad ")+str(a["age_days"])+tx(" days"," días"),13,ACCENT if float(a["health"])>=0.7 else DANGER)
 		var needs: Dictionary = farm.animal_daily_requirements(a)
 		_line(right_body,tx("This group uses per day: ","Este grupo consume al día: ")+str(snappedf(float(needs["feed_kg"]),0.01))+tx(" kg feed · "," kg de pienso · ")+str(snappedf(float(needs["water_m3"]),0.001))+" m³ "+tx("water","de agua"),12,MUTED)
 		var care_needs: PackedStringArray = []
@@ -2634,7 +2802,7 @@ func _panel_animals() -> void:
 		if float(a["condition"]) < 0.70: care_needs.append(tx("welfare care would help","necesita mejorar su bienestar"))
 		if float(a["health"]) < 0.70: care_needs.append(tx("health is low; consider a vet","salud baja; considera veterinario"))
 		_line(right_body,tx("Needs: ","Necesidades: ")+(", ".join(care_needs) if not care_needs.is_empty() else tx("no urgent care indicated","sin cuidados urgentes")),12,DANGER if not care_needs.is_empty() else ACCENT)
-		_line(right_body,tx("Feeding plan: ","Plan de alimentacion: ")+(tx("balanced (10% extra feed)","equilibrado (+10% de pienso)") if str(a["feeding"])=="balanced" else tx("standard","normal")),12,MUTED)
+		_line(right_body,tx("Feeding plan: ","Plan de alimentación: ")+(tx("balanced (10% extra feed)","equilibrado (+10% de pienso)") if str(a["feeding"])=="balanced" else tx("standard","normal")),12,MUTED)
 		var routine: String = Visual.animal_behavior(a,int(farm.state["time"]["hour"]),i,0.0)
 		var status_en: Dictionary = {"sleeping":"Sleeping","resting":"Resting","grazing":"Grazing","drinking":"Drinking","walking":"Exploring paddock","unwell":"Needs care"}
 		var status_es: Dictionary = {"sleeping":"Durmiendo","resting":"Descansando","grazing":"Pastando","drinking":"Bebiendo","walking":"Paseando por corral","unwell":"Necesita cuidados"}
@@ -2644,13 +2812,13 @@ func _panel_animals() -> void:
 		_button(tx("Vet visit","Veterinario"),_ask.bind("vetVisit",{"animalId":str(a["id"])}),actions)
 		_button(tx("Plan breeding","Criar"),_ask.bind("breedAnimal",{"animalId":str(a["id"])}),actions)
 		var change_to: String = "standard" if str(a["feeding"])=="balanced" else "balanced"
-		_button(tx("Switch feed plan","Cambiar alimentacion"),_ask.bind("feedingPlan",{"animalId":str(a["id"]),"mode":change_to}),right_body)
+		_button(tx("Switch feed plan","Cambiar alimentación"),_ask.bind("feedingPlan",{"animalId":str(a["id"]),"mode":change_to}),right_body)
 		if int(a.get("pregnancy_due",0))>int(farm.state["time"]["total"]):
-			_line(right_body,tx("Expected newborn in ","Nueva cria prevista en ")+str(int(ceil(float(int(a["pregnancy_due"])-int(farm.state["time"]["total"]))/24.0)))+tx(" days"," dias"),13,ACCENT)
+			_line(right_body,tx("Expected newborn in ","Nueva cria prevista en ")+str(int(ceil(float(int(a["pregnancy_due"])-int(farm.state["time"]["total"]))/24.0)))+tx(" days"," días"),13,ACCENT)
 	_line(right_body,tx("Animal goods: eggs, milk, wool, fiber; apiaries make honey.","Productos: huevos, leche, lana, fibra y miel."),13,MUTED)
 
 func _panel_processing() -> void:
-	_caption(right_body,tx("Processing workshop","Taller de elaboracion"),tx("Turn perishable harvests into higher-value products","Transforma cosechas en productos mas valiosos"))
+	_caption(right_body,tx("Processing workshop","Taller de elaboración"),tx("Turn perishable harvests into higher-value products","Transforma cosechas en productos más valiosos"))
 	for id in FarmScript.RECIPES.keys():
 		var rec: Dictionary = FarmScript.RECIPES[id]
 		var required: String = str(rec["building"])
@@ -2674,8 +2842,8 @@ func _process_batch(recipe: String, amount: SpinBox) -> void:
 func _panel_market() -> void:
 	_caption(right_body,tx("Valley market","Mercado del valle"),tx("Prices vary. Holding stock risks spoilage.","Los precios cambian y los productos pueden estropearse."))
 	_button(tx("Visit the market building","Visitar el mercado"),_enter_building.bind("market"),right_body)
-	_line(right_body,tx("Cash: EUR ","Dinero: EUR ") + str(farm.state["economy"]["cash"]),17,ACCENT)
-	_line(right_body,tx("Storage: ","Almacen: ") + str(snappedf(farm.stored(),0.1)) + "/" + str(farm.storage_capacity()) + " kg")
+	_line(right_body,tx("Cash: ","Dinero: ") + _money(float(farm.state["economy"]["cash"])),17,ACCENT)
+	_line(right_body,tx("Storage: ","Almacén: ") + str(snappedf(farm.stored(),0.1)) + "/" + str(farm.storage_capacity()) + " kg")
 	_caption(right_body,tx("Sell stored products","Vender productos almacenados"))
 	for id in farm.content["goods"].keys():
 		var kg: float = farm.stock(str(id))
@@ -2684,7 +2852,7 @@ func _panel_market() -> void:
 		var good_name: String = farm.n(farm.content["goods"][id])
 		var row: HBoxContainer = _hbox(right_body)
 		_line(row,good_name + " " + str(snappedf(kg,0.1)) + "kg",13)
-		_line(row,"EUR " + str(farm.market_price(str(id))) + "/kg",12,MUTED)
+		_line(row,_money(float(farm.market_price(str(id)))) + "/kg",12,MUTED)
 		_button(tx("Sell 10","Vender 10"),_sell_quick.bind(str(id)),row)
 		if farm.premium_stock(str(id)) > 0.01:
 			_line(right_body,tx("Premium stock: ","Stock premium: ")+str(snappedf(farm.premium_stock(str(id)),0.1))+tx(" kg · sold first with a quality bonus"," kg · se vende primero con prima de calidad"),12,ACCENT)
@@ -2732,12 +2900,12 @@ func _panel_neighbours() -> void:
 	var now_day: int = int(farm.state["time"]["day"])
 	var now_hour: int = int(farm.state["time"]["hour"])
 	var npc_region_id: String = Country54.npc_region(selected_npc,now_day,now_hour)
-	_line(right_body,tx("Today's location: ","Ubicacion actual: ") + farm.n(FarmScript.REGIONS.get(npc_region_id,FarmScript.REGIONS["village"])),13,ACCENT)
+	_line(right_body,tx("Today's location: ","Ubicación actual: ") + farm.n(FarmScript.REGIONS.get(npc_region_id,FarmScript.REGIONS["village"])),13,ACCENT)
 	_button(tx("Find villagers on the valley map","Buscar vecinos en el valle"),_change_tab.bind("Countryside54"),right_body)
 	_line(right_body,tx("Ask them about:","Preguntale por:"),14)
 	for pair in [["weather",tx("Today's weather","El tiempo")],["soil",tx("The condition of your land","Estado del terreno")],["pests",tx("Pests and useful insects","Plagas y auxiliares")],["market",tx("Market prices","Precios de mercado")],["garden",tx("Their neighbouring garden","Su huerto")],["wildlife",tx("Wildlife and venom","Fauna y veneno")],["favours",tx("Neighbour favours","Favores vecinales")],["hello",tx("Say hello","Saludar")]]:
 		_button(str(pair[1]),_talk_to.bind(selected_npc,str(pair[0])),right_body)
-	_line(right_body,tx("Conversations give advice without changing resources. Helping a neighbour is a separate paid choice.","Las charlas no gastan recursos. Ayudar a un vecino es una decision aparte."),12,MUTED)
+	_line(right_body,tx("Conversations give advice without changing resources. Helping a neighbour is a separate paid choice.","Las charlas no gastan recursos. Ayudar a un vecino es una decisión aparte."),12,MUTED)
 	_line(right_body,tx("Favours: ","Favores: ") + str(farm.state["neighbours"]["favours"].get(selected_npc,0)) + "  ·  " + tx("Trust: ","Confianza: ") + str(farm.npc_trust(selected_npc)) + "/10",14,ACCENT)
 	if farm.npc_trust(selected_npc) >= 4:
 		_line(right_body,tx("Trusted neighbour · shared expertise can help your farm.","Vecino de confianza · su experiencia puede ayudar a tu finca."),12,ACCENT)
@@ -2766,10 +2934,14 @@ func _talk_to(id: String, topic: String) -> void:
 func _level_progress(parent: Node) -> void:
 	var player: Dictionary = farm.state["player"]
 	var current_xp: int = int(player["xp"]) % 220
-	_line(parent,tx("FARMER LEVEL ","NIVEL AGRICULTOR ") + str(player["level"]) + "  -  " + str(current_xp) + "/220 XP  |  " + str(farm.available_points()) + tx(" points"," puntos"),14,ACCENT)
+	var level_row: HBoxContainer = _hbox(parent,8)
+	_icon(level_row,"res://assets/icon_xp.png",24.0)
+	var points: int = int(farm.available_points())
+	var level_text: Label = _line(level_row,tx("Farmer level ","Nivel de agricultor ") + str(player["level"]) + "  ·  " + str(current_xp) + "/220 XP  ·  " + str(points) + (tx(" point"," punto") if points == 1 else tx(" points"," puntos")),14,ACCENT)
+	level_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var bar: ProgressBar = ProgressBar.new()
 	bar.show_percentage = false
-	bar.custom_minimum_size = Vector2(0,14)
+	bar.custom_minimum_size = Vector2(0,10)
 	bar.min_value = 0.0
 	bar.max_value = 220.0
 	bar.value = float(current_xp)
@@ -2784,16 +2956,16 @@ func _resource_row(parent: Node, id: String, quantity: float, description: Strin
 	_line(row,farm.n(farm.content["goods"][id]) + ": " + str(snappedf(quantity,0.1)) + " kg" + ("  " + description if description != "" else ""),14)
 
 func _panel_resources() -> void:
-	_caption(right_body,tx("Valley resources and garden","Recursos del valle y jardin"),tx("Bring natural materials home, recycle them, and build the farm you want.","Recoge materiales, reciclalos y personaliza la finca."))
+	_caption(right_body,tx("Valley resources and garden","Recursos del valle y jardín"),tx("Bring natural materials home, recycle them, and build the farm you want.","Recoge materiales, reciclalos y personaliza la finca."))
 	_level_progress(right_body)
-	_line(right_body,tx("Warehouse: ","Almacen: ") + str(snappedf(farm.stored(),0.1)) + " / " + str(farm.storage_capacity()) + " kg",14,MUTED)
+	_line(right_body,tx("Warehouse: ","Almacén: ") + str(snappedf(farm.stored(),0.1)) + " / " + str(farm.storage_capacity()) + " kg",14,MUTED)
 	_caption(right_body,tx("Stored materials","Materiales disponibles"))
 	for id in ["timber","stone","clay","wildflowers","reeds","compost","manure"]:
 		_resource_row(right_body,id,farm.stock(id))
-	_caption(right_body,tx("Foraged and wild goods","Recolecta silvestre"),tx("Travel and explore to bring back more than crops.","Viaja y explora para traer mas que cultivos."))
+	_caption(right_body,tx("Foraged and wild goods","Recolecta silvestre"),tx("Travel and explore to bring back more than crops.","Viaja y explora para traer más que cultivos."))
 	for id in ["herbs","berries","mushrooms","honey","lavender_oil"]:
 		_resource_row(right_body,id,farm.stock(id))
-	_caption(right_body,tx("Sustainable gathering","Recogida sostenible"),tx("One resource visit per region each game day. Gathering uses time, stamina, storage and some money.","Una visita de recursos por zona y dia. Gastas tiempo, energia, almacen y dinero."))
+	_caption(right_body,tx("Sustainable gathering","Recogida sostenible"),tx("One resource visit per region each game day. Gathering uses time, stamina, storage and some money.","Una visita de recursos por zona y día. Gastas tiempo, energía, almacén y dinero."))
 	for id in FarmScript.MATERIAL_SITES.keys():
 		var site: Dictionary = FarmScript.MATERIAL_SITES[id]
 		var taken: bool = int(farm.state["resources"]["gathered_today"].get(id,-1)) == int(farm.state["time"]["day"])
@@ -2802,12 +2974,12 @@ func _panel_resources() -> void:
 		_resource_row(right_body,found,float(site["kg"]),tx("possible","posibles"))
 		var button: Button = _button(name + "   " + str(site["hours"]) + "h / EUR " + str(site["fee"]) + (tx("  (visited)","  (visitado)") if taken else ""),_ask.bind("gatherMaterials",{"regionId":id}),right_body)
 		button.disabled = taken
-	_caption(right_body,tx("Recycling organic matter","Reciclar materia organica"))
+	_caption(right_body,tx("Recycling organic matter","Reciclar materia orgánica"))
 	_line(right_body,tx("8 kg manure + 2 kg wildflowers + EUR 7 = 7 kg compost.","8 kg estiercol + 2 kg flores + 7 EUR = 7 kg compost."),13,MUTED)
 	_button(tx("Make compost","Producir compost"),_ask.bind("makeCompost",{}),right_body)
 	_button(tx("Use compost on selected field","Aplicar compost en parcela"),_ask.bind("spreadCompost",{"fieldId":selected_field}),right_body)
-	_button(tx("Open interactive garden studio","Abrir estudio de jardin interactivo"),_change_tab.bind("GardenStudio57"),right_body,true)
-	_caption(right_body,tx("Build a personal garden","Decora tu jardin"),tx("Choose a design and a free slot. Materials are consumed when construction starts.","Elige un diseno y un lugar libre. Los materiales se consumen al iniciar."))
+	_button(tx("Open interactive garden studio","Abrir estudio de jardín interactivo"),_change_tab.bind("GardenStudio57"),right_body,true)
+	_caption(right_body,tx("Build a personal garden","Decora tu jardín"),tx("Choose a design and a free slot. Materials are consumed when construction starts.","Elige un diseño y un lugar libre. Los materiales se consumen al iniciar."))
 	var designs: Array = FarmScript.DECORATIONS.keys()
 	var names: Array = []
 	for id in designs:
@@ -2822,7 +2994,7 @@ func _panel_resources() -> void:
 			if int(decoration["slot"]) == i:
 				occupied = true
 				break
-		labels.append(tx("Garden position ","Posicion jardin ") + str(i+1) + (tx(" - occupied"," - ocupada") if occupied else ""))
+		labels.append(tx("Garden position ","Posición jardín ") + str(i+1) + (tx(" - occupied"," - ocupada") if occupied else ""))
 	var slot_picker: OptionButton = _select(right_body,slots,labels)
 	var details: Label = _line(right_body,"",13,MUTED)
 	var update: Callable = func():
@@ -2833,10 +3005,10 @@ func _panel_resources() -> void:
 		details.text = ", ".join(PackedStringArray(materials)) + "   |   EUR " + str(design["fee"]) + "  / " + str(design["hours"]) + "h  /  " + tx("level ","nivel ") + str(design["level"])
 	picker.item_selected.connect(func(_i):update.call())
 	update.call()
-	_button(tx("Craft selected decoration","Fabricar decoracion"),func():_ask("craftDecoration",{"decorationId":str(picker.get_item_metadata(picker.selected)),"slot":int(slot_picker.get_item_metadata(slot_picker.selected))}),right_body,true)
+	_button(tx("Craft selected decoration","Fabricar decoración"),func():_ask("craftDecoration",{"decorationId":str(picker.get_item_metadata(picker.selected)),"slot":int(slot_picker.get_item_metadata(slot_picker.selected))}),right_body,true)
 	for decoration in farm.state["decorations"]:
 		var left: int = maxi(0,int(decoration["ready_at"])-int(farm.state["time"]["total"]))
-		_line(right_body,farm.n(FarmScript.DECORATIONS[str(decoration["kind"])]) + "  /  " + tx("slot ","posicion ") + str(int(decoration["slot"])+1) + (tx(" completed"," terminado") if bool(decoration["completed"]) else "  -  " + str(left) + "h"),14)
+		_line(right_body,farm.n(FarmScript.DECORATIONS[str(decoration["kind"])]) + "  /  " + tx("slot ","posición ") + str(int(decoration["slot"])+1) + (tx(" completed"," terminado") if bool(decoration["completed"]) else "  -  " + str(left) + "h"),14)
 
 func _panel_stories() -> void:
 	_caption(right_body,tx("Village stories & consequences","Historias del pueblo y consecuencias"),
@@ -2900,7 +3072,7 @@ func _panel_character() -> void:
 	_line(right_body,str(player["name"]) + "  -  Lv " + str(player["level"]) + "  XP " + str(player["xp"]),19,ACCENT)
 	_level_progress(right_body)
 	_line(right_body,tx("Talent points available: ","Puntos de habilidad: ") + str(farm.available_points()),16)
-	_caption(right_body,tx("Skill mastery tracks","Especializacion por disciplinas"),tx("Every useful action builds practice in its field. Training and talents offer additional bonuses.","Cada accion util aumenta tu experiencia y tu especializacion."))
+	_caption(right_body,tx("Skill mastery tracks","Especialización por disciplinas"),tx("Every useful action builds practice in its field. Training and talents offer additional bonuses.","Cada acción util aumenta tu experiencia y tu especialización."))
 	for track in FarmScript.MASTERY_TRACKS:
 		var mastery_xp: int = int(farm.state["progression"]["tracks"].get(track,0))
 		_line(right_body,track.capitalize() + "   L" + str(farm.mastery_level(track)) + "  /  " + str(mastery_xp) + " XP",14)
@@ -2913,7 +3085,7 @@ func _panel_character() -> void:
 		bar.add_theme_stylebox_override("background",_style(Color("#e8e9db"),6))
 		bar.add_theme_stylebox_override("fill",_style(Color("#d8b66c"),6))
 		right_body.add_child(bar)
-	_line(right_body,tx("Masteries improve relevant farm operations, up to a 12% efficiency bonus.","La especializacion mejora las tareas asociadas, hasta un 12% de eficiencia."),12,MUTED)
+	_line(right_body,tx("Masteries improve relevant farm operations, up to a 12% efficiency bonus.","La especialización mejora las tareas asociadas, hasta un 12% de eficiencia."),12,MUTED)
 	var bg: Dictionary = farm.content["backgrounds"].get(str(player["background"]),{})
 	_line(right_body,farm.n(bg,"perk"),13,MUTED)
 	_caption(right_body,tx("Eight training courses","Ocho cursos"))
@@ -2977,14 +3149,14 @@ func _panel_wardrobe53() -> void:
 	_caption(right_body,tx("Earn unique cosmetics","Consigue cosmeticos exclusivos"))
 	var certificate_found: bool = farm.state["world50"]["certifications"].size() > 0
 	var festival_found: bool = farm.state["world50"]["festival_history"].size() > 0
-	_line(right_body,("✓ " if certificate_found else "○ ") + tx("Ranger hat: complete an advanced certification","Sombrero explorador: completa una certificacion"),13,ACCENT if certificate_found else MUTED)
+	_line(right_body,("✓ " if certificate_found else "○ ") + tx("Ranger hat: complete an advanced certification","Sombrero explorador: completa una certificación"),13,ACCENT if certificate_found else MUTED)
 	_line(right_body,("✓ " if festival_found else "○ ") + tx("Festival laurel: enter a seasonal festival","Laurel festivo: participa en una fiesta estacional"),13,ACCENT if festival_found else MUTED)
 
 
 func _panel_story() -> void:
 	_caption(right_body,tx("Your story & lessons","Tu historia y lecciones"))
 	var story: Dictionary = farm.state["story"]
-	_line(right_body,tx("Story chapter ","Capitulo ") + str(story["chapter"]) + "/4",18,ACCENT)
+	_line(right_body,tx("Story chapter ","Capítulo ") + str(story["chapter"]) + "/4",18,ACCENT)
 	var id: int = int(story["chapter"]) - 1
 	if id < farm.content["story"].size():
 		var chapter: Dictionary = farm.content["story"][id]
@@ -2998,7 +3170,7 @@ func _panel_story() -> void:
 		if step < FarmScript.TUTORIAL.size():
 			_line(right_body,"Step " + str(step+1) + " / " + str(FarmScript.TUTORIAL.size()),15,ACCENT)
 			_line(right_body,farm.n(FarmScript.TUTORIAL[step],""),14)
-			_button(tx("Skip this lesson","Saltar esta leccion"),_direct.bind("tutorial",{"skip":true}),right_body)
+			_button(tx("Skip this lesson","Saltar esta lección"),_direct.bind("tutorial",{"skip":true}),right_body)
 		else:
 			_line(right_body,tx("All tutorial lessons finished.","Has terminado todas las lecciones."),14)
 	_caption(right_body,tx("Quests and rewards","Misiones y recompensas"))
@@ -3045,7 +3217,7 @@ func _panel_journal() -> void:
 	for i in range(logs.size() - 1, maxi(-1,logs.size()-30), -1):
 		var entry: Dictionary = logs[i]
 		_line(right_body,"[h" + str(entry["hour"]) + "]  " + str(entry["message"]),12,MUTED)
-	_caption(right_body,tx("Recent transactions","Ultimos movimientos"))
+	_caption(right_body,tx("Recent transactions","Últimos movimientos"))
 	var ledger: Array = farm.state["economy"]["ledger"]
 	for i in range(ledger.size() - 1, maxi(-1, ledger.size() - 13), -1):
 		var entry: Dictionary = ledger[i]
@@ -3231,7 +3403,7 @@ func _panel_options() -> void:
 		toggle.button_pressed = bool(pair[2])
 		toggle.toggled.connect(_set_visual_option.bind(str(pair[0])))
 		right_body.add_child(toggle)
-	_button(tx("Living world scenic view","Vista panoramica de la finca viva"),_show_panorama,right_body)
+	_button(tx("Living world scenic view","Vista panorámica de la finca viva"),_show_panorama,right_body)
 	_button(tx("Save now (protected)","Guardar ahora (protegido)"),_save_notice,right_body,true)
 	_button(tx("Load latest local save","Cargar partida local"),_request_load_latest,right_body)
 	_caption(right_body,tx("Manual saves · three slots","Partidas manuales · tres espacios"),tx("Every overwrite keeps rolling backups; loading a slot replaces the current farm only after confirmation.","Cada sustitución conserva copias; cargar una partida requiere confirmación."))
@@ -3256,7 +3428,7 @@ func _panel_options() -> void:
 	_caption(right_body,tx("Technology & compatibility","Tecnologia y compatibilidad"))
 	_line(right_body,tx("100% native GDScript, offline and without an account or web server.","Juego nativo GDScript, sin conexión, sin cuenta y sin servidor web."),13,MUTED)
 	_line(right_body,tx("4.8–5.8 native saves remain importable without overwriting previous save files. Web saves use a separate format.","Las partidas nativas 4.8–5.8 pueden importarse sin sobrescribir archivos anteriores. Las partidas web usan otro formato."),13,MUTED)
-	_line(right_body,tx("Network sync and real Android installation still need deployment and device tests.","La sincronizacion y las pruebas en Android fisico siguen pendientes."),13,DANGER)
+	_line(right_body,tx("Network sync and real Android installation still need deployment and device tests.","La sincronización y las pruebas en Android fisico siguen pendientes."),13,DANGER)
 	_line(right_body,tx("Farming systems are simplified game mechanics, not real agricultural advice.","El modelo es de videojuego, no asesoramiento agricola."),13,MUTED)
 
 func _save_notice() -> void:
@@ -3476,7 +3648,9 @@ func _enter_building(kind: String) -> void:
 	view.language = language
 	view.performance_mode59 = performance_mode59
 	view.reduced_motion = reduced_motion
-	view.custom_minimum_size = Vector2(0,minf(340.0,get_viewport_rect().size.y*0.42))
+	# Fill the modal instead of leaving an empty band under the room.
+	var modal_height: float = minf(620.0,get_viewport_rect().size.y*0.82)
+	view.custom_minimum_size = Vector2(0,maxf(240.0,modal_height-200.0))
 	view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	view.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(view)
@@ -3486,7 +3660,7 @@ func _enter_building(kind: String) -> void:
 	_button(tx("Return to the farm","Volver a la finca"),_close_modal,body,true)
 
 func _inspect_prop(value: String) -> void:
-	_notify(value + ": " + tx("A working part of your farm. Its practical benefits come from the completed building level.","Forma parte de tu finca. Sus beneficios dependen del nivel de construccion terminado."))
+	_notify(value + ": " + tx("A working part of your farm. Its practical benefits come from the completed building level.","Forma parte de tu finca. Sus beneficios dependen del nivel de construcción terminado."))
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
