@@ -215,6 +215,36 @@ func _structure_position(building: Dictionary, index: int) -> Vector3:
 		return Vector3(GRID_X[i%6]+FIELD_W-1.2,0,GRID_Y[i/6]+FIELD_H-1.2)
 	return _building_anchor(int(building.get("slot",index)))
 
+func get_animal_screen_pos(animal_id: String) -> Vector2:
+	return _pick_screen_position(entities,"animal",animal_id)
+
+func get_building_screen_pos(building_id: String) -> Vector2:
+	return _pick_screen_position(entities,"building",building_id)
+
+func get_garden_slot_screen_pos(slot: int) -> Vector2:
+	return _pick_screen_position(slots,"garden_slot",str(slot))
+
+func get_build_slot_screen_pos(slot: int) -> Vector2:
+	return _pick_screen_position(slots,"build_slot",str(slot))
+
+func get_machine_screen_pos(machine_id: String) -> Vector2:
+	return _pick_screen_position(entities,"machine",machine_id)
+
+func _pick_screen_position(root: Node, kind: String, id: String) -> Vector2:
+	if root == null or camera == null or viewport_3d == null or size.x <= 0.0 or size.y <= 0.0:
+		return Vector2(-1.0,-1.0)
+	var viewport_size: Vector2 = Vector2(viewport_3d.size)
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return Vector2(-1.0,-1.0)
+	for candidate in root.find_children("*","StaticBody3D",true,false):
+		var body: StaticBody3D = candidate
+		if str(body.get_meta("kind","")) != kind or str(body.get_meta("id","")) != id:
+			continue
+		if camera.is_position_behind(body.global_position):
+			return Vector2(-1.0,-1.0)
+		return camera.unproject_position(body.global_position)*size/viewport_size
+	return Vector2(-1.0,-1.0)
+
 func _sync_entities() -> void:
 	var signature: String = str([farm.state["buildings"],farm.state["animals"],farm.state.get("decorations",[]),farm.state["life"]["machines"],farm.state["time"]["hour"],show_animal_moods,farm.language])
 	if signature == entity_signature: return

@@ -7,6 +7,8 @@ const MainScene = preload("res://Main.tscn")
 const Fixtures = preload("res://tests/capture.gd")
 const Models = preload("res://scripts/three_d/Models.gd")
 const Data = preload("res://scripts/NativeData.gd")
+const UIHubs = preload("res://scripts/UIHubs.gd")
+const UIIntegration = preload("res://scripts/UIIntegration.gd")
 var failures: Array[String] = []
 var checks: int = 0
 
@@ -81,9 +83,83 @@ func run() -> void:
 	app.farm = farm
 	app._show_game()
 	await frames(6)
+	var radial: Variant = app.radial_menu
+	check(radial.language == "es","Radial action labels follow the game language")
+	check(app.info.get_ok_button().get_theme_color("font_color") == Color("#233c32"),"Alert dialog OK button uses a visible dark font")
+	radial.close_menu()
+	if not app.onboarding.is_active:
+		app.onboarding.start(farm,app,app._on_onboarding_complete)
+	app.onboarding._highlight_field("plot1")
+	check(not radial.is_open,"Tutorial field highlight does not open the radial menu")
+	var radial_test_world: Variant = app.world
+	var test_field_point := Vector3(radial_test_world.GRID_X[0]+radial_test_world.FIELD_W/2,0.20,radial_test_world.GRID_Y[0]+radial_test_world.FIELD_H/2)
+	var test_field_pixel: Vector2 = radial_test_world.camera.unproject_position(test_field_point)
+	var test_field_position: Vector2 = test_field_pixel*radial_test_world.size/Vector2(radial_test_world.viewport_3d.size)
+	var field_click := InputEventMouseButton.new()
+	field_click.button_index = MOUSE_BUTTON_LEFT
+	field_click.pressed = true
+	field_click.position = radial_test_world.get_global_transform_with_canvas()*test_field_position
+	root.push_input(field_click)
+	field_click = InputEventMouseButton.new()
+	field_click.button_index = MOUSE_BUTTON_LEFT
+	field_click.position = radial_test_world.get_global_transform_with_canvas()*test_field_position
+	root.push_input(field_click)
+	await frames(12)
+	check(radial.is_open and radial.current_target.get("id","") == "plot1","Clicking a 3D field opens its radial menu")
+	var has_spanish_radial_label: bool = false
+	check(radial.item_captions.size() == radial.item_buttons.size() and not radial.item_captions.is_empty(),"Radial actions have visible captions")
+	for caption in radial.item_captions:
+		var caption_rect: Rect2 = caption.get_global_rect()
+		check(caption.size.x >= 100.0 and caption.size.y >= 30.0,"Radial captions receive an interactive-size rect: "+str(caption.size)+" expected "+str(radial.LABEL_SIZE))
+		check(caption_rect.position.x >= 0.0 and caption_rect.end.x <= root.size.x and caption_rect.position.y >= 0.0 and caption_rect.end.y <= root.size.y,"Radial caption stays in viewport")
+		has_spanish_radial_label = has_spanish_radial_label or caption.get_child(0).text == "Regar +15mm"
+	check(has_spanish_radial_label,"Radial action caption is localized")
+	var radial_actions: Array[String] = []
+	check(radial.action_selected.is_connected(app._on_radial_action),"Radial actions are connected to the game")
+	radial.action_selected.connect(func(action_id: String, _args: Dictionary): radial_actions.append(action_id))
+	var first_button: Button = radial.item_buttons[0]
+	check(first_button.size == Vector2(radial.ITEM_SIZE,radial.ITEM_SIZE),"Radial buttons receive a clickable rect")
+	var button_position: Vector2 = first_button.get_global_transform_with_canvas()*(first_button.size/2.0)
+	var mouse_motion := InputEventMouseMotion.new()
+	mouse_motion.position = button_position
+	root.push_input(mouse_motion)
+	await frames(1)
+	var hovered_control: Control = root.gui_get_hovered_control()
+	check(hovered_control == first_button,"Pointer hit-testing reaches a radial button; hit="+str(hovered_control.get_path() if hovered_control != null else "none")+" button="+str(first_button.get_global_rect())+" point="+str(button_position))
+	var button_click := InputEventMouseButton.new()
+	button_click.button_index = MOUSE_BUTTON_LEFT
+	button_click.pressed = true
+	button_click.position = button_position
+	root.push_input(button_click)
+	await frames(1)
+	button_click = InputEventMouseButton.new()
+	button_click.button_index = MOUSE_BUTTON_LEFT
+	button_click.position = button_position
+	root.push_input(button_click)
+	await frames(1)
+	check(radial_actions.size() == 1 and not radial.is_open,"Clicking a radial action emits and closes the menu")
+	check(app.pending.get("type","") == radial_actions[0] and app.confirm.visible,"Clicked radial action reaches native confirmation")
+	app.confirm.hide()
+	app.pending = {}
+	radial.show_at(Vector2(5,5),{"type":"field","id":"plot1"})
+	check(radial.is_open and radial.item_buttons.size() == radial.item_captions.size(),"Reopening replaces old radial controls")
+	radial.close_menu()
+	await frames(10)
+	for hub_id in UIHubs.get_hub_order():
+		app._on_hub_selected(hub_id)
+		for panel in UIHubs.get_hub_data(hub_id).get("panels",[]):
+			var panel_id: String = str(panel["id"])
+			app._on_panel_selected(panel_id)
+			check(app.right_body.get_child_count() > 2,"Hub panel renders "+hub_id+"/"+panel_id)
 	var view: Control = app.world
 	check(view.viewport_3d.own_world_3d,"Farm is a separate real 3D world")
 	check(view.plot_roots.size() == 24,"All plot meshes built")
+	view.show_build_slots = true
+	view.show_garden_slots57 = true
+	view._sync_slots()
+	check(view.get_building_screen_pos("market").x >= 0.0,"Building lookup returns the market position")
+	check(view.get_garden_slot_screen_pos(0).x >= 0.0,"Garden slot lookup returns its position")
+	check(view.get_build_slot_screen_pos(0).x >= 0.0,"Building slot lookup returns its position")
 	var state_before: String = farm.export_text()
 	view._sync()
 	view.change_zoom(0.3)
@@ -127,8 +203,8 @@ func run() -> void:
 		building.free()
 	for lang in ["es","en"]:
 		app.language = lang
-		for tab in app.nav_buttons.keys():
-			app._change_tab(str(tab))
+		for tab in ["Farm","Compass60","Explorer","Resources","Valley","Countryside54","Expeditions58","Fields","CropGuide52","Ecology","Planning","GardenStudio57","Economy","Buildings","Animals","Processing","Market","Neighbours","Stories","Community50","Festivals50","Certifications50","Character","Wardrobe53","Story","Journal","Options"]:
+			app._change_tab(tab)
 			await frames(1)
 			check(app.right_body.get_child_count()>0,"Screen "+str(tab)+" "+lang)
 	app._change_tab("Valley")
@@ -153,6 +229,78 @@ func run() -> void:
 	view._sync()
 	await frames()
 	check(view.entities.get_child_count()>10,"Populated farm renders buildings, animals, machines and neighbours")
+	view.show_build_slots = true
+	view.show_garden_slots57 = true
+	view._sync_slots()
+	var radial_targets: Array[Dictionary] = [
+		{"id":"market","type":"building","pick":func(): app._picked_building("market")},
+		{"id":str(farm.state["animals"][0]["id"]),"type":"animal","pick":func(): app._picked_animal(str(farm.state["animals"][0]["id"]))},
+		{"id":"0","type":"garden_slot","pick":func(): app._picked_garden_slot57(0)},
+		{"id":"0","type":"build_slot","pick":func(): app._picked_build_slot(0)},
+		{"id":"cultivator","type":"machine","pick":func(): app._picked_machine57("cultivator")}
+	]
+	for target in radial_targets:
+		target["pick"].call()
+		check(radial.is_open and radial.current_target.get("type","") == target["type"] and not radial.item_buttons.is_empty(),"Radial opens for "+str(target["type"]))
+		radial.close_menu()
+		await frames(10)
+	var animal_id: String = str(farm.state["animals"][0]["id"])
+	var feed_action: Dictionary = radial._animal_actions(animal_id)[0]
+	check(feed_action["action"] == "buyFeed" and farm.quote("buySupply",feed_action["args"]).get("ok",false),"Animal radial feed action maps to feed purchase")
+	farm.state["inventory"]["timber"] = 10.0
+	var decoration_action: Dictionary = radial._garden_slot_actions("0")[0]
+	check(decoration_action["args"].has("decorationId") and farm.quote("craftDecoration",decoration_action["args"]).get("ok",false),"Garden radial action uses a valid decoration id")
+	var build_action: Dictionary = radial._build_slot_actions("0")[0]
+	check(build_action["args"].has("buildingId") and farm.quote("build",build_action["args"]).get("ok",false),"Construction radial action uses the native building id")
+	farm.state["life"]["machines"]["cultivator"]["condition"] = 0.9
+	var service_action: Dictionary = radial._machine_actions("cultivator")[0]
+	check(service_action["action"] == "serviceMachine" and farm.quote("serviceMachine",service_action["args"]).get("ok",false),"Machine radial action uses the native service operation")
+	UIIntegration.on_radial_action(app,"plant",{"fieldId":"plot1"})
+	check(app.active_tab == "Fields" and app.selected_field == "plot1","Parameterized planting opens the selected field controls")
+	UIIntegration.on_radial_action(app,"build",build_action["args"])
+	check(app.pending.get("type","") == "build" and app.pending.get("args",{}).has("buildingId"),"Construction radial action reaches native build confirmation")
+	app.confirm.hide()
+	app.pending = {}
+	UIIntegration.on_radial_action(app,"craftDecoration",decoration_action["args"])
+	check(app.pending.get("type","") == "craftDecoration" and app.pending.get("args",{}).has("decorationId"),"Garden radial action reaches decoration confirmation")
+	app.confirm.hide()
+	app.pending = {}
+	UIIntegration.on_radial_action(app,"buyFeed",feed_action["args"])
+	check(app.pending.get("type","") == "buySupply","Animal feed radial action reaches supply purchase confirmation")
+	app.confirm.hide()
+	app.pending = {}
+	UIIntegration.on_radial_action(app,"upgradeBuilding",{"buildingId":"demo_coop"})
+	check(app.pending.get("type","") == "upgrade" and app.pending.get("args",{}).get("buildingId","") == "coop","Building upgrade routes to the native upgrade action")
+	app.confirm.hide()
+	app.pending = {}
+	UIIntegration.on_radial_action(app,"serviceMachine",service_action["args"])
+	check(app.pending.get("type","") == "serviceMachine","Machine servicing opens a valid confirmation")
+	app.confirm.hide()
+	app.pending = {}
+	UIIntegration.on_radial_action(app,"openGarden",{})
+	check(app.active_tab == "GardenStudio57","Garden detail action opens garden tools")
+	UIIntegration.on_radial_action(app,"openBuildings",{})
+	check(app.active_tab == "Buildings","Construction detail action opens building tools")
+	UIIntegration.on_radial_action(app,"openMachinery",{})
+	check(app.active_tab == "Machinery","Machine detail action opens machinery tools")
+	var protected_field: Dictionary = farm.field_of("plot1")
+	protected_field["crop"] = {}
+	protected_field["cover_until"] = int(farm.state["time"]["total"]) + 24
+	protected_field["solarize_until"] = int(farm.state["time"]["total"]) + 48
+	app.selected_field = "plot1"
+	app._change_tab("Fields")
+	var plant_button_found: bool = false
+	var plant_button_disabled: bool = false
+	var conversion_button_found: bool = false
+	for control in app.right_body.find_children("*","Button",true,false):
+		var button: Button = control
+		if button.text in ["Plant selected crop and variety","Sembrar cultivo y variedad"]:
+			plant_button_found = true
+			plant_button_disabled = button.disabled
+		if button.text in ["Convert plot (confirm price)","Transformar parcela (confirmar precio)"]:
+			conversion_button_found = true
+	check(plant_button_found and plant_button_disabled,"Planting is disabled while crop protection is active")
+	check(not conversion_button_found,"Plot conversion is hidden while crop protection is active")
 	# Alternate sizes through the real responsive reconstruction path.
 	for dimensions in [Vector2i(440,800),Vector2i(960,640),Vector2i(1440,900)]:
 		root.size = dimensions

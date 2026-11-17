@@ -65,7 +65,7 @@ static func populate(farm: RefCounted) -> void:
 			field = farm.field_of(str(field["id"]))
 			field["crop"]["development"] = 0.8 if i%3 else 1.0
 			field["crop"]["biomass"] = 4000
-	farm.state["buildings"] = [{"id":"demo_barn","kind":"barn","field":"","slot":7,"level":1,"target":1,"ready_at":0,"built_at":0},{"id":"demo_greenhouse","kind":"greenhouse","field":"","slot":17,"level":1,"target":1,"ready_at":0,"built_at":0},{"id":"demo_coop","kind":"coop","field":"","slot":3,"level":1,"target":1,"ready_at":0,"built_at":0}]
+	farm.state["buildings"] = [{"id":"demo_barn","kind":"barn","field":"","slot":7,"level":1,"target":1,"ready_at":0,"built_at":0},{"id":"demo_greenhouse","kind":"greenhouse","field":"plot1","slot":-1,"level":1,"target":1,"ready_at":0,"built_at":0},{"id":"demo_coop","kind":"coop","field":"","slot":3,"level":1,"target":1,"ready_at":0,"built_at":0}]
 	farm.act("buyAnimal",{"animalId":"hen","count":3})
 	farm.act("buyAnimal",{"animalId":"cow","count":2})
 	farm.act("buyMachine",{"machineId":"cultivator"})

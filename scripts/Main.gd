@@ -88,6 +88,7 @@ var radial_menu: Variant
 var onboarding: Variant
 var current_hub: String = "Farm"
 var current_panel: String = "overview"
+var hub_navigation_active: bool = false
 var hub_buttons: Dictionary = {}
 var context_title: Label = null
 var context_card_view: PanelContainer = null
@@ -243,12 +244,18 @@ func _select_field_from_menu(field_id: String) -> void:
 	selected_field = field_id
 	if world != null:
 		world.set_selected(selected_field)
-	_render_panel()
+	if hub_navigation_active:
+		_render_hub_panel()
+	else:
+		_render_panel()
 	_update_header()
 
 func _choose_npc(index: int, ids: Array) -> void:
 	selected_npc = str(ids[index])
-	_render_panel()
+	if hub_navigation_active:
+		_render_hub_panel()
+	else:
+		_render_panel()
 
 func _go_from_modal(tab: String) -> void:
 	_close_modal()
@@ -542,6 +549,10 @@ func _clear_scene() -> void:
 		remove_child(child)
 		child.queue_free()
 	game_running = false
+	confirm = null
+	info = null
+	import_dialog = null
+	export_dialog = null
 	game_safe_area = null
 	scene_root = null
 	game_base = null
@@ -744,6 +755,9 @@ func _start_new_farm(options: Dictionary) -> void:
 	if result.get("ok",false):
 		selected_field = "plot1"
 		active_tab = "Farm"
+		current_hub = "Farm"
+		current_panel = "overview"
+		hub_navigation_active = false
 		mobile_inspector_open = false
 		_show_game()
 	else:
@@ -1160,6 +1174,8 @@ func _show_game() -> void:
 	# New simplified UI: Radial context menu
 	radial_menu = ContextRadialMenu.new()
 	radial_menu.set_farm(farm)
+	radial_menu.language = language
+	radial_menu.z_index = 100
 	radial_menu.action_selected.connect(_on_radial_action)
 	scene_root.add_child(radial_menu)
 
@@ -1271,12 +1287,17 @@ func _show_game() -> void:
 	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	base.add_child(status_label)
 	confirm = ConfirmationDialog.new()
+	confirm.theme = theme
 	confirm.title = tx("Confirm farm action","Confirmar acción")
 	confirm.confirmed.connect(_commit_pending)
 	layer.add_child(confirm)
+	_style_dialog_button(confirm.get_ok_button())
+	_style_dialog_button(confirm.get_cancel_button())
 	info = AcceptDialog.new()
+	info.theme = theme
 	info.title = "FieldWork"
 	layer.add_child(info)
+	_style_dialog_button(info.get_ok_button())
 	_setup_file_dialogs(layer)
 	ambient_player = AudioStreamPlayer.new()
 	ambient_player.name = "SeasonalAmbience"
@@ -1321,6 +1342,7 @@ func _set_speed(value: int) -> void:
 		_update_header()
 
 func _change_tab(tab: String) -> void:
+	hub_navigation_active = false
 	active_tab = tab
 	if compact_mode:
 		mobile_inspector_open = not Layout55.map_tab(tab)
@@ -1337,6 +1359,7 @@ func _change_tab(tab: String) -> void:
 func _on_hub_selected(hub_id: String) -> void:
 	current_hub = hub_id
 	current_panel = UIHubs.get_hub_data(hub_id).get("panels", [])[0].get("id", "overview")
+	hub_navigation_active = true
 
 	# Update hub button styles
 	for id in hub_buttons.keys():
@@ -1362,6 +1385,7 @@ func _on_hub_selected(hub_id: String) -> void:
 
 func _on_panel_selected(panel_id: String) -> void:
 	current_panel = panel_id
+	hub_navigation_active = true
 	_render_hub_panel()
 
 func _render_hub_panel() -> void:
@@ -1371,8 +1395,55 @@ func _render_hub_panel() -> void:
 		right_body.remove_child(child)
 		child.queue_free()
 
-	# Build panel cards for current hub
+	# Build panel cards for current hub (navigation)
 	UIIntegration.build_panel_cards(right_body, current_hub, self, language, ui_scale, current_panel, _on_panel_selected.bind())
+
+	# Add separator
+	var sep: HSeparator = HSeparator.new()
+	right_body.add_child(sep)
+
+	# Render selected panel content
+	match current_hub:
+		"Farm":
+			match current_panel:
+				"overview": _panel_farm_overview()
+				"compass": _panel_farm_compass()
+				"explorer": _panel_farm_explorer()
+				"fields_list": _panel_farm_fields_list()
+		"Fields":
+			match current_panel:
+				"manage": _panel_fields()
+				"crop_guide": _panel_crop_guide52()
+				"ecology": _panel_ecology()
+				"planning": _panel_planning()
+		"Animals":
+			match current_panel:
+				"livestock": _panel_animals()
+				"buildings": _panel_buildings()
+				"processing": _panel_processing()
+				"machinery": _panel_machinery()
+		"Village":
+			match current_panel:
+				"neighbours": _panel_neighbours()
+				"stories": _panel_stories()
+				"community":
+					_panel_community50()
+					_panel_festivals50()
+					_panel_certifications50()
+				"expeditions": _panel_expeditions58()
+		"Market":
+			match current_panel:
+				"market": _panel_market()
+				"economy": _panel_economy()
+				"resources": _panel_resources()
+				"trade": _panel_market_trade()
+		"Me":
+			match current_panel:
+				"character": _panel_character()
+				"wardrobe": _panel_wardrobe53()
+				"story": _panel_story()
+				"journal": _panel_journal()
+				"options": _panel_options()
 
 func _on_radial_action(action_id: String, args: Dictionary) -> void:
 	UIIntegration.on_radial_action(self, action_id, args)
@@ -1423,6 +1494,7 @@ func _update_visual_mode() -> void:
 
 func _picked_region(region_id: String) -> void:
 	selected_region = region_id
+	hub_navigation_active = false
 	active_tab = "Valley"
 	if compact_mode:
 		mobile_inspector_open = true
@@ -1445,6 +1517,7 @@ func _picked_field(id: String) -> void:
 
 func _picked_npc(id: String) -> void:
 	selected_npc = id
+	hub_navigation_active = false
 	active_tab = "Neighbours"
 	_update_nav_state()
 	_update_visual_mode()
@@ -1459,18 +1532,10 @@ func _picked_garden_slot57(slot: int) -> void:
 		world.active_garden_slot57 = slot
 		world.queue_redraw()
 
-	# Show radial menu at garden slot position
-	var world_ref: Variant = world
-	if world_ref != null and is_instance_valid(world_ref):
-		var screen_pos: Vector2 = world_ref.camera.unproject_position(Vector3(slot * 10.0 + 5.0, 0.5, -5.0)) * world_ref.size / Vector2(world_ref.viewport_3d.size)
-		radial_menu.show_at(screen_pos, {"type": "garden_slot", "id": str(slot)})
+	UIIntegration.on_garden_slot_picked(self, radial_menu, slot)
 
 func _picked_machine57(machine_id: String) -> void:
-	# Show radial menu at machine position
-	var world_ref: Variant = world
-	if world_ref != null and is_instance_valid(world_ref):
-		var screen_pos: Vector2 = world_ref.camera.unproject_position(Vector3(0.0, 0.5, 0.0)) * world_ref.size / Vector2(world_ref.viewport_3d.size)
-		radial_menu.show_at(screen_pos, {"type": "machine", "id": machine_id})
+	UIIntegration.on_machine_picked(self, radial_menu, machine_id)
 
 func _show_garden_map57() -> void:
 	if compact_mode:
@@ -1504,12 +1569,7 @@ func _picked_build_slot(slot: int) -> void:
 		world.active_build_slot = selected_build_slot
 		world.queue_redraw()
 
-	# Show radial menu at build slot position (similar to field)
-	var world_ref: Variant = world
-	if world_ref != null and is_instance_valid(world_ref):
-		# Use a simplified position - could be enhanced to show at actual slot position
-		var screen_pos: Vector2 = world_ref.camera.unproject_position(Vector3(slot * 10.0, 0.5, 5.0)) * world_ref.size / Vector2(world_ref.viewport_3d.size)
-		radial_menu.show_at(screen_pos, {"type": "build_slot", "id": str(slot)})
+	UIIntegration.on_build_slot_picked(self, radial_menu, slot)
 
 func _picked_building(id: String) -> void:
 	# Show radial menu at building position
@@ -1641,7 +1701,10 @@ func _refresh() -> void:
 	if valley_view != null:
 		valley_view.queue_redraw()
 	_update_visual_mode()
-	_render_panel()
+	if hub_navigation_active:
+		_render_hub_panel()
+	else:
+		_render_panel()
 	if game_running and not farm.state["events"]["active"].is_empty() and modal == null:
 		_show_decision_board()
 
@@ -1684,9 +1747,21 @@ func _render_panel() -> void:
 func _notify(message: String) -> void:
 	if info == null or not is_instance_valid(info):
 		info = AcceptDialog.new()
+		info.theme = theme
 		add_child(info)
+		_style_dialog_button(info.get_ok_button())
 	info.dialog_text = farm.message(message)
 	info.popup_centered()
+
+func _style_dialog_button(button: Button) -> void:
+	button.add_theme_stylebox_override("normal",theme.get_stylebox("normal","Button"))
+	button.add_theme_stylebox_override("hover",theme.get_stylebox("hover","Button"))
+	button.add_theme_stylebox_override("pressed",theme.get_stylebox("pressed","Button"))
+	button.add_theme_stylebox_override("disabled",theme.get_stylebox("disabled","Button"))
+	button.add_theme_stylebox_override("focus",theme.get_stylebox("focus","Button"))
+	for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+		button.add_theme_color_override(state,ThemeKit.INK)
+	button.add_theme_color_override("font_disabled_color",Color("#596a5d"))
 
 func _action_effect_text(kind: String, args: Dictionary) -> String:
 	match kind:
@@ -2062,6 +2137,134 @@ func _panel_farm() -> void:
 		_line(right_body,Chains.title(str(event["id"]),language) if str(event.get("arc","")) != "" else Decisions.title(str(event["id"]),language))
 		_button(tx("Review choices","Ver opciones"),_show_decision_board,right_body,true)
 
+func _panel_farm_overview() -> void:
+	# Farm status, weather, quick stats (cash, fields, water, storage, reputation)
+	var player: Dictionary = farm.state["player"]
+	_caption(right_body, str(player["farm"]), tx("Your new beginning in a living valley", "Tu comienzo en un valle lleno de vida"))
+	var s: Dictionary = farm.status()
+	var tiles: GridContainer = GridContainer.new()
+	tiles.columns = 2
+	tiles.add_theme_constant_override("h_separation", 8)
+	tiles.add_theme_constant_override("v_separation", 8)
+	right_body.add_child(tiles)
+	_stat_tile(tiles, "res://assets/icon_coins.png", tx("Cash", "Dinero"), _money(float(s["cash"])), ACCENT)
+	_stat_tile(tiles, "res://assets/icon_seeds.png", tx("Plots", "Parcelas"), str(s["fields"]) + " / " + str(FarmScript.MAX_FIELDS))
+	_stat_tile(tiles, "res://assets/icon_watering_can.png", tx("Water reserve", "Reserva de agua"), _group_digits(int(float(s["water"]))) + " m³")
+	_stat_tile(tiles, "res://assets/icon_wheat_bundle.png", tx("Storage", "Almacén"), _group_digits(int(float(s["inventory"]))) + " / " + _group_digits(int(s["capacity"])) + " kg")
+	_stat_tile(tiles, "res://assets/icon_welfare.png", tx("Reputation", "Reputación"), str(farm.state["economy"]["reputation"]))
+
+	var living: Dictionary = farm.field_of(selected_field)
+	if living.get("owned", false):
+		var soil_v: String = Visual.soil_visual(living["soil"])
+		var conditions: Dictionary = {"dry": tx("Dry soil", "Suelo seco"), "wet": tx("Wet soil", "Suelo húmedo"), "balanced": tx("Balanced moisture", "Humedad equilibrada")}
+		_line(right_body, tx("Selected field: ", "Parcela elegida: ") + _plot_name(selected_field) + " · " + str(conditions.get(soil_v, "")), 14, DANGER if soil_v == "dry" else ACCENT)
+		if not living["crop"].is_empty():
+			_line(right_body, farm.n(farm.content["crops"][str(living["crop"]["id"])]) + " · " + Visual.crop_stage_text(float(living["crop"]["development"]), language == "es"), 14)
+
+	_level_progress(right_body)
+
+	var bank: Dictionary = farm.operating_budget()
+	_line(right_body, tx("Fixed daily maintenance: ", "Mantenimiento fijo diario: ") + _money(float(float(bank["fixed_daily"]))), 13, MUTED)
+	_button(tx("Open daily planner", "Abrir plan diario"), _change_tab.bind("Planning"), right_body)
+
+	var objective: Dictionary = farm.season_goal_info()
+	if not objective.is_empty():
+		_line(right_body, tx("Seasonal goal: ", "Meta estacional: ") + World50.localized(objective["name"], language) + " (" + str(int(farm.season_goal_progress())) + "/" + str(objective["target"]) + ")", 13, ACCENT)
+		_button(tx("View festival & seasonal progress", "Ver fiestas y progreso estacional"), _change_tab.bind("Festivals50"), right_body)
+
+	var effect_list: Array = farm.active_effects()
+	if not effect_list.is_empty():
+		_caption(right_body, tx("Effects from your decisions", "Efectos de tus decisiones"))
+		for entry in effect_list:
+			_line(right_body, _localized_effect(str(entry["id"])) + " · " + str(entry["hours"]) + " h", 13, ACCENT)
+
+	_caption(right_body, tx("Today's conditions", "Condiciones de hoy"))
+	_line(right_body, farm.weather_text(), 14)
+
+	# Quick action buttons
+	var dashboard_buttons: HFlowContainer = HFlowContainer.new()
+	right_body.add_child(dashboard_buttons)
+	for pair in [[tx("Manage fields", "Gestionar campos"), "Fields"], [tx("Check ecology", "Revisar ecología"), "Ecology"], [tx("Open planner", "Abrir planificador"), "Planning"]]:
+		var link: Button = _button(str(pair[0]), _change_tab.bind(str(pair[1])), dashboard_buttons)
+		link.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+
+
+func _panel_farm_compass() -> void:
+	# Goals, season progress, mastery tracks (reuse Compass60.priorities, Compass60.pillars)
+	_panel_compass60()
+
+
+func _panel_farm_explorer() -> void:
+	# Full-screen farm view, building access, field list
+	_caption(right_body, tx("Explore your entire farm", "Explora toda tu finca"), tx("Everything is reachable from here, even while staying on the live map.", "Desde aquí puedes acceder a todo sin salir del mapa vivo."))
+	_button(tx("Open full-screen live farm", "Abrir finca a pantalla completa"), _show_panorama, right_body, true)
+	_button(tx("Explore the farm", "Explorar la finca"), _show_illustrated_view, right_body)
+
+	_caption(right_body, tx("YOUR FIELDS", "TUS PARCELAS"), tx("Select a plot to centre the live map.", "Elige una parcela para centrar el mapa vivo."))
+	for field in farm.state["fields"]:
+		if not bool(field["owned"]):
+			continue
+		var name: String = _plot_name(str(field["id"])) + "  ·  " + farm.n(farm.content["terrains"][str(field["terrain"])])
+		var crop_name: String = tx("Fallow", "En barbecho") if field["crop"].is_empty() else farm.n(farm.content["crops"][str(field["crop"]["id"])])
+		_button(name + " / " + crop_name, _jump_to_field.bind(str(field["id"])), right_body)
+
+	_caption(right_body, tx("YOUR BUILDINGS", "TUS EDIFICIOS"))
+	_button(tx("Enter farmhouse", "Entrar en casa"), _enter_building.bind("farmhouse"), right_body)
+	_button(tx("Enter village market", "Entrar en el mercado"), _enter_building.bind("market"), right_body)
+	for built in farm.state["buildings"]:
+		if int(built["level"]) > 0:
+			_button(farm.n(farm.content["buildings"][str(built["kind"])]) + "  L" + str(built["level"]), _enter_building.bind(str(built["kind"])), right_body)
+
+
+func _panel_farm_fields_list() -> void:
+	# Quick jump to any owned plot
+	_caption(right_body, tx("My Fields", "Mis Parcelas"), tx("Tap a field to center the map and inspect it.", "Toca una parcela para centrar el mapa e inspeccionarla."))
+
+	var owned_count: int = 0
+	for field in farm.state["fields"]:
+		if bool(field["owned"]):
+			owned_count += 1
+
+	_line(right_body, tx("Owned fields: ", "Parcelas propias: ") + str(owned_count) + " / " + str(FarmScript.MAX_FIELDS), 14, ACCENT)
+
+	var grid: GridContainer = GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 8)
+	right_body.add_child(grid)
+
+	for field in farm.state["fields"]:
+		if not bool(field["owned"]):
+			continue
+
+		var card: PanelContainer = PanelContainer.new()
+		card.add_theme_stylebox_override("panel", _style(Color("#f1f7e8"), 11, Color("#d2e4d3")))
+		grid.add_child(card)
+
+		var column: VBoxContainer = _vbox(card, 4)
+		_line(column, _plot_name(str(field["id"])), 15, ACCENT)
+
+		var terrain_name: String = farm.n(farm.content["terrains"][str(field["terrain"])])
+		_line(column, terrain_name, 12, MUTED)
+
+		var crop_name: String = tx("Fallow", "En barbecho")
+		var crop_dev: float = 0.0
+		if not field["crop"].is_empty():
+			crop_name = farm.n(farm.content["crops"][str(field["crop"]["id"])])
+			crop_dev = float(field["crop"]["development"])
+			_line(column, crop_name + "  ·  " + str(int(crop_dev * 100.0)) + "%", 13, ACCENT if crop_dev >= 0.99 else INK)
+
+		var soil_v: String = Visual.soil_visual(field["soil"])
+		var soil_color: Color = ACCENT
+		if soil_v == "dry":
+			soil_color = DANGER
+		elif soil_v == "wet":
+			soil_color = Color("#3498db")
+		_line(column, tx("Soil: ", "Suelo: ") + tx(soil_v.capitalize(), soil_v.capitalize()), 12, soil_color)
+
+		_button(tx("Go to field", "Ir a la parcela"), _jump_to_field.bind(str(field["id"])), column)
+
+
 func _render_starter_guide() -> bool:
 	var step: int = int(farm.state["story"].get("starter_guide",FarmScript.STARTER_GUIDE.size()))
 	if step >= FarmScript.STARTER_GUIDE.size():
@@ -2081,6 +2284,7 @@ func _jump_to_field(id: String) -> void:
 
 func _jump_to_region(region_id: String) -> void:
 	selected_region = region_id
+	hub_navigation_active = false
 	active_tab = "Valley"
 	if valley_view != null:
 		valley_view.set_selected(region_id)
@@ -2368,29 +2572,42 @@ func _panel_fields() -> void:
 	var soil: Dictionary = f["soil"]
 	var crop: Dictionary = f["crop"]
 	var current_layout: String = str(f.get("plot_type","open"))
+	var current_hour: int = int(farm.state["time"]["total"])
+	var cover_until: int = int(f.get("cover_until",0))
+	var solarize_until: int = int(f.get("solarize_until",0))
+	var layout_blocked: bool = maxi(cover_until,solarize_until) > current_hour
 	var layout_info: Dictionary = Fields52.PLOTS[current_layout]
 	_caption(right_body,tx("Plot layout / production system","Tipo de parcela / sistema de cultivo"),Fields52.localized(layout_info,language))
 	_line(right_body,str(layout_info["description"].get(language,layout_info["description"]["en"])),13,MUTED)
 	if crop.is_empty():
 		var layout_ids: Array = []
 		var layout_names: Array = []
-		for layout_id in Fields52.PLOTS.keys():
-			if not Fields52.allowed_layout(str(layout_id),str(f["terrain"])) or str(layout_id) == current_layout:
-				continue
-			if str(layout_id) in ["orchard","paddy"] and not farm.building_of("greenhouse",selected_field).is_empty():
-				continue
-			var candidate_info: Dictionary = Fields52.PLOTS[layout_id]
-			layout_ids.append(layout_id)
-			layout_names.append(Fields52.localized(candidate_info,language)+"  ·  "+_money(float(candidate_info["cost"])))
-		if not layout_ids.is_empty():
+		if not layout_blocked:
+			for layout_id in Fields52.PLOTS.keys():
+				if not Fields52.allowed_layout(str(layout_id),str(f["terrain"])) or str(layout_id) == current_layout:
+					continue
+				if str(layout_id) in ["orchard","paddy"] and not farm.building_of("greenhouse",selected_field).is_empty():
+					continue
+				var candidate_info: Dictionary = Fields52.PLOTS[layout_id]
+				layout_ids.append(layout_id)
+				layout_names.append(Fields52.localized(candidate_info,language)+"  ·  "+_money(float(candidate_info["cost"])))
+		if not layout_blocked and not layout_ids.is_empty():
 			var layout_picker: OptionButton = _select(right_body,layout_ids,layout_names)
 			_button(tx("Convert plot (confirm price)","Transformar parcela (confirmar precio)"),func():_ask("configurePlot",{"fieldId":selected_field,"plotType":str(layout_picker.get_item_metadata(layout_picker.selected))}),right_body)
-		_line(right_body,tx("Layout changes require empty land, real cash and one conversion per game day.","Los cambios requieren suelo libre, dinero real y un cambio por día de juego."),12,MUTED)
-	if int(f.get("cover_until",0)) > int(farm.state["time"]["total"]):
-		_line(right_body,tx("Cover crop protects this field for ","Cubierta vegetal protege durante ")+str(int(ceil(float(int(f["cover_until"])-int(farm.state["time"]["total"]))/24.0)))+tx(" more days"," días más"),13,ACCENT)
+		if layout_blocked:
+			var remaining_hours: int = maxi(cover_until,solarize_until) - current_hour
+			_line(right_body,tx("Plot conversion is unavailable until protection finishes (","No se puede cambiar el sistema de cultivo hasta que termine la protección (")+str(remaining_hours)+tx(" h remaining)."," h restantes)."),13,DANGER)
+		else:
+			_line(right_body,tx("Layout changes require empty land, real cash and one conversion per game day.","Los cambios requieren suelo libre, dinero real y un cambio por día de juego."),12,MUTED)
+	if cover_until > current_hour:
+		_line(right_body,tx("Cover crop protects this field for ","Cubierta vegetal protege durante ")+str(int(ceil(float(cover_until-current_hour)/24.0)))+tx(" more days"," días más"),13,ACCENT)
+	if solarize_until > current_hour:
+		_line(right_body,tx("Solarization protects this field for ","La solarización protege esta parcela durante ")+str(solarize_until-current_hour)+tx(" more hours"," horas más"),13,ACCENT)
 	if crop.is_empty():
-		if int(f.get("cover_until",0)) > int(farm.state["time"]["total"]):
+		if cover_until > current_hour:
 			_line(right_body,tx("Protective cover is still growing. Plant cash crops when it finishes.","La cubierta vegetal sigue creciendo. Siembra cuando termine."),14,ACCENT)
+		elif solarize_until > current_hour:
+			_line(right_body,tx("Wait for solarization to finish before planting.","Espera a que termine la solarización antes de sembrar."),14,ACCENT)
 		else:
 			_line(right_body,tx("Fallow soil - ready to plant","Tierra en descanso - lista para sembrar"),14)
 		var crops: Dictionary = farm.content["crops"]
@@ -2411,6 +2628,7 @@ func _panel_fields() -> void:
 		var variety_picker: OptionButton = _select(right_body,variety_ids,variety_names)
 		var plant_preview: Label = _text("",12,MUTED)
 		right_body.add_child(plant_preview)
+		var plant_button: Button = _button(tx("Plant selected crop and variety","Sembrar cultivo y variedad"),func():_ask("plant",{"fieldId":selected_field,"cropId":str(picker.get_item_metadata(picker.selected)),"variety":str(variety_picker.get_item_metadata(variety_picker.selected))}),right_body,true)
 		var update_plant_preview: Callable = func():
 			var crop_id: String = str(picker.get_item_metadata(picker.selected))
 			var variety_id: String = str(variety_picker.get_item_metadata(variety_picker.selected))
@@ -2418,13 +2636,14 @@ func _panel_fields() -> void:
 			var quote: Dictionary = farm.quote("plant",{"fieldId":selected_field,"cropId":crop_id,"variety":variety_id})
 			if not bool(quote.get("ok",false)):
 				plant_preview.text = farm.message(str(quote.get("error","Planting is unavailable")))
+				plant_button.disabled = true
 				return
 			var hours: int = int(ceil(Fields52.duration(definition,{"harvest_cycles":0}) / float(Fields52.VARIETIES[variety_id]["growth"])))
 			plant_preview.text = tx("Effect: ","Efecto: ")+farm.n(definition)+" starts growing · "+tx("base time ","tiempo base ")+str(hours)+tx(" game hours · estimated cost "," horas de juego · coste estimado ") + _money(float(quote["cost"]))+tx(". Weather, soil and care can change growth speed."," El clima, el suelo y los cuidados pueden cambiar la velocidad.")
+			plant_button.disabled = false
 		picker.item_selected.connect(func(_index):update_plant_preview.call())
 		variety_picker.item_selected.connect(func(_index):update_plant_preview.call())
 		update_plant_preview.call()
-		_button(tx("Plant selected crop and variety","Sembrar cultivo y variedad"),func():_ask("plant",{"fieldId":selected_field,"cropId":str(picker.get_item_metadata(picker.selected)),"variety":str(variety_picker.get_item_metadata(variety_picker.selected))}),right_body,true)
 		_line(right_body,tx("Early seeds mature faster but yield less. Resilient seeds cost more and tolerate drought.","La semilla temprana madura antes pero rinde menos. La resistente cuesta más y soporta sequia."),12,MUTED)
 	else:
 		var crop_info: Dictionary = farm.content["crops"][str(crop["id"])]
@@ -2942,6 +3161,58 @@ func _panel_market() -> void:
 		else:
 			_button(tx("Deliver complete order","Entregar pedido completo"),_ask.bind("contractDeliver",{"contractId":str(contract["id"])}),right_body)
 	_button(tx("Enter seasonal festival (10 kg produce)","Participar en feria (10 kg)"),_ask.bind("festivalEnter",{}),right_body)
+
+func _panel_market_trade() -> void:
+	_caption(right_body,tx("Supply orders & deliveries","Pedidos y entregas"),
+		tx("Order feed and seed supplies, then fulfill active market contracts from your stored goods.","Pide pienso y semillas y completa los contratos del mercado con tus productos almacenados."))
+	_line(right_body,tx("Storage: ","Almacén: ")+str(snappedf(farm.stored(),0.1))+" / "+str(farm.storage_capacity())+" kg",14,ACCENT)
+
+	_caption(right_body,tx("Order supplies","Pedir suministros"))
+	var supply_ids: Array = ["feed","wheat","barley"]
+	var supply_names: Array = []
+	for supply_id in supply_ids:
+		supply_names.append(farm.n(farm.content["goods"][supply_id])+" · "+_money(float(farm.market_price(str(supply_id))))+"/kg")
+	var supply_picker: OptionButton = _select(right_body,supply_ids,supply_names)
+	var quantity_row: HBoxContainer = _hbox(right_body)
+	_line(quantity_row,tx("Quantity (kg)","Cantidad (kg)"),13)
+	var quantity: SpinBox = _spin(quantity_row,40,1,1000,5)
+	var order_preview: Label = _line(right_body,"",12,MUTED)
+	var place_order: Callable = func():
+		_ask("buySupply",{"goodId":str(supply_picker.get_item_metadata(supply_picker.selected)),"kg":quantity.value})
+	var order_button: Button = _button(tx("Place supply order","Confirmar pedido"),place_order,right_body,true)
+	var update_order_preview: Callable = func():
+		var good_id: String = str(supply_picker.get_item_metadata(supply_picker.selected))
+		var quote: Dictionary = farm.quote("buySupply",{"goodId":good_id,"kg":quantity.value})
+		if not bool(quote.get("ok",false)):
+			order_preview.text = farm.message(str(quote.get("error","Supply order is unavailable")))
+			order_button.disabled = true
+			return
+		order_preview.text = tx("Estimated total: ","Total estimado: ")+_money(float(quote.get("cost",0.0)))
+		order_button.disabled = false
+	supply_picker.item_selected.connect(func(_index: int):update_order_preview.call())
+	quantity.value_changed.connect(func(_value: float):update_order_preview.call())
+	update_order_preview.call()
+
+	_caption(right_body,tx("Delivery contracts","Contratos de entrega"))
+	var active_contracts: int = 0
+	for contract in farm.state["market"]["contracts"]:
+		var contract_status: String = str(contract.get("status",""))
+		if contract_status != "open" and contract_status != "active":
+			continue
+		active_contracts += 1
+		var good_id: String = str(contract.get("good",""))
+		var good_name: String = farm.n(farm.content["goods"].get(good_id,{}))
+		_line(right_body,str(contract["kg"])+" kg "+good_name+" · "+_money(float(contract["payout"]))+" · "+
+			tx("deadline in ","vence en ")+str(maxi(0,int(contract.get("deadline",0))-int(farm.state["time"]["total"])))+" h",14)
+		if contract_status == "open":
+			_button(tx("Accept contract","Aceptar contrato"),
+				_ask.bind("contractAccept",{"contractId":str(contract["id"])}),right_body)
+		else:
+			var deliver: Button = _button(tx("Deliver order","Entregar pedido"),
+				_ask.bind("contractDeliver",{"contractId":str(contract["id"])}),right_body)
+			deliver.disabled = farm.stock(good_id)+0.0001 < float(contract["kg"])
+	if active_contracts == 0:
+		_line(right_body,tx("No open or active delivery contracts.","No hay contratos de entrega abiertos o activos."),13,MUTED)
 
 func _sell_quick(id: String) -> void:
 	_ask("sell",{"goodId":id,"kg":minf(10.0,farm.stock(id))})

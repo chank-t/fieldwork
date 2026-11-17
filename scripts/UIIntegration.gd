@@ -218,40 +218,73 @@ static func on_field_picked(main_ui: Variant, radial_menu: Variant, field_id: St
         if index >= 0 and index < 24:
             var world_pos: Vector3 = Vector3(GRID_X[index % 6] + FIELD_W / 2, 0.5, GRID_Y[index / 6] + FIELD_H / 2)
             var screen_pos: Vector2 = world.camera.unproject_position(world_pos) * world.size / Vector2(world.viewport_3d.size)
-            radial_menu.show_at(screen_pos, {"type": "field", "id": field_id})
+            _show_pick_radial(world, radial_menu, screen_pos, "field", field_id)
 
 static func on_animal_picked(main_ui: Variant, radial_menu: Variant, animal_id: String) -> void:
     var world: Variant = main_ui.world
     if world != null and is_instance_valid(world):
-        # Find animal screen position (simplified)
-        var animals_node: Node3D = world.entities.find_child("*")  # Would need better lookup
-        if animals_node != null:
-            var screen_pos: Vector2 = world.camera.unproject_position(animals_node.global_position) * world.size / Vector2(world.viewport_3d.size)
-            radial_menu.show_at(screen_pos, {"type": "animal", "id": animal_id})
+        _show_pick_radial(world, radial_menu, world.get_animal_screen_pos(animal_id), "animal", animal_id)
 
 static func on_building_picked(main_ui: Variant, radial_menu: Variant, building_id: String) -> void:
     var world: Variant = main_ui.world
     if world != null and is_instance_valid(world):
-        # Find building screen position
-        pass  # Similar to animal
+        _show_pick_radial(world, radial_menu, world.get_building_screen_pos(building_id), "building", building_id)
+
+static func on_garden_slot_picked(main_ui: Variant, radial_menu: Variant, slot: int) -> void:
+    var world: Variant = main_ui.world
+    if world != null and is_instance_valid(world):
+        _show_pick_radial(world, radial_menu, world.get_garden_slot_screen_pos(slot), "garden_slot", str(slot))
+
+static func on_build_slot_picked(main_ui: Variant, radial_menu: Variant, slot: int) -> void:
+    var world: Variant = main_ui.world
+    if world != null and is_instance_valid(world):
+        _show_pick_radial(world, radial_menu, world.get_build_slot_screen_pos(slot), "build_slot", str(slot))
+
+static func on_machine_picked(main_ui: Variant, radial_menu: Variant, machine_id: String) -> void:
+    var world: Variant = main_ui.world
+    if world != null and is_instance_valid(world):
+        _show_pick_radial(world, radial_menu, world.get_machine_screen_pos(machine_id), "machine", machine_id)
+
+static func _show_pick_radial(world: Variant, radial_menu: Variant, local_position: Vector2, kind: String, id: String) -> void:
+    if radial_menu == null or not is_instance_valid(radial_menu):
+        return
+    if local_position.x < 0.0 or local_position.y < 0.0 or local_position.x > world.size.x or local_position.y > world.size.y:
+        return
+    var global_position: Vector2 = world.get_global_transform() * local_position
+    var menu_position: Vector2 = radial_menu.get_global_transform().affine_inverse() * global_position
+    radial_menu.show_at(menu_position, {"type": kind, "id": id})
 
 static func on_radial_action(main_ui: Variant, action_id: String, args: Dictionary) -> void:
     match action_id:
-        "buyField", "plant", "harvest", "irrigate", "inspect", "treat", "fertilize", "mulch", "compost", "coverCrop", "aerateSoil":
+        "plant", "treat", "fertilize":
+            main_ui.selected_field = str(args.get("fieldId", main_ui.selected_field))
+            main_ui._change_tab("Fields")
+        "buyField", "harvest", "irrigate", "inspect", "mulch", "compost", "coverCrop", "aerateSoil":
             main_ui._ask(action_id, args)
-        "feed", "animalCare", "vetVisit", "feedingPlan", "sellAnimal":
+        "buyFeed":
+            main_ui._ask("buySupply", args)
+        "animalCare", "vetVisit", "feedingPlan":
             main_ui._ask(action_id, args)
         "enterBuilding":
             main_ui._enter_building(args.get("building", ""))
-        "completeBuilding", "upgradeBuilding":
-            main_ui._ask("build", args)
+        "openBuildings":
+            main_ui._change_tab("Buildings")
+        "openGarden":
+            main_ui._change_tab("GardenStudio57")
+        "openMachinery":
+            main_ui._change_tab("Machinery")
+        "upgradeBuilding":
+            var instance_id: String = str(args.get("buildingId", ""))
+            for building in main_ui.farm.state.get("buildings", []):
+                if str(building.get("id", "")) == instance_id:
+                    main_ui._ask("upgrade", {"buildingId": str(building.get("kind", "")), "fieldId": str(building.get("field", ""))})
+                    return
+            main_ui._ask("upgrade", {"buildingId": instance_id})
         "build":
             main_ui._ask("build", args)
         "craftDecoration":
             main_ui._ask("craftDecoration", args)
-        "removeDecoration":
-            main_ui._ask("removeDecoration", args)
-        "buyMachine", "repairMachine", "maintainMachine", "sellMachine":
+        "buyMachine", "serviceMachine":
             main_ui._ask(action_id, args)
         _:
             main_ui._direct(action_id, args)

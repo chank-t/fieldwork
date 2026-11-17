@@ -221,6 +221,18 @@ func _build_ui() -> void:
 
 	# Initially hidden
 	overlay.visible = false
+	overlay.resized.connect(_layout_step_card)
+	call_deferred("_layout_step_card")
+
+func _layout_step_card() -> void:
+	if not is_instance_valid(overlay) or not is_instance_valid(step_card):
+		return
+	var viewport_size: Vector2 = overlay.size
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return
+	var card_width: float = minf(560.0, viewport_size.x - 24.0)
+	step_card.size = Vector2(card_width, maxf(180.0, step_card.get_combined_minimum_size().y))
+	step_card.position = Vector2((viewport_size.x - step_card.size.x) / 2.0, maxf(12.0, viewport_size.y - step_card.size.y - 16.0))
 
 func _show_step() -> void:
 	if current_step >= STEPS.size():
@@ -296,9 +308,9 @@ func _highlight_field(field_id: String) -> void:
 	var ring = _create_pulsing_ring(screen_pos, 50, Color("#3f6652"))
 	highlight.add_child(ring)
 
-	# Also ensure field is selected in world
+	# Select the field for the tutorial without triggering the click-only radial menu.
+	main_ui.selected_field = field_id
 	world.set_selected(field_id)
-	main_ui._picked_field(field_id)
 
 func _highlight_speed_controls() -> void:
 	var speed_box: Variant = main_ui.speed_box

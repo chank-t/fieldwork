@@ -3,6 +3,11 @@
 ## Overview
 Reduce 28 sidebar tabs → 6 hubs with card-based panels, add radial context menus on the map, and replace text-heavy tutorial with guided onboarding.
 
+## Current implementation
+- `_render_hub_panel()` routes all hub panels to rendered screens in `Main.gd`; Market → Trade includes supply quotes and delivery contracts.
+- Animal, building, garden-slot, build-slot, and machine radial menus use matching 3D hitbox positions, transformed into overlay coordinates.
+- Hub and panel icons use the SVG assets under `assets/icons/hubs/` and `assets/icons/panels/`.
+
 ---
 
 ## 1. Six Hubs Structure
