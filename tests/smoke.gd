@@ -91,6 +91,17 @@ func run() -> void:
 		app.onboarding.start(farm,app,app._on_onboarding_complete)
 	app.onboarding._highlight_field("plot1")
 	check(not radial.is_open,"Tutorial field highlight does not open the radial menu")
+	var first_unowned_field: String = ""
+	for field in farm.state["fields"]:
+		if not bool(field["owned"]):
+			first_unowned_field = str(field["id"])
+			break
+	app.onboarding.current_step = 7
+	app.onboarding._show_step()
+	await frames(1)
+	check(app.selected_field == first_unowned_field,"Land tutorial highlights an unowned field")
+	app.onboarding._on_next()
+	check(not app.info.visible and farm.owned_count() == 1,"Land tutorial Next does not try to buy the owned starting field")
 	var radial_test_world: Variant = app.world
 	var test_field_point := Vector3(radial_test_world.GRID_X[0]+radial_test_world.FIELD_W/2,0.20,radial_test_world.GRID_Y[0]+radial_test_world.FIELD_H/2)
 	var test_field_pixel: Vector2 = radial_test_world.camera.unproject_position(test_field_point)

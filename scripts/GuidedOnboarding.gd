@@ -69,7 +69,7 @@ const STEPS = [
 		"title": {"en": "Expand Your Farm", "es": "Amplía tu Finca"},
 		"message": {"en": "Tap an unowned field on the map and buy it. More fields = more options.", "es": "Toca una parcela sin dueño en el mapa y cómprala. Más parcelas = más opciones."},
 		"target": {"type": "field", "owned": false},
-		"action": "buyField",
+		"action": "navigate",
 		"skipable": true
 	},
 	{
@@ -275,7 +275,16 @@ func _highlight_target(target: Variant) -> void:
 	var target_type: String = target.get("type", "")
 
 	if target_type == "field":
-		_highlight_field(target.get("id", "plot1"))
+		var field_id: String = str(target.get("id", ""))
+		if field_id.is_empty() and target.has("owned"):
+			for field in farm.state.get("fields", []):
+				if bool(field.get("owned", false)) == bool(target["owned"]):
+					field_id = str(field.get("id", ""))
+					break
+		elif field_id.is_empty():
+			field_id = "plot1"
+		if not field_id.is_empty():
+			_highlight_field(field_id)
 	elif target_type == "speed_controls":
 		_highlight_speed_controls()
 	elif target_type == "hub":
