@@ -19,7 +19,7 @@
 
 Se han eliminado los seis renderizadores 2D/2.5D sustituidos. Los PNG heredados permanecen disponibles como recursos de origen, pero no se utilizan para representar el mundo, los interiores ni el personaje.
 
-Los cuatro estilos de cultivo se agrupan por geometría botánica. Las 27 entradas tienen modelos 3D por fase; algunas comparten forma y se diferencian por color. Los edificios e interiores comparten piezas estilizadas, con variantes según su uso. No se incluyen personajes de alta resolución, esqueletos de animación ni materiales fotorealistas.
+Los cultivos tienen siluetas por familia y especie, con fases de crecimiento diferenciadas: cereales y maíz, raíces, hojas, flores, frutos, vides y árboles. El viento mueve sutilmente las partes altas. Los animales tienen formas y detalles propios de cada especie, variación determinista entre individuos y movimiento idle; los edificios de producción incorporan detalles acordes a su uso. Se conserva el estilo low-poly, sin personajes de alta resolución ni materiales fotorealistas.
 
 ## Correcciones del código original
 
@@ -30,7 +30,7 @@ Los cuatro estilos de cultivo se agrupan por geometría botánica. Las 27 entrad
 
 ## Resultado verificado
 
-**296 comprobaciones de integración, 0 fallos**, con Godot 4.6.3. Se han generado y revisado capturas de las escenas reales.
+**Godot 4.6.2 en Windows:** `tests/smoke.gd`, 401 comprobaciones; `tests/campaign.gd`, 42 comprobaciones; 0 fallos en ambas. Las capturas de escenas reales se generaron y revisaron previamente con Godot 4.6.3 en Linux.
 
 ## Pruebas reproducibles
 
@@ -43,6 +43,7 @@ export XDG_CONFIG_HOME=/tmp/fieldwork-test/config
 export XDG_CACHE_HOME=/tmp/fieldwork-test/cache
 godot --headless --path . --editor --import --quit
 godot --headless --path . --script tests/smoke.gd
+godot --headless --path . --script tests/campaign.gd
 ```
 
 Para capturar las escenas reales hace falta un servidor gráfico y OpenGL 3.3:
@@ -55,4 +56,6 @@ Las capturas `farm`, `detail`, `valley`, `interior`, `portrait` y `phone` usan u
 
 La integración comprueba transacciones, invariantes, guardado y carga, determinismo tras cargar, rechazo de contadores inválidos, 24 colisiones de parcelas, capas, calidad, catálogo de modelos, todas las pantallas en inglés y español, apertura y cierre de ventanas, vistas ocultas y tamaños de 440×800, 960×640 y 1440×900.
 
-Entorno verificado: Godot 4.6.3, Linux, Compatibility/OpenGL y Mesa llvmpipe por software. La resolución reducida y las sombras cambian la carga gráfica, pero no se ha medido rendimiento en hardware del usuario. Android, iOS, mandos, multitáctil físico y exportaciones de escritorio requieren pruebas en sus dispositivos. No se incluye una prueba de campaña completa.
+`tests/campaign.gd` ejecuta la campaña de Historia con acciones reales de cultivo, venta, expansión, construcción, formación y contratos. También resuelve los eventos generados y guarda/reanuda la partida durante la campaña y al finalizar. Con la semilla incluida completó en el día 34, con 2973,6 kg cosechados, un contrato entregado y 15 eventos resueltos. Esta prueba cubre la simulación nativa, no la interacción manual ni todos los dispositivos o semillas.
+
+Entorno verificado para las capturas: Godot 4.6.3, Linux, Compatibility/OpenGL y Mesa llvmpipe por software. La resolución reducida y las sombras cambian la carga gráfica, pero no se ha medido rendimiento en hardware del usuario. Android, iOS, mandos, multitáctil físico y exportaciones de escritorio requieren pruebas en sus dispositivos.

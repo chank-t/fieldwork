@@ -225,10 +225,21 @@ func run() -> void:
 	for id in farm.content["crops"]:
 		for phase in range(4):
 			check(Models.crop_mesh(str(id),phase).get_surface_count() == 1,"Crop geometry "+str(id)+" "+str(phase))
+	var wheat_vertices: PackedVector3Array = Models.crop_mesh("wheat",3).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var maize_vertices: PackedVector3Array = Models.crop_mesh("maize",3).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var grape_vertices: PackedVector3Array = Models.crop_mesh("grape",3).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var apple_vertices: PackedVector3Array = Models.crop_mesh("apple",3).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	check(wheat_vertices.size() != maize_vertices.size(),"Maize and small-grain crops use distinct geometry")
+	check(grape_vertices.size() != apple_vertices.size(),"Grapes and orchard trees use distinct geometry")
 	for id in farm.content["animals"]:
 		var animal: Node3D = Models.animal(view.stage,str(id))
 		check(animal.get_child_count()>0,"Animal model "+str(id))
+		check(animal.get_meta("idle_animation",false),"Animal idle animation "+str(id))
 		animal.free()
+	var animated_animal: Node3D = Models.animal(view.stage,"cow")
+	await create_timer(0.2).timeout
+	check(absf(animated_animal.get_child(0).rotation.z)>0.001,"Animal idle animation changes its pose")
+	animated_animal.free()
 	for id in farm.content["buildings"]:
 		var building: Node3D = Models.building(view.stage,str(id))
 		check(building.get_child_count()>0,"Building model "+str(id))

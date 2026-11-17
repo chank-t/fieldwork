@@ -177,7 +177,7 @@ func _plot(field: Dictionary, index: int) -> void:
 	elif index%3 == 0:
 		for j in range(8): Models.ball(node,Vector3(-3+fmod(j*2.6,6),0.18,-2+fmod(j*1.7,4)),Vector3(0.5,0.4,0.5),palette[season].lightened(0.1))
 	if not crop.is_empty():
-		var is_tree: bool = str(crop["id"]) in ["apple","almond","olive","peach"]
+		var is_tree: bool = str(crop["id"]) in ["apple","almond","olive","peach","grape"]
 		var count: int = 6 if is_tree else 48
 		var instances := MultiMesh.new()
 		instances.transform_format = MultiMesh.TRANSFORM_3D
@@ -280,7 +280,7 @@ func _sync_entities() -> void:
 		var herd: Node3D = Models.root(entities,Vector3(14+(i%8)*5.4,0,43))
 		var count: int = mini(4,int(data.get("count",1)))
 		for j in range(count):
-			var animal: Node3D = Models.animal(herd,str(data["kind"]))
+			var animal: Node3D = Models.animal(herd,str(data["kind"]),i*4+j)
 			animal.position = Vector3((j%2)*1.5,0,(j/2)*1.5)
 			animal.rotation.y = sin(i+j)*0.7
 		Models.hitbox(herd,"animal",str(data["id"]),Vector3(0.7,1,0.7),Vector3(3.2,2.5,3.2))
