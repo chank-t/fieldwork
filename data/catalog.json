@@ -3070,8 +3070,8 @@
         "es": "Historia: La estación del regreso"
       },
       "description": {
-        "en": "Rebuild an inherited valley farm over three chapters. Your harvests and rotations shape the ending. Continue farming afterwards.",
-        "es": "Recupera una finca heredada a lo largo de tres capítulos. Tus cosechas y rotaciones deciden el desenlace. Después puedes seguir cultivando."
+        "en": "Rebuild an inherited valley farm in three chapters and an epilogue. Harvest 150 kg, expand the farm, deliver a contract and complete a course, then finish three buildings and reach 10 reputation. Continue farming afterwards.",
+        "es": "Recupera una finca heredada en tres capítulos y un epílogo. Cosecha 150 kg, expande la finca, completa un contrato y un curso, y termina tres edificios con 10 puntos de reputación. Después puedes seguir cultivando."
       }
     },
     "freeplay": {
@@ -3107,16 +3107,16 @@
         "es": "Inés · tu vecina"
       },
       "text": {
-        "en": "A key, a notebook and three quiet fields: this is what your aunt left you. The farm is still alive, but it needs someone to listen. Your first task is a harvest that can pay its own way.",
-        "es": "Una llave, un cuaderno y tres parcelas tranquilas: eso te dejó tu tía. La finca sigue viva, pero necesita a alguien que la escuche. Tu primera tarea es lograr una cosecha que cubra sus propios gastos."
+        "en": "A key, a notebook and three quiet fields: this is what your aunt left you. The farm is still alive, but it needs someone to listen. Your first milestone is a harvest of at least 150 kg.",
+        "es": "Una llave, un cuaderno y tres parcelas tranquilas: eso te dejó tu tía. La finca sigue viva, pero necesita a alguien que la escuche. Tu primer objetivo es cosechar al menos 150 kg."
       },
       "letter": {
-        "en": "“Start with the soil,” Inés says at the gate. “Water and nutrients have to arrive together. Watch the insects before you decide which ones to remove. I will come back when the first harvest is in.”",
-        "es": "«Empieza por el suelo», dice Inés junto a la verja. «El agua y los nutrientes deben llegar juntos. Observa los insectos antes de decidir cuáles eliminar. Volveré cuando recojas la primera cosecha»."
+        "en": "“Start with the soil,” Inés says at the gate. “Water and nutrients have to arrive together. Watch the insects before you decide which ones to remove. Reach 150 kg and I will come back.”",
+        "es": "«Empieza por el suelo», dice Inés junto a la verja. «El agua y los nutrientes deben llegar juntos. Observa los insectos antes de decidir cuáles eliminar. Cosecha 150 kg y volveré»."
       },
       "goalsIntro": {
-        "en": "Grow a useful harvest and cover the first season’s production costs.",
-        "es": "Consigue una cosecha suficiente y cubre los costes de producción de la primera temporada."
+        "en": "Harvest at least 150 kg.",
+        "es": "Cosecha al menos 150 kg."
       }
     },
     {
@@ -3130,16 +3130,16 @@
         "es": "Darío · encargado del riego"
       },
       "text": {
-        "en": "The first crop has gone to market. Under the surface, its residues and risks remain. Darío helps you read the old notebook: every field has a memory, and the next crop should make use of it.",
-        "es": "La primera cosecha ya llegó al mercado. Bajo la superficie quedan sus restos y sus riesgos. Darío te ayuda a leer el viejo cuaderno: cada parcela tiene memoria y el siguiente cultivo debe aprovecharla."
+        "en": "The first crop has gone to market. Under the surface, its residues and risks remain. Darío helps you read the old notebook: every field has a memory. Now expand the farm and complete your first building.",
+        "es": "La primera cosecha ya llegó al mercado. Bajo la superficie quedan sus restos y sus riesgos. Darío te ayuda a leer el viejo cuaderno: cada parcela tiene memoria. Ahora amplía la finca y termina tu primer edificio."
       },
       "letter": {
-        "en": "“Your aunt never asked one field to do the same job forever. Give the next family a turn. Keep an eye on the tank, too: an empty reservoir cannot irrigate a thirsty crop.”",
-        "es": "«Tu tía nunca le pedía a una parcela que hiciera siempre el mismo trabajo. Dale el turno a otra familia de cultivos. Vigila también el depósito: si está vacío, no podrá regar un cultivo sediento»."
+        "en": "“Your aunt never asked one field to do the same job forever. Rotate your crops to care for the soil, and keep an eye on the tank. Your next milestone is another plot and a finished building.”",
+        "es": "«Tu tía nunca le pedía a una parcela que hiciera siempre el mismo trabajo. Rota los cultivos para cuidar el suelo y vigila el depósito. El siguiente objetivo es otra parcela y un edificio terminado»."
       },
       "goalsIntro": {
-        "en": "Rotate enough fields and sustain a second productive harvest.",
-        "es": "Rota suficientes parcelas y mantén una segunda cosecha productiva."
+        "en": "Buy one additional plot and complete your first building.",
+        "es": "Compra una parcela adicional y termina tu primer edificio."
       }
     },
     {
@@ -3153,16 +3153,16 @@
         "es": "Inés y los agricultores del valle"
       },
       "text": {
-        "en": "The valley is preparing its harvest gathering. There is a place for your farm at the table, but the story you bring depends on the choices you made: the crops you rotated, the allies you protected and the costs you could sustain.",
-        "es": "El valle prepara su encuentro de la cosecha. Hay un lugar para tu finca en la mesa, pero la historia que llevarás depende de tus decisiones: los cultivos que rotaste, los aliados que protegiste y los gastos que pudiste sostener."
+        "en": "The valley is preparing its harvest gathering. There is a place for your farm at the table. Deliver a market contract and complete a course to earn your invitation; then finish three buildings and build 10 reputation to close the campaign.",
+        "es": "El valle prepara su encuentro de la cosecha. Hay un lugar para tu finca en la mesa. Entrega un contrato y completa un curso para conseguir tu invitación; después termina tres edificios y alcanza 10 puntos de reputación para cerrar la campaña."
       },
       "letter": {
-        "en": "“Nobody can promise an easy season,” Inés writes. “Bring us a farm with a future, not just one lucky harvest. Let the records tell the truth.”",
-        "es": "«Nadie puede prometer una temporada fácil», escribe Inés. «Tráenos una finca con futuro, además de una buena cosecha. Que los registros cuenten la verdad»."
+        "en": "“Nobody can promise an easy season,” Inés writes. “A contract and a course will prepare you for the gathering. Give the valley a farm with a future: three finished buildings and 10 reputation.”",
+        "es": "«Nadie puede prometer una temporada fácil», escribe Inés. «Un contrato y un curso te prepararán para el encuentro. Muéstrale al valle una finca con futuro: tres edificios terminados y 10 puntos de reputación»."
       },
       "goalsIntro": {
-        "en": "Build a diverse crop history and finish with a sustainable cumulative result.",
-        "es": "Construye un historial diverso de cultivos y termina con un resultado económico acumulado sostenible."
+        "en": "Deliver one contract and complete one course; then finish three buildings and reach 10 reputation.",
+        "es": "Entrega un contrato y completa un curso; después termina tres edificios y alcanza 10 puntos de reputación."
       }
     }
   ],

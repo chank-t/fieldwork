@@ -2035,10 +2035,15 @@ func _panel_compass60() -> void:
 func _panel_farm() -> void:
 	var active60: Array = Compass60.priorities(farm,language)
 	var overall60: float = Compass60.overall_progress(farm)
-	_caption(right_body,tx("Your next steps", "Tus próximos pasos"),Compass60.farm_stage(overall60,language) + "  ·  " + str(int(overall60*100.0)) + "%")
-	for task60 in active60.slice(0,mini(2,active60.size())):
-		var button60: Button = _button(Compass60.label(task60,language),_jump_compass60.bind(task60),right_body,true)
+	_caption(right_body,tx("Today's briefing","Resumen diario"),tx("Day ","Día ")+str(int(farm.state["time"]["day"]))+" · "+farm.season_name())
+	var daily_index: int = 0
+	for task60 in active60.slice(0,mini(3,active60.size())):
+		var task_count: int = int(task60.get("count",0))
+		var task_title: String = Compass60.label(task60,language)+(" ("+str(task_count)+")" if task_count > 1 else "")
+		var button60: Button = _button(task_title,_jump_compass60.bind(task60),right_body,daily_index==0)
 		button60.tooltip_text = Compass60.label(task60,language,"detail")
+		_line(right_body,Compass60.label(task60,language,"detail"),12,MUTED)
+		daily_index += 1
 	_button(tx("Open Farm Compass and long-term goals", "Abrir brújula y objetivos a largo plazo"),_change_tab.bind("Compass60"),right_body)
 	var player: Dictionary = farm.state["player"]
 	_caption(right_body, str(player["farm"]),tx("Your new beginning in a living valley","Tu comienzo en un valle lleno de vida"))
@@ -2113,6 +2118,10 @@ func _panel_farm() -> void:
 
 	_caption(right_body,tx("Today's conditions","Condiciones de hoy"))
 	_line(right_body,farm.weather_text(),14)
+	var forecast: Array = farm.farm_forecast()
+	if not forecast.is_empty():
+		var tomorrow: Dictionary = forecast[0]
+		_line(right_body,tx("Tomorrow: ","Mañana: ")+str(tomorrow["summary"])+" · "+str(tomorrow["rain_percent"])+"% "+tx("rain chance","de prob. de lluvia")+" · "+str(tomorrow["temperature"])+"°C",13,MUTED)
 	var first: Dictionary = farm.field_of(selected_field)
 	if first.is_empty() or not first["owned"]:
 		first = farm.field_of("plot1")
@@ -3492,14 +3501,40 @@ func _panel_wardrobe53() -> void:
 func _panel_story() -> void:
 	_caption(right_body,tx("Your story & lessons","Tu historia y lecciones"))
 	var story: Dictionary = farm.state["story"]
-	_line(right_body,tx("Story chapter ","Capítulo ") + str(story["chapter"]) + "/4",18,ACCENT)
-	var id: int = int(story["chapter"]) - 1
-	if id < farm.content["story"].size():
-		var chapter: Dictionary = farm.content["story"][id]
+	var stage: int = int(story["chapter"])
+	if bool(story["completed"]):
+		_line(right_body,tx("Campaign complete · keep farming","Campaña completada · sigue cultivando"),18,ACCENT)
+	elif stage >= 4:
+		_line(right_body,tx("Epilogue · all three chapters complete","Epílogo · los tres capítulos completados"),18,ACCENT)
+	else:
+		_line(right_body,tx("Story chapter ","Capítulo ") + str(stage) + "/3",18,ACCENT)
+	var chapters: Array = farm.content.get("story",[])
+	if not chapters.is_empty():
+		var id: int = clampi(stage,1,chapters.size())-1
+		var chapter: Dictionary = chapters[id]
 		_line(right_body,farm.n(chapter,"title"),17)
 		_line(right_body,farm.n(chapter,"text"),13,MUTED)
-	elif story["completed"]:
-		_line(right_body,tx("Your farm has found its place in the valley.","Tu finca ya forma parte del valle."),14)
+	if bool(story["completed"]):
+		_line(right_body,tx("The valley gathering is over. Your farm remains open for free play.","El encuentro del valle ha terminado. La finca sigue abierta para jugar libremente."),14)
+	if str(farm.state.get("mode","")) == "story":
+		_caption(right_body,tx("Campaign path","Ruta de la campaña"))
+		for milestone in farm.story_objectives():
+			var milestone_stage: int = int(milestone["stage"])
+			var is_current: bool = not bool(story["completed"]) and milestone_stage == stage
+			var stage_title: String
+			if milestone_stage <= chapters.size():
+				stage_title = tx("Chapter ","Capítulo ")+str(milestone_stage)+"/3 · "+farm.n(chapters[milestone_stage-1],"title")
+			else:
+				stage_title = tx("Epilogue","Epílogo")
+			_line(right_body,stage_title,14,ACCENT if is_current else MUTED)
+			for goal in milestone["goals"]:
+				var current: float = float(goal["current"])
+				var target: float = float(goal["target"])
+				var complete: bool = current >= target
+				var progress_text: String = str(snappedf(current,0.1))+"/"+str(snappedf(target,0.1))
+				if str(goal["unit"]) != "":
+					progress_text += " "+str(goal["unit"])
+				_line(right_body,("✓ " if complete else "○ ")+farm.n(goal,"text")+" · "+progress_text,13,ACCENT if complete else MUTED)
 	if not _render_starter_guide():
 		_caption(right_body,tx("Interactive tutorial","Tutorial interactivo"))
 		var step: int = int(story["tutorial"])

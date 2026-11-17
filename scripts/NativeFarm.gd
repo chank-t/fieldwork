@@ -3099,6 +3099,29 @@ func _update_story() -> void:
 		_xp(100)
 		_log("The farm story has moved forward", "story")
 
+func story_objectives() -> Array[Dictionary]:
+	if str(state.get("mode","")) != "story":
+		return []
+	var stats: Dictionary = state["stats"]
+	return [
+		{"stage":1,"goals":[_story_goal("Harvest at least 150 kg","Cosecha al menos 150 kg",float(stats.get("harvest_kg",0.0)),150.0,"kg")]},
+		{"stage":2,"goals":[
+			_story_goal("Buy one additional plot","Compra una parcela adicional",float(stats.get("fields_bought",0)),1.0,""),
+			_story_goal("Complete your first building","Termina tu primer edificio",float(stats.get("buildings_completed",0)),1.0,"")
+		]},
+		{"stage":3,"goals":[
+			_story_goal("Deliver one market contract","Entrega un contrato del mercado",float(stats.get("contracts_delivered",0)),1.0,""),
+			_story_goal("Complete one course","Completa un curso",float(state["player"]["courses"].size()),1.0,"")
+		]},
+		{"stage":4,"goals":[
+			_story_goal("Complete three buildings in total","Termina 3 edificios en total",float(stats.get("buildings_completed",0)),3.0,""),
+			_story_goal("Reach 10 reputation","Alcanza 10 puntos de reputación",float(state["economy"]["reputation"]),10.0,"")
+		]}
+	]
+
+func _story_goal(en: String, es: String, current: float, target: float, unit: String) -> Dictionary:
+	return {"text":{"en":en,"es":es},"current":current,"target":target,"unit":unit}
+
 func _spawn_event() -> void:
 	var catalog: Dictionary = Decisions.catalog()
 	var scenarios: Array = catalog.keys()

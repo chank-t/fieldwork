@@ -6,6 +6,7 @@ const Farm = preload("res://scripts/NativeFarm.gd")
 const MainScene = preload("res://Main.tscn")
 const Fixtures = preload("res://tests/capture.gd")
 const Models = preload("res://scripts/three_d/Models.gd")
+const Compass = preload("res://scripts/FarmCompass.gd")
 const Data = preload("res://scripts/NativeData.gd")
 const UIHubs = preload("res://scripts/UIHubs.gd")
 const UIIntegration = preload("res://scripts/UIIntegration.gd")
@@ -31,6 +32,43 @@ func run() -> void:
 	farm.new_game({"language":"es","seed":4567})
 	check(farm.state["fields"].size() == 24,"24 plots retained")
 	check(farm.owned_count() == 1,"Original starting economy retained")
+	var story_path: Array[Dictionary] = farm.story_objectives()
+	check(story_path.size() == 4,"Story path shows three chapters and an epilogue")
+	check(float(story_path[0]["goals"][0]["target"]) == 150.0 and float(story_path[3]["goals"][0]["target"]) == 3.0 and float(story_path[3]["goals"][1]["target"]) == 10.0,"Campaign objectives match the harvest and ending requirements")
+	var briefing_farm := Farm.new()
+	briefing_farm.new_game({"language":"en","seed":4570})
+	var briefing_field: Dictionary = briefing_farm.field_of("plot1")
+	briefing_field["crop"] = {"id":"wheat","development":0.5,"pest_stress":0.1,"disease_stress":0.1}
+	briefing_field["soil"]["water"] = 0.0
+	briefing_field["soil"]["n"] = 0.0
+	briefing_field["pests"]["aphids"] = 20.0
+	briefing_farm.state["inventory"]["wheat"] = 40.0
+	briefing_farm.state["market"]["contracts"] = [{"id":"daily-test","good":"wheat","kg":25.0,"payout":500.0,"deposit":50.0,"deadline":36,"status":"active"}]
+	var briefing_snapshot: String = briefing_farm.export_text()
+	var briefing_tasks: Array = Compass.priorities(briefing_farm,"en")
+	var briefing_ids: Array[String] = []
+	var water_detail: String = ""
+	for task in briefing_tasks:
+		briefing_ids.append(str(task["id"]))
+		if str(task["id"]) == "water":
+			water_detail = Compass.label(task,"en","detail")
+	check(briefing_ids.has("water") and briefing_ids.has("soil") and briefing_ids.has("pests") and briefing_ids.has("disease"),"Daily priorities identify water, nutrient, pest and disease risks")
+	check(briefing_ids.has("contract_deliver") and water_detail.contains("%") and water_detail.contains("tomorrow"),"Daily briefing surfaces a ready contract and rainfall tradeoff")
+	check(briefing_farm.export_text() == briefing_snapshot,"Daily briefing leaves the farm state unchanged")
+	briefing_farm.state["market"]["contracts"][0]["status"] = "open"
+	var offer_tasks: Array = Compass.priorities(briefing_farm,"en")
+	var premium_offer_found: bool = false
+	for task in offer_tasks:
+		premium_offer_found = premium_offer_found or str(task["id"]) == "contract_offer"
+	check(premium_offer_found,"Daily briefing compares a premium contract against the market")
+	briefing_farm.state["market"]["contracts"][0]["status"] = "active"
+	briefing_farm.state["market"]["contracts"][0]["deadline"] = int(briefing_farm.state["time"]["total"])+12
+	briefing_farm.state["inventory"]["wheat"] = 0.0
+	var deadline_tasks: Array = Compass.priorities(briefing_farm,"en")
+	var deadline_warning_found: bool = false
+	for task in deadline_tasks:
+		deadline_warning_found = deadline_warning_found or str(task["id"]) == "contract_deadline"
+	check(deadline_warning_found,"Daily briefing warns before an unfulfillable contract expires")
 	var guide_farm := Farm.new()
 	guide_farm.new_game({"language":"en","seed":4568})
 	var old_onboarding_save: Dictionary = guide_farm.state.duplicate(true)
