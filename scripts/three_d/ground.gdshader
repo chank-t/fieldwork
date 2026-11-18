@@ -7,6 +7,9 @@ uniform vec2 center = vec2(32.0, 27.0);
 uniform float haze_start = 85.0;
 uniform float haze_end = 170.0;
 uniform float variation = 1.0;
+uniform float winter_amount = 0.0;
+uniform float wetness = 0.0;
+uniform float heat_amount = 0.0;
 varying vec3 world_position;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -26,9 +29,14 @@ void fragment() {
 	vec3 color = grass_color.rgb * (0.90 + broad * 0.20 * variation + bands * variation);
 	// slightly warmer, drier patches
 	color = mix(color, color * vec3(1.08, 1.04, 0.86), smoothstep(0.62, 0.85, noise(p * 0.07 + 13.0)) * 0.45 * variation);
+	float snow = smoothstep(0.34, 0.70, noise(p * 0.12 + 37.0));
+	color = mix(color, color * vec3(0.78, 0.85, 0.96), winter_amount * 0.38);
+	color = mix(color, vec3(0.82, 0.88, 0.91), snow * winter_amount * 0.82);
+	color = mix(color, color * vec3(0.68, 0.76, 0.84), wetness * 0.40);
+	color = mix(color, color * vec3(1.10, 0.94, 0.76), heat_amount * 0.24);
 	float d = length(p - center);
 	float haze = smoothstep(haze_start, haze_end, d);
 	ALBEDO = mix(color, haze_color.rgb, haze);
-	ROUGHNESS = 0.95;
-	SPECULAR = 0.2;
+	ROUGHNESS = mix(0.95, 0.62, wetness);
+	SPECULAR = mix(0.2, 0.42, wetness);
 }

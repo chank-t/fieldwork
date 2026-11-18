@@ -36,21 +36,54 @@ static func soil_label(field: Dictionary, spanish: bool) -> String:
 		return "Estable" if spanish else "Stable"
 	return "Vivo" if spanish else "Thriving"
 
-static func rotation_suggestions(field: Dictionary, crops: Dictionary, spanish: bool, limit: int = 4) -> Array:
+static func rotation_streak(field: Dictionary, crops: Dictionary, family: String) -> int:
+	if family.is_empty(): return 0
+	var history: Array = field.get("history",[])
+	if history.is_empty():
+		return 1 if str(field.get("last_family","")) == family else 0
+	var streak: int = 0
+	for offset in range(1,4):
+		var index: int = history.size()-offset
+		if index < 0: break
+		var entry: Variant = history[index]
+		if typeof(entry) != TYPE_DICTIONARY: break
+		var crop: Dictionary = crops.get(str(entry.get("crop","")),{})
+		if crop.is_empty():
+			if streak == 0 and str(field.get("last_family","")) == family: return 1
+			break
+		if str(crop.get("family","")) != family: break
+		streak += 1
+	return streak
+
+static func rotation_growth_factor(streak: int) -> float:
+	return [1.0,0.90,0.80,0.68][clampi(streak,0,3)]
+
+static func rotation_nutrient_factor(streak: int) -> float:
+	return 1.0+0.20*clampf(float(streak),0.0,3.0)
+
+static func rotation_nematode_factor(streak: int) -> float:
+	if streak <= 0: return 0.9
+	return 1.2+0.1*minf(float(streak-1),2.0)
+
+static func rotation_suggestions(field: Dictionary, crops: Dictionary, spanish: bool, limit: int = 4, history_crops: Dictionary = {}) -> Array:
 	var results: Array = []
-	var previous: String = str(field.get("last_family", ""))
+	var history_catalog: Dictionary = history_crops if not history_crops.is_empty() else crops
 	var soil: Dictionary = field.get("soil", {})
 	for crop_id in crops.keys():
 		var entry: Dictionary = crops[crop_id]
 		var family: String = str(entry.get("family", ""))
-		var rotation: bool = previous != "" and family == previous
+		var streak: int = rotation_streak(field,history_catalog,family)
+		if str(field.get("plot_type","")) == "orchard": streak = 0
+		var rotation: bool = streak > 0
 		var nutrient: float = minf(float(soil.get("n",0.0))/35.0, minf(float(soil.get("p",0.0))/17.0,float(soil.get("k",0.0))/65.0))
-		var score: float = 70.0 + 18.0 * clampf(nutrient,0.0,1.0) - (26.0 if rotation else 0.0)
+		var score: float = 70.0 + 18.0 * clampf(nutrient,0.0,1.0) - 26.0*streak
 		if family == "legume" or family == "legumes":
 			score += 8.0
 		var localized: Variant = entry.get("name",crop_id)
 		var name: String = str(localized.get("es" if spanish else "en",crop_id)) if localized is Dictionary else str(localized)
-		results.append({"id":str(crop_id),"name":name,"score":clampf(score,0.0,100.0),"repeat":rotation})
+		results.append({"id":str(crop_id),"name":name,"score":clampf(score,0.0,100.0),"repeat":rotation,"streak":streak,
+			"growth_factor":rotation_growth_factor(streak),"nutrient_factor":rotation_nutrient_factor(streak),
+			"nematode_factor":rotation_nematode_factor(streak),"nitrogen_fixation":family in ["legume","legumes"]})
 	results.sort_custom(func(a,b): return float(a["score"]) > float(b["score"]) if float(a["score"]) != float(b["score"]) else str(a["id"]) < str(b["id"]))
 	return results.slice(0,mini(limit,results.size()))
 

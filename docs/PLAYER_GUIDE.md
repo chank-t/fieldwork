@@ -52,9 +52,11 @@ There are **24 land plots**; not all are owned initially. The catalog has **27 c
 
 For crop selection: select a plot, inspect its type/terrain, choose a compatible seed and confirm the proposed action. Costs and consequences are executed by the farm's transaction engine. Dry soil, pests, fertility, compaction and crop development influence production and are represented through map visuals and overlays.
 
+The rotation planner checks up to the last three harvested crop families on that plot. Repeating a family reduces biomass yield, increases N/P/K demand and encourages nematodes; legumes return part of their nitrogen use to the soil. Check the planner before planting to compare these long-term effects.
+
 ## Animals, buildings and equipment
 
-The catalog includes **11 animal species**, **24 building definitions**, processing recipes and a machinery system. Animal care includes feeding, health interventions and breeding rules. Buildings take time/resources to construct. Machinery purchase, operation wear and servicing can change performance and costs. Garden Studio lets you place or relocate a limited collection of decorations.
+The catalog includes **11 animal species**, **24 building definitions**, processing recipes and a machinery system. Animal care includes feeding, health interventions, breeding and optional grazing plans. Assign a herd to an owned, empty open field and choose a morning, afternoon or daylight schedule. Each paddock supports one group; grazing can reduce feed use and improve welfare and output, while forage recovers naturally when fields rest. Animals move to their paddock during their scheduled hours, so grazing does not require a daily command. Buildings take time/resources to construct. Machinery purchase, operation wear and servicing can change performance and costs. Garden Studio lets you place or relocate a limited collection of decorations.
 
 ## Community and goals
 

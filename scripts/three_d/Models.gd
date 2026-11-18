@@ -127,18 +127,39 @@ static func hitbox(parent: Node3D, kind: String, id: String, center: Vector3, di
 
 static func tree(parent: Node3D, pos: Vector3, tint: Color = Color("#63864c"), fruit: bool = false, fruit_color: Color = Color("#d98948")) -> Node3D:
 	var node: Node3D = root(parent, pos)
+	var foliage: Array[MeshInstance3D] = []
 	cylinder(node, Vector3(0, 1.4, 0), 0.28, 2.8, Color("#79543b"), 0.18)
-	ball(node, Vector3(0, 3.1, 0), Vector3(3.2, 2.9, 3.1), tint)
-	ball(node, Vector3(-0.8, 2.8, 0.5), Vector3(2.1, 1.9, 2.2), tint.darkened(0.08))
-	ball(node, Vector3(0.9, 2.9, -0.5), Vector3(1.9, 1.7, 2.0), tint.lightened(0.06))
+	var crown: MeshInstance3D = ball(node, Vector3(0, 3.1, 0), Vector3(3.2, 2.9, 3.1), tint)
+	crown.set_meta("foliage_base",tint)
+	foliage.append(crown)
+	var left_crown: Color = tint.darkened(0.08)
+	var left_leaf: MeshInstance3D = ball(node, Vector3(-0.8, 2.8, 0.5), Vector3(2.1, 1.9, 2.2), left_crown)
+	left_leaf.set_meta("foliage_base",left_crown)
+	foliage.append(left_leaf)
+	var right_crown: Color = tint.lightened(0.06)
+	var right_leaf: MeshInstance3D = ball(node, Vector3(0.9, 2.9, -0.5), Vector3(1.9, 1.7, 2.0), right_crown)
+	right_leaf.set_meta("foliage_base",right_crown)
+	foliage.append(right_leaf)
 	for i in range(4):
 		var a: float = i * TAU / 4.0
-		ball(node, Vector3(cos(a)*0.9, 2.5 + sin(a)*0.3, sin(a)*0.9), Vector3(1.0, 0.9, 1.0), tint.lightened(0.05))
+		var detail_color: Color = tint.lightened(0.05)
+		var detail_leaf: MeshInstance3D = ball(node, Vector3(cos(a)*0.9, 2.5 + sin(a)*0.3, sin(a)*0.9), Vector3(1.0, 0.9, 1.0), detail_color)
+		detail_leaf.set_meta("foliage_base",detail_color)
+		foliage.append(detail_leaf)
+	node.set_meta("foliage_parts",foliage)
 	if fruit:
 		for i in range(7):
 			var a: float = i * TAU / 7.0
 			ball(node, Vector3(cos(a)*1.5, 2.8+sin(a)*0.55, sin(a)*1.5), Vector3.ONE*0.34, fruit_color)
 	return node
+
+static func set_tree_season(tree_node: Node3D, season: int) -> void:
+	var palettes: Array[Color] = [Color("#96cb70"),Color("#63864c"),Color("#c87945"),Color("#b4c3c6")]
+	var strengths: Array[float] = [0.60,0.08,0.70,0.90]
+	var season_index: int = posmod(season,4)
+	for part in tree_node.get_meta("foliage_parts",[]):
+		var base: Color = part.get_meta("foliage_base",Color("#63864c"))
+		part.material_override = material(base.lerp(palettes[season_index],strengths[season_index]))
 
 static func pine(parent: Node3D, pos: Vector3, height: float = 5.0) -> void:
 	var node: Node3D = root(parent, pos)
@@ -276,56 +297,104 @@ static func building(parent: Node3D, kind: String) -> Node3D:
 		cylinder(node,Vector3(0,3.58,2.2),0.34,0.08,Color("#e2ca84"))
 	return node
 
-static func farmer(parent: Node3D, source: Dictionary) -> Node3D:
+static func farmer(parent: Node3D, source: Dictionary, animate_idle: bool = true) -> Node3D:
 	var look: Dictionary = Style.normalize(source)
 	var node: Node3D = root(parent)
 	var width: float = 1.18 if look["body"] == "broad" else (0.84 if look["body"] == "compact" else 1.0)
 	var skin := Color(str(look["skin"]))
 	var hair := Color(str(look["hair_color"]))
 	var outfit := Color(str(look["outfit"]))
+	var torso: Node3D = root(node,Vector3(0,1.12,0))
+	torso.name = "torso"
+	var upper: Node3D = root(torso,Vector3(0,-1.12,0))
+	upper.name = "upper"
 	for side in [-1.0,1.0]:
-		box(node, Vector3(side*0.19,0.46,0), Vector3(0.31,0.7,0.36), Color(str(look["pants"])))
-		box(node, Vector3(side*0.19,0.14,0.08), Vector3(0.35,0.27,0.52), Color(str(look["boots"])))
-		ball(node, Vector3(side*0.52*width,1.18,0), Vector3(0.27,0.68,0.32), outfit)
-		ball(node, Vector3(side*0.54*width,0.9,0.06), Vector3.ONE*0.24, skin)
-	box(node, Vector3(0,1.15,0), Vector3(0.80*width,0.88,0.48), outfit)
-	box(node, Vector3(0,1.03,0.25), Vector3(0.52,0.56,0.04), outfit.darkened(0.18))
-	box(node, Vector3(0,1.36,0.12), Vector3(0.64,0.18,0.44), outfit.lightened(0.05))
-	ball(node, Vector3(0,1.92,0), Vector3(0.9,0.82,0.74), skin)
+		var leg: Node3D = root(node,Vector3(side*0.19,0.79,0))
+		leg.name = "leg_left" if side < 0 else "leg_right"
+		box(leg,Vector3(0,-0.33,0),Vector3(0.31,0.7,0.36),Color(str(look["pants"])))
+		box(leg,Vector3(0,-0.65,0.08),Vector3(0.35,0.27,0.52),Color(str(look["boots"])))
+		var arm: Node3D = root(upper,Vector3(side*0.4*width,1.52,0))
+		arm.name = "arm_left" if side < 0 else "arm_right"
+		ball(arm,Vector3(side*0.12,-0.34,0),Vector3(0.27,0.68,0.32),outfit)
+		ball(arm,Vector3(side*0.14,-0.62,0.06),Vector3.ONE*0.24,skin)
+	box(upper, Vector3(0,1.15,0), Vector3(0.80*width,0.88,0.48), outfit)
+	box(upper, Vector3(0,1.03,0.25), Vector3(0.52,0.56,0.04), outfit.darkened(0.18))
+	box(upper, Vector3(0,1.36,0.12), Vector3(0.64,0.18,0.44), outfit.lightened(0.05))
+	ball(upper, Vector3(0,1.92,0), Vector3(0.9,0.82,0.74), skin)
 	for side in [-1.0,1.0]:
-		ball(node, Vector3(side*0.16,1.95,0.35), Vector3.ONE*0.075, Color(str(look["eyes"])))
-	ball(node, Vector3(0,1.82,0.41), Vector3(0.12,0.13,0.1), skin.lightened(0.1))
+		ball(upper, Vector3(side*0.16,1.95,0.35), Vector3.ONE*0.075, Color(str(look["eyes"])))
+	ball(upper, Vector3(0,1.82,0.41), Vector3(0.12,0.13,0.1), skin.lightened(0.1))
 
 	if look["hair"] != "bald":
-		ball(node, Vector3(0,2.19,-0.02), Vector3(0.95,0.42,0.80), hair)
+		ball(upper, Vector3(0,2.19,-0.02), Vector3(0.95,0.42,0.80), hair)
 		if look["hair"] in ["long","braids"]:
 			for side in [-1.0,1.0]:
-				ball(node, Vector3(side*0.38,1.76,-0.13), Vector3(0.24,0.96,0.3), hair)
+				ball(upper, Vector3(side*0.38,1.76,-0.13), Vector3(0.24,0.96,0.3), hair)
 		if look["hair"] in ["pony","bun"]:
-			ball(node, Vector3(0,2.06,-0.46), Vector3(0.36,0.45,0.42), hair)
+			ball(upper, Vector3(0,2.06,-0.46), Vector3(0.36,0.45,0.42), hair)
 		if look["hair"] in ["waves","curly"]:
 			for i in range(6):
-				ball(node, Vector3(-0.34+i*0.14,2.2,-0.02), Vector3.ONE*0.27, hair)
+				ball(upper, Vector3(-0.34+i*0.14,2.2,-0.02), Vector3.ONE*0.27, hair)
 	if look["facial_hair"] != "none":
-		ball(node, Vector3(0,1.69,0.26), Vector3(0.5,0.33 if look["facial_hair"] == "beard" else 0.1,0.27), hair)
+		ball(upper, Vector3(0,1.69,0.26), Vector3(0.5,0.33 if look["facial_hair"] == "beard" else 0.1,0.27), hair)
 	if look["hat"] != "none":
 		var hat_color := Color("#d9b677") if look["hat"] == "straw" else Color("#506e68")
-		cylinder(node, Vector3(0,2.26,0), 0.66 if look["hat"] in ["straw","ranger"] else 0.44, 0.10, hat_color)
-		cylinder(node, Vector3(0,2.40,-0.03), 0.36, 0.32, hat_color, 0.28)
+		cylinder(upper, Vector3(0,2.26,0), 0.66 if look["hat"] in ["straw","ranger"] else 0.44, 0.10, hat_color)
+		cylinder(upper, Vector3(0,2.40,-0.03), 0.36, 0.32, hat_color, 0.28)
 		if look["hat"] == "straw":
-			box(node, Vector3(0,2.22,0.18), Vector3(0.74,0.08,0.26), Color("#f1d79b"))
+			box(upper, Vector3(0,2.22,0.18), Vector3(0.74,0.08,0.26), Color("#f1d79b"))
 	if look["accessory"] in ["scarf","bandana"]:
-		box(node, Vector3(0,1.56,0.08), Vector3(0.74,0.18,0.58), Color("#d5815d"))
+		box(upper, Vector3(0,1.56,0.08), Vector3(0.74,0.18,0.58), Color("#d5815d"))
 	if look["accessory"] in ["flower","laurel"]:
-		ball(node, Vector3(0.36,2.2,0.15), Vector3.ONE*0.25, Color("#eba6ac") if look["accessory"] == "flower" else Color("#abc76e"))
+		ball(upper, Vector3(0.36,2.2,0.15), Vector3.ONE*0.25, Color("#eba6ac") if look["accessory"] == "flower" else Color("#abc76e"))
 	if look["accessory"] == "glasses":
 		for side in [-1.0,1.0]:
-			box(node, Vector3(side*0.16,1.94,0.38), Vector3(0.23,0.18,0.04), Color("#394d4a"))
+			box(upper, Vector3(side*0.16,1.94,0.38), Vector3(0.23,0.18,0.04), Color("#394d4a"))
+	node.set_meta("idle_animation",false)
+	if animate_idle and node.is_inside_tree():
+		var idle: Tween = node.create_tween().set_loops()
+		idle.tween_property(torso,"rotation:x",0.018,1.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		idle.tween_property(torso,"rotation:x",-0.018,1.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		node.set_meta("idle_animation",true)
 	return node
 
-static func animal(parent: Node3D, species: String, variant: int = 0) -> Node3D:
+static func pose_farmer(node: Node3D, phase: float, walk_weight: float, work_action: String = "", work_weight: float = 0.0) -> void:
+	var arm_left: Node3D = node.get_node_or_null("torso/upper/arm_left") as Node3D
+	var arm_right: Node3D = node.get_node_or_null("torso/upper/arm_right") as Node3D
+	var leg_left: Node3D = node.get_node_or_null("leg_left") as Node3D
+	var leg_right: Node3D = node.get_node_or_null("leg_right") as Node3D
+	var torso: Node3D = node.get_node_or_null("torso") as Node3D
+	if arm_left == null or arm_right == null or leg_left == null or leg_right == null or torso == null: return
+	var swing: float = sin(phase)*0.48*clampf(walk_weight,0.0,1.0)
+	arm_left.rotation.x = swing
+	arm_right.rotation.x = -swing
+	leg_left.rotation.x = -swing*0.8
+	leg_right.rotation.x = swing*0.8
+	torso.rotation.x = 0.0
+	var reach: float = clampf(work_weight,0.0,1.0)
+	if reach <= 0.0: return
+	match work_action:
+		"plant":
+			torso.rotation.x = 0.18*reach
+			arm_left.rotation.x = lerpf(arm_left.rotation.x,-0.45,reach)
+			arm_right.rotation.x = lerpf(arm_right.rotation.x,-1.05,reach)
+			leg_left.rotation.x += 0.12*reach
+			leg_right.rotation.x += 0.12*reach
+		"irrigate","water":
+			torso.rotation.x = 0.10*reach
+			arm_left.rotation.x = lerpf(arm_left.rotation.x,-0.58,reach)
+			arm_right.rotation.x = lerpf(arm_right.rotation.x,-0.88,reach)
+		"harvest":
+			torso.rotation.x = 0.27*reach
+			arm_left.rotation.x = lerpf(arm_left.rotation.x,-0.82,reach)
+			arm_right.rotation.x = lerpf(arm_right.rotation.x,-0.92,reach)
+			leg_left.rotation.x += 0.22*reach
+			leg_right.rotation.x += 0.22*reach
+
+static func animal(parent: Node3D, species: String, variant: int = 0, animate_idle: bool = true) -> Node3D:
 	var node: Node3D = root(parent)
 	var body: Node3D = root(node)
+	var limbs: Array[Node3D] = []
 	var bird: bool = species in ["hen","duck","turkey","goose"]
 	var tint: Color = {
 		"cow":Color("#eee5d2"),"horse":Color("#9a6948"),"pig":Color("#e4aaa0"),
@@ -347,7 +416,10 @@ static func animal(parent: Node3D, species: String, variant: int = 0) -> Node3D:
 			var wing_color: Color = tint.darkened(0.08)
 			var wing: MeshInstance3D = ball(body,Vector3(side*0.43,1.0,0.1)*bird_scale,Vector3(0.24,0.42,0.88)*bird_scale,wing_color)
 			wing.rotation.x = side*0.16
-			box(body,Vector3(side*0.18,0.28,0.25)*bird_scale,Vector3(0.11,0.42,0.12)*bird_scale,Color("#d49c43"))
+			limbs.append(wing)
+			var bird_leg: Node3D = root(body,Vector3(side*0.18,0.28,0.25)*bird_scale)
+			box(bird_leg,Vector3.ZERO,Vector3(0.11,0.42,0.12)*bird_scale,Color("#d49c43"))
+			limbs.append(bird_leg)
 		if species == "goose":
 			cylinder(body,Vector3(0,1.32,0.62)*bird_scale,0.16*bird_scale,0.72*bird_scale, tint)
 			ball(body,Vector3(0,1.73,0.72)*bird_scale,Vector3(0.48,0.46,0.48)*bird_scale,tint)
@@ -381,7 +453,9 @@ static func animal(parent: Node3D, species: String, variant: int = 0) -> Node3D:
 		for side in [-1.0,1.0]:
 			for z in [-0.56,0.56]:
 				var leg_height: float = 0.66 if species != "horse" else 0.88
-				box(body,Vector3(side*body_size.x*0.31,leg_height*0.5,z),Vector3(0.17,leg_height,0.18),Color("#775f40"))
+				var leg: Node3D = root(body,Vector3(side*body_size.x*0.31,leg_height*0.5,z))
+				box(leg,Vector3.ZERO,Vector3(0.17,leg_height,0.18),Color("#775f40"))
+				limbs.append(leg)
 			ball(body,Vector3(side*body_size.x*0.18,1.35,0.74),Vector3.ONE*0.08,Color("#27352e"))
 		var head_pos: Vector3 = Vector3(0,1.34,0.85)
 		if species == "alpaca": head_pos = Vector3(0,1.85,0.76)
@@ -424,10 +498,17 @@ static func animal(parent: Node3D, species: String, variant: int = 0) -> Node3D:
 			ball(body,Vector3(0,1.3,1.18),Vector3(0.3,0.28,0.24),tint.lightened(0.08))
 	var idle_duration: float = 1.25+fposmod(float(variant)*0.17,0.45)
 	node.set_meta("idle_animation",false)
-	if node.is_inside_tree():
+	if animate_idle and node.is_inside_tree():
 		var idle: Tween = node.create_tween().set_loops()
-		idle.tween_property(body,"rotation:z",0.025,idle_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		idle.tween_property(body,"rotation:z",-0.025,idle_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		idle.tween_property(body,"position:y",0.07,idle_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		idle.parallel().tween_property(body,"rotation:z",0.04,idle_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		idle.tween_property(body,"position:y",0.0,idle_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		idle.parallel().tween_property(body,"rotation:z",-0.04,idle_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		for i in range(limbs.size()):
+			var limb_tween: Tween = node.create_tween().set_loops()
+			var angle: float = 0.11 if i%2 == 0 else -0.11
+			limb_tween.tween_property(limbs[i],"rotation:x",angle,idle_duration*0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			limb_tween.tween_property(limbs[i],"rotation:x",-angle,idle_duration*0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		node.set_meta("idle_animation",true)
 	return node
 

@@ -2518,6 +2518,17 @@ func _panel_valley() -> void:
 		_line(right_body,farm.n(FarmScript.REGIONS[place]) + ": " + str(visits),13,MUTED)
 	_line(right_body,tx("Venom is an abstract fictional wildlife hazard. This game provides no medical, poison or wildlife-safety guidance.","El veneno es un peligro ficticio de juego. No es guia medica ni de seguridad real."),12,MUTED)
 
+func _rotation_suggestion_effect(suggestion: Dictionary) -> String:
+	var streak: int = int(suggestion.get("streak",0))
+	if streak > 0:
+		var biomass: String = str(snappedf(float(suggestion.get("growth_factor",1.0)),0.01))
+		var nutrients: int = int(round((float(suggestion.get("nutrient_factor",1.0))-1.0)*100.0))
+		var nematodes: int = int(round((float(suggestion.get("nematode_factor",1.0))-1.0)*100.0))
+		return tx(" · biomass ×"," · biomasa ×")+biomass+tx(" · NPK use +"," · uso NPK +")+str(nutrients)+"%"+tx(" · nematode pressure +"," · presión de nematodos +")+str(nematodes)+"%"
+	if bool(suggestion.get("nitrogen_fixation",false)):
+		return tx(" · returns 30% of N used"," · devuelve el 30% del N consumido")
+	return ""
+
 func _panel_fields() -> void:
 	_caption(right_body,tx("Your fields","Tus parcelas"),tx("Search and filter all 24 plots; select one to manage it.","Busca y filtra las 24 parcelas; elige una para gestionarla."))
 	var search: LineEdit = _field(right_body,"",tx("Search plot number or crop...","Buscar parcela o cultivo..."))
@@ -2691,7 +2702,7 @@ func _panel_fields() -> void:
 	if crop.is_empty():
 		_caption(right_body,tx("Crop rotation planner","Planificador de rotación"))
 		for idea in farm.rotation_advice(selected_field,3):
-			_line(right_body,str(idea["name"])+" · "+str(int(idea["score"]))+"/100"+(tx(" (same family penalty)"," (penalización por repetir familia)") if bool(idea["repeat"]) else ""),13,ACCENT if not bool(idea["repeat"]) else DANGER)
+			_line(right_body,str(idea["name"])+" · "+str(int(idea["score"]))+"/100"+_rotation_suggestion_effect(idea),13,ACCENT if not bool(idea["repeat"]) else DANGER)
 	var ir: HBoxContainer = _hbox(right_body)
 	_line(ir,tx("Irrigate (mm)","Riego (mm)"),13)
 	var irrigation: SpinBox = _spin(ir,15,1,60,1)
@@ -2835,7 +2846,7 @@ func _panel_planning() -> void:
 	_button(tx("Improve selected field","Mejorar parcela seleccionada"),_change_tab.bind("Fields"),right_body,true)
 	_caption(right_body,tx("Recommended next crops","Cultivos recomendados para rotación"))
 	for suggestion in farm.rotation_advice(selected_field,4):
-		_line(right_body,str(suggestion["name"])+"  "+str(int(suggestion["score"]))+"/100"+(tx(" · rotation risk"," · riesgo de repetición") if suggestion["repeat"] else ""),13)
+		_line(right_body,str(suggestion["name"])+"  "+str(int(suggestion["score"]))+"/100"+_rotation_suggestion_effect(suggestion),13)
 	_caption(right_body,tx("Tomorrow's budget commitments","Compromisos economicos de mañana"))
 	var b: Dictionary = farm.operating_budget()
 	_line(right_body,tx("Buildings per day: ","Edificios al día: ") + _money(float(float(b["building_upkeep"]))),13)
@@ -3026,7 +3037,7 @@ func _panel_buildings() -> void:
 			_button(tx("Move here (EUR 45)","Mover aquí (45 EUR)"),_ask.bind("relocateBuilding",{"buildingId":str(b["id"]),"slot":int(slot_select.get_item_metadata(slot_select.selected))}),right_body)
 
 func _panel_animals() -> void:
-	_caption(right_body,tx("Animal care","Cuidado de animales"),tx("Feed and water influence welfare and produce","Pienso y agua afectan al bienestar y la producción"))
+	_caption(right_body,tx("Animal care","Cuidado de animales"),tx("Plan feed, water and grazing; rested paddocks regrow automatically","Organiza pienso, agua y pastoreo; los potreros descansados se regeneran solos"))
 	_line(right_body,tx("Stored feed: ","Pienso: ") + str(snappedf(farm.stock("feed"),0.1)) + " kg",17,ACCENT)
 	var daily_feed: float = 0.0
 	var daily_water: float = 0.0
@@ -3090,6 +3101,10 @@ func _panel_animals() -> void:
 		_line(right_body,tx("Health ","Salud ")+str(int(float(a["health"])*100))+"%  ·  "+tx("Nutrition ","Nutrición ")+str(int(float(a["nutrition"])*100))+"%  ·  "+tx("Age ","Edad ")+str(a["age_days"])+tx(" days"," días"),13,ACCENT if float(a["health"])>=0.7 else DANGER)
 		var needs: Dictionary = farm.animal_daily_requirements(a)
 		_line(right_body,tx("This group uses per day: ","Este grupo consume al día: ")+str(snappedf(float(needs["feed_kg"]),0.01))+tx(" kg feed · "," kg de pienso · ")+str(snappedf(float(needs["water_m3"]),0.001))+" m³ "+tx("water","de agua"),12,MUTED)
+		if not str(a.get("pasture_schedule","off")) == "off":
+			var pasture_field: Dictionary = farm.field_of(str(a.get("pasture_field","")))
+			var schedule_names: Dictionary = {"morning":tx("morning (06-12)","mañana (06-12)"),"afternoon":tx("afternoon (12-18)","tarde (12-18)"),"day":tx("daylight (06-18)","día (06-18)")}
+			_line(right_body,tx("Grazing: ","Pastoreo: ")+str(pasture_field.get("id",""))+" · "+str(schedule_names.get(str(a["pasture_schedule"]), ""))+" · "+str(snappedf(float(pasture_field.get("pasture",{}).get("forage_kg",0.0)),1))+" kg "+tx("grass available","de pasto disponible"),12,ACCENT)
 		var care_needs: PackedStringArray = []
 		if float(a["nutrition"]) < 0.35: care_needs.append(tx("nutrition is critically low","nutrición muy baja"))
 		if float(a["condition"]) < 0.70: care_needs.append(tx("welfare care would help","necesita mejorar su bienestar"))
@@ -3106,6 +3121,30 @@ func _panel_animals() -> void:
 		_button(tx("Plan breeding","Criar"),_ask.bind("breedAnimal",{"animalId":str(a["id"])}),actions)
 		var change_to: String = "standard" if str(a["feeding"])=="balanced" else "balanced"
 		_button(tx("Switch feed plan","Cambiar alimentación"),_ask.bind("feedingPlan",{"animalId":str(a["id"]),"mode":change_to}),right_body)
+		_line(right_body,tx("Grazing plan (each paddock can serve one group)","Plan de pastoreo (cada potrero puede asignarse a un grupo)"),13,INK)
+		var herd_id: String = str(a["id"])
+		var pasture_ids: Array = [""]
+		var pasture_labels: Array = [tx("No grazing","Sin pastoreo")]
+		for pasture_candidate in farm.state["fields"]:
+			var candidate_id: String = str(pasture_candidate.get("id",""))
+			if farm.pasture_field_available(candidate_id,herd_id):
+				pasture_ids.append(candidate_id)
+				pasture_labels.append(candidate_id+" · "+str(snappedf(float(pasture_candidate.get("pasture",{}).get("forage_kg",0.0)),1))+" kg")
+		var pasture_select: OptionButton = _select(right_body,pasture_ids,pasture_labels)
+		for option_index in range(pasture_ids.size()):
+			if str(pasture_ids[option_index]) == str(a.get("pasture_field","")):
+				pasture_select.select(option_index)
+				break
+		var schedule_ids: Array = ["off","morning","afternoon","day"]
+		var schedule_labels: Array = [tx("No grazing","Sin pastoreo"),tx("Morning · 06-12","Mañana · 06-12"),tx("Afternoon · 12-18","Tarde · 12-18"),tx("Daylight · 06-18","Día · 06-18")]
+		var schedule_select: OptionButton = _select(right_body,schedule_ids,schedule_labels)
+		for option_index in range(schedule_ids.size()):
+			if str(schedule_ids[option_index]) == str(a.get("pasture_schedule","off")):
+				schedule_select.select(option_index)
+				break
+		_button(tx("Save grazing plan","Guardar plan de pastoreo"),func():
+			_direct("pasturePlan",{"animalId":herd_id,"fieldId":str(pasture_select.get_item_metadata(pasture_select.selected)),"schedule":str(schedule_select.get_item_metadata(schedule_select.selected))})
+		,right_body)
 		if int(a.get("pregnancy_due",0))>int(farm.state["time"]["total"]):
 			_line(right_body,tx("Expected newborn in ","Nueva cria prevista en ")+str(int(ceil(float(int(a["pregnancy_due"])-int(farm.state["time"]["total"]))/24.0)))+tx(" days"," días"),13,ACCENT)
 	_line(right_body,tx("Animal goods: eggs, milk, wool, fiber; apiaries make honey.","Productos: huevos, leche, lana, fibra y miel."),13,MUTED)

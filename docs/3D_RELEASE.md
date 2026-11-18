@@ -21,6 +21,12 @@ Se han eliminado los seis renderizadores 2D/2.5D sustituidos. Los PNG heredados 
 
 Los cultivos tienen siluetas por familia y especie, con fases de crecimiento diferenciadas: cereales y maíz, raíces, hojas, flores, frutos, vides y árboles. El viento mueve sutilmente las partes altas. Los animales tienen formas y detalles propios de cada especie, variación determinista entre individuos y movimiento idle; los edificios de producción incorporan detalles acordes a su uso. Se conserva el estilo low-poly, sin personajes de alta resolución ni materiales fotorealistas.
 
+El agricultor usa pivotes low-poly para balancear brazos y piernas al caminar y adoptar poses distintas al plantar, regar y cosechar. Los vecinos tienen movimiento idle; los animales combinan balanceo, rebote y movimiento de extremidades. Estas animaciones son visuales, no cambian la simulación y respetan la opción de movimiento reducido.
+
+La finca diferencia las estaciones con el color de la vegetación y el terreno, y el invierno añade nieve moteada al paisaje. La hora desplaza el sol y cambia gradualmente la luz y el cielo; la lluvia oscurece el suelo, activa gotas y enfría la luz, mientras que el calor aporta un tinte cálido. Los efectos de movimiento y lluvia respetan el ajuste de movimiento reducido y el modo Eco.
+
+Los grupos de animales pueden pastar en parcelas abiertas, vacías y propias con un horario asignado. Cada potrero admite un grupo; el forraje se consume y se recupera con el descanso, la estación, la humedad y la lluvia. El pastoreo reduce la necesidad de pienso y aporta mejoras limitadas de bienestar y producción. Los animales se representan en el potrero durante su franja horaria. La asignación se guarda y se completa con valores seguros al cargar partidas anteriores.
+
 ## Correcciones del código original
 
 - `JSON.parse_string` produce valores `float`. Las comprobaciones estrictas `is int` del validador impedían volver a cargar partidas válidas. `NativeData.is_json_integer` acepta valores numéricos integrales finitos, conserva los límites existentes y rechaza fracciones, cadenas y booleanos. Se aplica también al progreso regional.
@@ -30,7 +36,7 @@ Los cultivos tienen siluetas por familia y especie, con fases de crecimiento dif
 
 ## Resultado verificado
 
-**Godot 4.6.2 en Windows:** `tests/smoke.gd`, 408 comprobaciones; `tests/campaign.gd`, 42 comprobaciones; 0 fallos en ambas. Las capturas de escenas reales se generaron y revisaron previamente con Godot 4.6.3 en Linux.
+**Godot 4.6.2 en Windows:** `tests/smoke.gd`, 439 comprobaciones; `tests/campaign.gd`, 42 comprobaciones; 0 fallos en ambas. Las capturas de escenas reales se generaron y revisaron previamente con Godot 4.6.3 en Linux.
 
 ## Pruebas reproducibles
 
@@ -54,8 +60,8 @@ godot --audio-driver Dummy --path . --script tests/capture.gd -- all /tmp/fieldw
 
 Las capturas `farm`, `detail`, `valley`, `interior`, `portrait` y `phone` usan una partida de prueba poblada; `new` muestra el inicio real con una sola parcela. La finca del menú es una composición de muestra. Ninguna de estas capturas guarda la partida de muestra.
 
-La integración comprueba transacciones, invariantes, guardado y carga, determinismo tras cargar, prioridades diarias de agua, nutrientes, plagas, enfermedades y contratos, 24 colisiones de parcelas, capas, calidad, catálogo de modelos, todas las pantallas en inglés y español, apertura y cierre de ventanas, vistas ocultas y tamaños de 440×800, 960×640 y 1440×900.
+La integración comprueba transacciones, invariantes, guardado y carga, determinismo tras cargar, prioridades diarias de agua, nutrientes, plagas, enfermedades y contratos, rotación de cultivos, planes y descanso de pastoreo, 24 colisiones de parcelas, capas, calidad, catálogo de modelos, todas las pantallas en inglés y español, apertura y cierre de ventanas, vistas ocultas y tamaños de 440×800, 960×640 y 1440×900.
 
-`tests/campaign.gd` ejecuta la campaña de Historia con acciones reales de cultivo, venta, expansión, construcción, formación y contratos. También resuelve los eventos generados y guarda/reanuda la partida durante la campaña y al finalizar. La campaña contiene tres capítulos y un epílogo visible en el panel de Historia; los objetivos finales son completar tres edificios y alcanzar 10 puntos de reputación. Al completarla, la finca permanece abierta para seguir jugando. Con la semilla incluida completó en el día 34, con 2973,6 kg cosechados, un contrato entregado y 15 eventos resueltos. Esta prueba cubre la simulación nativa, no la interacción manual ni todos los dispositivos o semillas.
+`tests/campaign.gd` ejecuta la campaña de Historia con acciones reales de cultivo, venta, expansión, construcción, formación y contratos. También resuelve los eventos generados y guarda/reanuda la partida durante la campaña y al finalizar. La campaña contiene tres capítulos y un epílogo visible en el panel de Historia; los objetivos finales son completar tres edificios y alcanzar 10 puntos de reputación. Al completarla, la finca permanece abierta para seguir jugando. Con la semilla incluida completó en el día 34, con 2956,8 kg cosechados, un contrato entregado y 15 eventos resueltos. Esta prueba cubre la simulación nativa, no la interacción manual ni todos los dispositivos o semillas.
 
 Entorno verificado para las capturas: Godot 4.6.3, Linux, Compatibility/OpenGL y Mesa llvmpipe por software. La resolución reducida y las sombras cambian la carga gráfica, pero no se ha medido rendimiento en hardware del usuario. Android, iOS, mandos, multitáctil físico y exportaciones de escritorio requieren pruebas en sus dispositivos.

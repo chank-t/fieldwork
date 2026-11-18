@@ -8,6 +8,8 @@ const Fixtures = preload("res://tests/capture.gd")
 const Models = preload("res://scripts/three_d/Models.gd")
 const Compass = preload("res://scripts/FarmCompass.gd")
 const Data = preload("res://scripts/NativeData.gd")
+const Life = preload("res://scripts/FarmingLife.gd")
+const AnimalPresentation = preload("res://scripts/WorldPresentation.gd")
 const UIHubs = preload("res://scripts/UIHubs.gd")
 const UIIntegration = preload("res://scripts/UIIntegration.gd")
 var failures: Array[String] = []
@@ -32,6 +34,32 @@ func run() -> void:
 	farm.new_game({"language":"es","seed":4567})
 	check(farm.state["fields"].size() == 24,"24 plots retained")
 	check(farm.owned_count() == 1,"Original starting economy retained")
+	var rotation_field: Dictionary = {"last_family":"cereal","history":[{"crop":"wheat"},{"crop":"barley"}],"soil":{"n":90.0,"p":55.0,"k":220.0}}
+	check(Life.rotation_streak(rotation_field,farm.content["crops"],"cereal") == 2,"Rotation pressure follows the last three harvested families")
+	check(is_equal_approx(Life.rotation_growth_factor(2),0.80) and is_equal_approx(Life.rotation_nutrient_factor(2),1.40) and is_equal_approx(Life.rotation_nematode_factor(2),1.30),"Rotation effects cover biomass, nutrient use and nematode pressure")
+	var rotation_advice: Array = Life.rotation_suggestions(rotation_field,farm.content["crops"],false,27,farm.content["crops"])
+	var wheat_advice: Dictionary = {}
+	for advice in rotation_advice:
+		if str(advice["id"]) == "wheat": wheat_advice = advice
+	check(int(wheat_advice.get("streak",0)) == 2 and is_equal_approx(float(wheat_advice.get("growth_factor",0.0)),0.80),"Rotation advice previews the accumulated family penalty")
+	var rotation_control := Farm.new()
+	rotation_control.new_game({"language":"en","seed":4571})
+	var rotation_repeat := Farm.new()
+	rotation_repeat.new_game({"language":"en","seed":4571})
+	check(rotation_control.act("plant",{"fieldId":"plot1","cropId":"wheat"}).get("ok",false) and rotation_repeat.act("plant",{"fieldId":"plot1","cropId":"wheat"}).get("ok",false),"Rotation simulation test crops planted")
+	var control_field: Dictionary = rotation_control.state["fields"][0]
+	var repeat_field: Dictionary = rotation_repeat.state["fields"][0]
+	repeat_field["last_family"] = "cereal"
+	repeat_field["history"] = [{"crop":"wheat"},{"crop":"barley"}]
+	control_field["pests"]["nematodes"] = 20.0
+	repeat_field["pests"]["nematodes"] = 20.0
+	rotation_control._grow_one_hour()
+	rotation_repeat._grow_one_hour()
+	check(float(repeat_field["crop"]["biomass"]) < float(control_field["crop"]["biomass"]),"Repeated crop family reduces biomass yield")
+	check(float(repeat_field["soil"]["n"]) < float(control_field["soil"]["n"]),"Repeated crop family uses more soil nitrogen")
+	rotation_control._update_field_ecology(control_field,20.0,0.0)
+	rotation_repeat._update_field_ecology(repeat_field,20.0,0.0)
+	check(float(repeat_field["pests"]["nematodes"]) > float(control_field["pests"]["nematodes"]),"Repeated crop family increases nematode pressure")
 	var story_path: Array[Dictionary] = farm.story_objectives()
 	check(story_path.size() == 4,"Story path shows three chapters and an epilogue")
 	check(float(story_path[0]["goals"][0]["target"]) == 150.0 and float(story_path[3]["goals"][0]["target"]) == 3.0 and float(story_path[3]["goals"][1]["target"]) == 10.0,"Campaign objectives match the harvest and ending requirements")
@@ -84,6 +112,48 @@ func run() -> void:
 	var hen_needs: Dictionary = guide_farm.animal_daily_requirements({"kind":"hen","count":2,"feeding":"standard"})
 	check(is_equal_approx(float(hen_needs["feed_kg"]),0.24),"Animal feed need matches the simulation")
 	check(is_equal_approx(float(hen_needs["water_m3"]),0.0005),"Animal water need matches the simulation")
+	var grazing_farm := Farm.new()
+	grazing_farm.new_game({"language":"en","seed":4570})
+	var grazing_herd: Dictionary = {"id":"test-herd","kind":"cow","count":1,"home":"barn","condition":0.8,
+		"age_days":40,"health":1.0,"nutrition":0.8,"feeding":"standard","vet_until":0,"pregnancy_due":0}
+	grazing_farm.state["animals"].append(grazing_herd)
+	var feed_before_grazing: float = float(grazing_farm.animal_daily_requirements(grazing_herd)["feed_kg"])
+	check(grazing_farm.act("pasturePlan",{"animalId":"test-herd","fieldId":"plot1","schedule":"morning"}).get("ok",false),"A herd can be assigned a morning paddock plan")
+	var grazing_needs: Dictionary = grazing_farm.animal_daily_requirements(grazing_farm.state["animals"][0])
+	check(float(grazing_needs["feed_kg"]) < feed_before_grazing and float(grazing_needs["pasture_kg"]) > 0.0,"Available pasture reduces purchased-feed demand")
+	check(AnimalPresentation.is_grazing_hour(grazing_farm.state["animals"][0],8)
+		and not AnimalPresentation.is_grazing_hour(grazing_farm.state["animals"][0],12),"Grazing schedule controls daytime pasture behavior")
+	check(not grazing_farm.act("plant",{"fieldId":"plot1","cropId":"wheat"}).get("ok",false),"An assigned paddock cannot be planted over")
+	check(not grazing_farm.act("treat",{"fieldId":"plot1","method":"solarize"}).get("ok",false),"An assigned paddock cannot be solarized")
+	var other_herd: Dictionary = grazing_herd.duplicate(true)
+	other_herd["id"] = "other-herd"
+	other_herd["pasture_field"] = ""
+	other_herd["pasture_schedule"] = "off"
+	grazing_farm.state["animals"].append(other_herd)
+	check(not grazing_farm.act("pasturePlan",{"animalId":"other-herd","fieldId":"plot1","schedule":"day"}).get("ok",false),"A paddock cannot be double-assigned")
+	grazing_farm.state["animals"].pop_back()
+	var forage_before: float = float(grazing_farm.state["fields"][0]["pasture"]["forage_kg"])
+	grazing_farm._update_animals_daily()
+	check(is_equal_approx(float(grazing_farm.state["fields"][0]["pasture"]["forage_kg"]),forage_before-float(grazing_needs["pasture_kg"])),"Daily grazing consumes the predicted pasture amount")
+	var grazing_clone := Farm.new()
+	check(grazing_clone.load_text(grazing_farm.export_text()).get("ok",false) and str(grazing_clone.state["animals"][0]["pasture_schedule"])=="morning","Grazing schedule and paddock survive save/load")
+	var old_grazing_state: Dictionary = grazing_farm.state.duplicate(true)
+	check(grazing_farm.act("pasturePlan",{"animalId":"test-herd","schedule":"off"}).get("ok",false),"A herd can be removed from its paddock")
+	var forage_before_rest: float = float(grazing_farm.state["fields"][0]["pasture"]["forage_kg"])
+	grazing_farm._update_pastures_daily(0.0)
+	check(float(grazing_farm.state["fields"][0]["pasture"]["forage_kg"]) > forage_before_rest,"Rested pasture regenerates forage")
+	old_grazing_state["fields"][0].erase("pasture")
+	old_grazing_state["animals"][0].erase("pasture_field")
+	old_grazing_state["animals"][0].erase("pasture_schedule")
+	var old_grazing_wire: Dictionary = JSON.parse_string(JSON.stringify(old_grazing_state))
+	var old_grazing_envelope: Dictionary = JSON.parse_string(grazing_farm.export_text())
+	old_grazing_envelope["payload"] = old_grazing_wire
+	old_grazing_envelope["sha256"] = grazing_farm._canonical_json(old_grazing_wire).sha256_text()
+	var repaired_grazing_farm := Farm.new()
+	var legacy_grazing_result: Dictionary = repaired_grazing_farm.load_text(JSON.stringify(old_grazing_envelope))
+	check(legacy_grazing_result.get("ok",false)
+		and str(repaired_grazing_farm.state["animals"][0]["pasture_schedule"])=="off"
+		and is_equal_approx(float(repaired_grazing_farm.state["fields"][0]["pasture"]["forage_kg"]),48.0),"Legacy save receives safe default grazing state: "+str(legacy_grazing_result.get("error","")))
 	check(int(guide_farm.state["story"]["starter_guide"]) == 0,"Starter guide begins with soil preparation")
 	check(guide_farm.act("inspect",{"fieldId":"plot1"}).get("ok",false),"Starter guide soil inspection action")
 	check(int(guide_farm.state["story"]["starter_guide"]) == 1,"Soil inspection advances starter guide")
@@ -232,6 +302,30 @@ func run() -> void:
 	check(view.get_build_slot_screen_pos(0).x >= 0.0,"Building slot lookup returns its position")
 	var state_before: String = farm.export_text()
 	view._sync()
+	var saved_time: Dictionary = farm.state["time"].duplicate(true)
+	var saved_weather: Dictionary = farm.state["weather"].duplicate(true)
+	farm.state["time"]["hour"] = 12
+	farm.state["time"]["season"] = 0
+	farm.state["weather"] = {"kind":"clear","temperature":20.0,"rain":0.0}
+	view._sync()
+	var midday_light: float = view.sunlight.light_energy
+	var spring_leaf: StandardMaterial3D = view.seasonal_trees[0].get_meta("foliage_parts")[0].material_override
+	farm.state["time"]["hour"] = 0
+	farm.state["time"]["season"] = 3
+	farm.state["weather"] = {"kind":"rain","temperature":8.0,"rain":12.0}
+	view._sync()
+	var winter_leaf: StandardMaterial3D = view.seasonal_trees[0].get_meta("foliage_parts")[0].material_override
+	check(view.sunlight.light_energy < midday_light,"Night has dimmer sunlight than midday")
+	check(absf(spring_leaf.albedo_color.r-winter_leaf.albedo_color.r) > 0.1,"Tree foliage changes between spring and winter")
+	check(float(view.ground_material.get_shader_parameter("winter_amount")) == 1.0,"Winter enables snow on the ground")
+	check(float(view.ground_material.get_shader_parameter("wetness")) > 0.0,"Rain darkens and wets the landscape")
+	farm.state["weather"] = {"kind":"heat","temperature":38.0,"rain":0.0}
+	view._sync()
+	check(float(view.ground_material.get_shader_parameter("heat_amount")) > 0.9,"Heat adds a warm visual tint")
+	farm.state["time"] = saved_time
+	farm.state["weather"] = saved_weather
+	view._sync()
+	check(farm.export_text() == state_before,"Seasonal and weather visuals do not mutate farm state")
 	view.change_zoom(0.3)
 	view.focus_field("plot1")
 	view.toggle_projection()
@@ -278,6 +372,22 @@ func run() -> void:
 	await create_timer(0.2).timeout
 	check(absf(animated_animal.get_child(0).rotation.z)>0.001,"Animal idle animation changes its pose")
 	animated_animal.free()
+	var still_animal: Node3D = Models.animal(view.stage,"hen",0,false)
+	check(not still_animal.get_meta("idle_animation",true),"Reduced-motion animal can remain still")
+	still_animal.free()
+	var animated_farmer: Node3D = Models.farmer(view.stage,farm.state["player"],false)
+	Models.pose_farmer(animated_farmer,PI/2,1.0)
+	check(absf(animated_farmer.get_node("leg_right").rotation.x)>0.1,"Walking pose animates farmer legs")
+	Models.pose_farmer(animated_farmer,0.0,0.0,"harvest",1.0)
+	check(absf(animated_farmer.get_node("torso").rotation.x)>0.1 and absf(animated_farmer.get_node("torso/upper/arm_right").rotation.x)>0.1,"Harvest pose bends farmer and reaches forward")
+	animated_farmer.free()
+	view.trigger_work_effect57("plant","plot1")
+	check(view.work_action == "plant","Successful field work starts a visual farmer animation")
+	view._tick(0.45)
+	check(absf(view.avatar.get_node("torso").rotation.x)>0.05,"Field work animates the farmer in the 3D view")
+	check(farm.export_text() == state_before,"Farmer work animation does not mutate farm state")
+	view.work_action = ""
+	Models.pose_farmer(view.avatar,view.walk_phase,0.0)
 	for id in farm.content["buildings"]:
 		var building: Node3D = Models.building(view.stage,str(id))
 		check(building.get_child_count()>0,"Building model "+str(id))
@@ -310,6 +420,14 @@ func run() -> void:
 	view._sync()
 	await frames()
 	check(view.entities.get_child_count()>10,"Populated farm renders buildings, animals, machines and neighbours")
+	app._change_tab("Animals")
+	await frames(1)
+	var grazing_control_found: bool = false
+	for control in app.right_body.get_children():
+		if control is Button and str(control.text).contains("grazing plan"):
+			grazing_control_found = true
+	check(grazing_control_found,"Animal screen renders grazing-plan controls")
+	app._change_tab("Farm")
 	view.show_build_slots = true
 	view.show_garden_slots57 = true
 	view._sync_slots()

@@ -175,6 +175,7 @@ func _make_field(i: int, is_owned: bool = false) -> Dictionary:
 		capacity = 118.0
 	return {"id":"plot" + str(i + 1),"index":i,"owned":is_owned,
 		"terrain":terrain,"crop":{},"last_family":"","history":[],
+		"pasture":{"forage_kg":48.0},
 		"soil":{"water":minf(90.0, capacity),"capacity":capacity,"n":90.0,"p":55.0,"k":220.0,
 		"organic_n":1400.0,"organic_p":220.0,"organic_k":500.0,"mulch":0.0,
 		"organic_matter":2.8,"compaction":0.12,"erosion":0.02},
@@ -383,6 +384,17 @@ func _upgrade_state(candidate: Dictionary) -> Dictionary:
 			else:
 				story["guided_onboarding"] = old_onboarding_step
 			story["starter_guide"] = STARTER_GUIDE.size()
+	if typeof(loaded.get("fields")) == TYPE_ARRAY:
+		for field in loaded["fields"]:
+			if typeof(field) == TYPE_DICTIONARY and not field.has("pasture"):
+				field["pasture"] = {"forage_kg":48.0}
+	if typeof(loaded.get("animals")) == TYPE_ARRAY:
+		for animal in loaded["animals"]:
+			if typeof(animal) == TYPE_DICTIONARY:
+				if not animal.has("pasture_field"):
+					animal["pasture_field"] = ""
+				if not animal.has("pasture_schedule"):
+					animal["pasture_schedule"] = "off"
 	return loaded
 
 func npc_trust(npc_id: String) -> int:
@@ -690,7 +702,7 @@ func rotation_advice(field_id: String, limit: int = 4) -> Array:
 		var crop: Dictionary = content["crops"][crop_id]
 		if Fields52.allows_crop(field,crop):
 			compatible[crop_id] = crop
-	return Life.rotation_suggestions(field,compatible,language=="es",limit)
+	return Life.rotation_suggestions(field,compatible,language=="es",limit,content["crops"])
 
 func soil_health(field_id: String) -> float:
 	var field: Dictionary = field_of(field_id)
@@ -724,12 +736,22 @@ func animal_daily_requirements(animal: Dictionary) -> Dictionary:
 		return {}
 	var count: int = maxi(0,int(animal.get("count",0)))
 	var balanced: bool = str(animal.get("feeding","standard")) == "balanced"
-	var feed: float = count * float(species["feedKgDaily"]) * (0.90 if has_talent("feedPlanner") else 1.0)
-	feed *= 1.10 if balanced else 1.0
-	feed *= 0.88 if str(state["life"]["path"]) == "livestock" else 1.0
-	feed *= 1.0 - 0.09 * machine_efficiency("mixer")
+	var base_feed: float = count * float(species["feedKgDaily"]) * (0.90 if has_talent("feedPlanner") else 1.0)
+	base_feed *= 1.10 if balanced else 1.0
+	base_feed *= 0.88 if str(state["life"]["path"]) == "livestock" else 1.0
+	base_feed *= 1.0 - 0.09 * machine_efficiency("mixer")
+	var pasture_field_id: String = str(animal.get("pasture_field",""))
+	var schedule: String = str(animal.get("pasture_schedule","off"))
+	var grazing_fraction: float = {"morning":0.18,"afternoon":0.18,"day":0.35}.get(schedule,0.0)
+	var pasture_kg: float = 0.0
+	if grazing_fraction > 0.0 and pasture_field_available(pasture_field_id,str(animal.get("id",""))):
+		var pasture_field: Dictionary = field_of(pasture_field_id)
+		pasture_kg = minf(base_feed*grazing_fraction,float(pasture_field.get("pasture",{}).get("forage_kg",0.0)))
+	var grazing_effect: float = clampf(pasture_kg / maxf(0.001,base_feed*0.35),0.0,1.0)
 	var nutrition_gain: float = (0.08 if balanced else 0.034) + 0.009 * machine_efficiency("mixer")
-	return {"feed_kg":feed,"water_m3":count*float(species["waterM3Daily"]),
+	nutrition_gain += 0.012*grazing_effect
+	return {"feed_kg":base_feed-pasture_kg,"water_m3":count*float(species["waterM3Daily"]),
+		"pasture_kg":pasture_kg,"pasture_field":pasture_field_id,"grazing_effect":grazing_effect,
 		"nutrition_gain":nutrition_gain,"base_production_kg":count*float(species["produceKgDaily"])}
 
 func season_name() -> String:
@@ -894,6 +916,12 @@ func _valid_state(candidate: Dictionary) -> bool:
 			return false
 		if int(animal.get("vet_until",-1)) < 0 or int(animal.get("pregnancy_due",-1)) < 0:
 			return false
+		var pasture_schedule: String = str(animal.get("pasture_schedule",""))
+		var pasture_field: String = str(animal.get("pasture_field",""))
+		if not ["off","morning","afternoon","day"].has(pasture_schedule):
+			return false
+		if (pasture_schedule == "off") != (pasture_field == ""):
+			return false
 	var cash: float = float(candidate["economy"].get("cash", -1.0))
 	if not is_finite(cash) or cash < -0.01:
 		return false
@@ -965,6 +993,8 @@ func _valid_state(candidate: Dictionary) -> bool:
 			return false
 		if typeof(f.get("pests")) != TYPE_DICTIONARY or typeof(f.get("diseases")) != TYPE_DICTIONARY or typeof(f.get("beneficial")) != TYPE_DICTIONARY:
 			return false
+		if typeof(f.get("pasture")) != TYPE_DICTIONARY or not _valid_quantity(f["pasture"].get("forage_kg",-1.0)) or float(f["pasture"]["forage_kg"]) > 70.001:
+			return false
 		var soil: Dictionary = f["soil"]
 		for key in ["water", "capacity", "n", "p", "k", "organic_n", "organic_p", "organic_k", "mulch", "organic_matter", "compaction", "erosion"]:
 			if not _valid_quantity(soil.get(key, -1.0)):
@@ -992,6 +1022,21 @@ func _valid_state(candidate: Dictionary) -> bool:
 			for key in ["age","development","biomass","health"]:
 				if not _valid_quantity(f["crop"].get(key,-1.0)):
 					return false
+	var assigned_pastures: Dictionary = {}
+	for animal in candidate["animals"]:
+		var pasture_field_id: String = str(animal.get("pasture_field",""))
+		if pasture_field_id.is_empty():
+			continue
+		var pasture_plot: Dictionary = {}
+		for field in candidate["fields"]:
+			if str(field.get("id","")) == pasture_field_id:
+				pasture_plot = field
+				break
+		if pasture_plot.is_empty() or not bool(pasture_plot.get("owned",false)) or not pasture_plot.get("crop",{}).is_empty() or str(pasture_plot.get("plot_type","")) != "open":
+			return false
+		if assigned_pastures.has(pasture_field_id) or int(pasture_plot.get("cover_until",0)) > int(candidate["time"].get("total",0)) or int(pasture_plot.get("solarize_until",0)) > int(candidate["time"].get("total",0)):
+			return false
+		assigned_pastures[pasture_field_id] = true
 	for key in candidate["inventory"].keys():
 		if not content["goods"].has(str(key)) or not _valid_quantity(candidate["inventory"][key]):
 			return false
@@ -1249,6 +1294,20 @@ func _field_index(id: String) -> int:
 			return i
 	return -1
 
+func _pasture_assigned_to_other(field_id: String, herd_id: String = "") -> bool:
+	for herd in state["animals"]:
+		if str(herd.get("pasture_field","")) == field_id and str(herd.get("id","")) != herd_id:
+			return true
+	return false
+
+func pasture_field_available(field_id: String, herd_id: String = "") -> bool:
+	var field: Dictionary = field_of(field_id)
+	if field.is_empty() or not bool(field.get("owned",false)) or not field.get("crop",{}).is_empty():
+		return false
+	if str(field.get("plot_type","")) != "open" or int(field.get("cover_until",0)) > int(state["time"]["total"]) or int(field.get("solarize_until",0)) > int(state["time"]["total"]):
+		return false
+	return not _pasture_assigned_to_other(field_id,herd_id)
+
 func _apply(kind: String, args: Dictionary) -> Dictionary:
 	var field_id: String = str(args.get("fieldId", "plot1"))
 	var field: Dictionary = field_of(field_id)
@@ -1258,6 +1317,8 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 		"configurePlot":
 			if not _owned(field_id) or not field["crop"].is_empty():
 				return _fail("Plot conversion needs empty land you own")
+			if _pasture_assigned_to_other(field_id):
+				return _fail("Remove the grazing plan before converting this paddock")
 			var target_layout: String = str(args.get("plotType",""))
 			if not Fields52.allowed_layout(target_layout,str(field["terrain"])):
 				return _fail("This layout is unsuitable for the selected terrain")
@@ -1326,6 +1387,8 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 		"coverCrop":
 			if not _owned(field_id) or not field["crop"].is_empty():
 				return _fail("Cover crops need an empty owned field")
+			if _pasture_assigned_to_other(field_id):
+				return _fail("Remove the grazing plan before planting a cover crop")
 			if int(field["cover_until"]) > current:
 				return _fail("A cover crop is already growing here")
 			var cover_cost: float = 28.0 * ecological_care_cost
@@ -1401,6 +1464,25 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 					herd["feeding"] = plan
 					return _ok("Feed plan updated for this animal group")
 			return _fail("Unknown animal group")
+		"pasturePlan":
+			var herd_id: String = str(args.get("animalId",""))
+			var pasture_field_id: String = str(args.get("fieldId",""))
+			var schedule: String = str(args.get("schedule","off"))
+			if not ["off","morning","afternoon","day"].has(schedule):
+				return _fail("Unknown grazing schedule")
+			for herd in state["animals"]:
+				if str(herd.get("id","")) != herd_id:
+					continue
+				if schedule == "off":
+					herd["pasture_field"] = ""
+					herd["pasture_schedule"] = "off"
+					return _ok("Grazing plan removed")
+				if not pasture_field_available(pasture_field_id,herd_id):
+					return _fail("Choose an owned, empty open field that is not assigned to another herd")
+				herd["pasture_field"] = pasture_field_id
+				herd["pasture_schedule"] = schedule
+				return _ok("Grazing paddock and schedule updated")
+			return _fail("Unknown animal group")
 		"vetVisit":
 			var herd_id: String = str(args.get("animalId",""))
 			for herd in state["animals"]:
@@ -1463,6 +1545,8 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 		"plant":
 			if not _owned(field_id):
 				return _fail("You must own this field before planting")
+			if _pasture_assigned_to_other(field_id):
+				return _fail("Remove the grazing plan before planting this paddock")
 			if not field["crop"].is_empty():
 				return _fail("Harvest the existing crop first")
 			if int(field.get("cover_until",0)) > current:
@@ -1492,6 +1576,7 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			_wear_machine("cultivator",0.009)
 			field["soil"]["compaction"] = clampf(float(field["soil"]["compaction"]) + 0.015 + wet_machine_pressure,0.0,1.0)
 			field["crop"] = {"id":crop_id,"age":0.0,"development":0.0,"biomass":0.0,"health":1.0,"planted_at":current,"water_stress":0.0,"pest_stress":0.0,"disease_stress":0.0,"variety":variety_id,"harvest_cycles":0}
+			field["pasture"]["forage_kg"] = 0.0
 			var soil: Dictionary = field["soil"]
 			soil["n"] += float(crop_def.get("seedN", 0.0)) * AREA_HA
 			soil["p"] += float(crop_def.get("seedP", 0.0)) * AREA_HA
@@ -1616,6 +1701,8 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 				return _fail("Unknown treatment")
 			if method == "solarize" and not field["crop"].is_empty():
 				return _fail("Solarization requires an empty field")
+			if method == "solarize" and _pasture_assigned_to_other(field_id):
+				return _fail("Remove the grazing plan before solarizing this paddock")
 			if method == "spray" and float(field["spray_residue"]) > 0.65:
 				return _fail("Spray residue ceiling reached")
 			if not _pay(float(costs[method]) * ecological_care_cost, "treatments", "Treatment " + method):
@@ -1782,6 +1869,8 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			var target: String = field_id if str(info.get("scope", "farm")) == "field" else ""
 			if target != "" and not _owned(target):
 				return _fail("A field building needs owned land")
+			if target != "" and _pasture_assigned_to_other(target):
+				return _fail("Remove the grazing plan before building on this paddock")
 			if building_id == "greenhouse" and str(field.get("plot_type","open")) in ["orchard","paddy"]:
 				return _fail("Greenhouse requires an open field or raised beds")
 			if not building_of(building_id, target).is_empty():
@@ -1875,7 +1964,8 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			if not _pay(float(animal_info["price"]) * count, "animals", "Purchase " + animal_id):
 				return _fail("Insufficient money for animals")
 			state["animals"].append({"id":_id(),"kind":animal_id,"count":count,"home":home,"condition":1.0,
-				"age_days":40,"health":1.0,"nutrition":0.80,"feeding":"standard","vet_until":0,"pregnancy_due":0})
+				"age_days":40,"health":1.0,"nutrition":0.80,"feeding":"standard","vet_until":0,"pregnancy_due":0,
+				"pasture_field":"","pasture_schedule":"off"})
 			_xp(20, "livestock")
 			return _ok("Animals arrived at the farm")
 		"process":
@@ -2726,7 +2816,10 @@ func _grow_one_hour() -> void:
 			disease_pressure += float(f["diseases"][disease_id]) * float(content["diseases"][disease_id]["damageMax"])
 		disease_pressure = minf(0.8, disease_pressure * (0.86 if has_talent("diseaseReader") else 1.0))
 		var crop_family: String = str(def.get("family", ""))
-		var rotation: float = 0.90 if crop_family == str(f["last_family"]) and str(f["plot_type"]) != "orchard" else 1.0
+		var rotation_streak: int = Life.rotation_streak(f,content["crops"],crop_family)
+		if str(f["plot_type"]) == "orchard": rotation_streak = 0
+		var rotation: float = Life.rotation_growth_factor(rotation_streak)
+		var nutrient_demand: float = Life.rotation_nutrient_factor(rotation_streak)
 		var bee_dependency: float = float(def.get("pollinationDependence", 0.0))
 		var bee_sufficiency: float = clampf(float(f["beneficial"]["bees"]) * float(terrain.get("bees", 1.0)), 0.25, 1.0)
 		var pollination: float = 1.0 - bee_dependency * (1.0 - bee_sufficiency)
@@ -2742,9 +2835,9 @@ func _grow_one_hour() -> void:
 		gain_ratio *= Life.organic_score(f)
 		var biomass_gain: float = float(def["biomassMax"]) / Fields52.duration(def,crop) * thermal * gain_ratio
 		# All nutrient uptake is limited by the actually available mineral pool.
-		var needed_n: float = biomass_gain * float(def["nPerBiomass"]) * AREA_HA
-		var needed_p: float = biomass_gain * float(def["pPerBiomass"]) * AREA_HA
-		var needed_k: float = biomass_gain * float(def["kPerBiomass"]) * AREA_HA
+		var needed_n: float = biomass_gain * float(def["nPerBiomass"]) * AREA_HA * nutrient_demand
+		var needed_p: float = biomass_gain * float(def["pPerBiomass"]) * AREA_HA * nutrient_demand
+		var needed_k: float = biomass_gain * float(def["kPerBiomass"]) * AREA_HA * nutrient_demand
 		var available: float = 1.0
 		if needed_n > 0.0:
 			available = minf(available, float(soil["n"]) / needed_n)
@@ -2757,6 +2850,8 @@ func _grow_one_hour() -> void:
 		soil["n"] = maxf(0.0, float(soil["n"]) - needed_n * available)
 		soil["p"] = maxf(0.0, float(soil["p"]) - needed_p * available)
 		soil["k"] = maxf(0.0, float(soil["k"]) - needed_k * available)
+		if crop_family in ["legume","legumes"]:
+			soil["n"] += needed_n * available * 0.30
 		crop["biomass"] = minf(float(def["biomassMax"]), float(crop["biomass"]) + biomass_gain)
 		crop["water_stress"] = 1.0 - water_ratio
 		crop["pest_stress"] = pest_pressure
@@ -2825,6 +2920,7 @@ func _roll_day() -> void:
 			if int(f["protection"][method]) <= int(state["time"]["total"]):
 				f["protection"].erase(method)
 		_update_field_ecology(f, temp, rain)
+	_update_pastures_daily(rain)
 	_update_animals_daily()
 	state["wildlife"]["energy"] = minf(100.0, float(state["wildlife"]["energy"]) + 11.0)
 	_spoil_daily()
@@ -2866,7 +2962,11 @@ func _update_field_ecology(f: Dictionary, temp: float, rain: float) -> void:
 		elif pest_id == "whiteflies" and level_of("greenhouse", str(f["id"])) > 0:
 			habitat = 1.4
 		elif pest_id == "nematodes" and f["crop"] != {}:
-			habitat = 1.2 if str(f["last_family"]) == str(content["crops"][str(f["crop"]["id"])]["family"]) else 0.9
+			var crop_family: String = str(content["crops"][str(f["crop"]["id"])]["family"])
+			var streak: int = Life.rotation_streak(f,content["crops"],crop_family)
+			if str(f["plot_type"]) == "orchard":
+				streak = 1 if str(f["last_family"]) == crop_family else 0
+			habitat = Life.rotation_nematode_factor(streak)
 		var predation: float = 0.0
 		if ["aphids", "whiteflies"].has(pest_id):
 			predation = lady * (0.13 if has_talent("observation") else 0.10)
@@ -2892,6 +2992,21 @@ func _update_field_ecology(f: Dictionary, temp: float, rain: float) -> void:
 		var delta: float = float(disease["growthDaily"]) * (1.0 - severity) * float(terrain["rootRot"] if disease_id == "rootRot" else 1.0) if favorable else -float(disease["recoveryDaily"])
 		f["diseases"][disease_id] = clampf(severity + delta * pest_factor, 0.0, 1.0)
 
+func _update_pastures_daily(rain: float) -> void:
+	var season: int = int(state["time"]["season"]) % 4
+	var seasonal_growth: Array[float] = [2.4,2.1,1.35,0.55]
+	for field in state["fields"]:
+		if not bool(field.get("owned",false)) or not field.get("crop",{}).is_empty() or str(field.get("plot_type","")) != "open":
+			continue
+		if int(field.get("cover_until",0)) > int(state["time"]["total"]) or int(field.get("solarize_until",0)) > int(state["time"]["total"]):
+			continue
+		var soil: Dictionary = field.get("soil",{})
+		var moisture: float = float(soil.get("water",0.0))/maxf(1.0,float(soil.get("capacity",1.0)))
+		var fertility: float = clampf(0.78+float(soil.get("organic_matter",2.8))*0.06,0.75,1.35)
+		var growth: float = seasonal_growth[season]*clampf(0.35+moisture*0.65,0.35,1.0)*fertility
+		growth += minf(0.8,maxf(0.0,rain)*0.06)
+		field["pasture"]["forage_kg"] = minf(70.0,float(field["pasture"].get("forage_kg",0.0))+growth)
+
 func _update_animals_daily() -> void:
 	for a in state["animals"]:
 		var species: Dictionary = content["animals"][str(a["kind"])]
@@ -2899,12 +3014,16 @@ func _update_animals_daily() -> void:
 		var needs: Dictionary = animal_daily_requirements(a)
 		var feed_needed: float = float(needs["feed_kg"])
 		var water_needed: float = float(needs["water_m3"])
+		var pasture_kg: float = float(needs.get("pasture_kg",0.0))
+		var pasture_field: Dictionary = field_of(str(needs.get("pasture_field","")))
+		if pasture_kg > 0.0 and not pasture_field.is_empty():
+			pasture_field["pasture"]["forage_kg"] = maxf(0.0,float(pasture_field["pasture"]["forage_kg"])-pasture_kg)
 		var enough_feed: bool = stock("feed") + 0.001 >= feed_needed
 		var enough_water: bool = float(state["water"]["stored"]) + 0.001 >= water_needed
 		if enough_feed and enough_water:
 			_stock_take("feed",feed_needed)
 			state["water"]["stored"] = maxf(0.0,float(state["water"]["stored"])-water_needed)
-			a["condition"] = minf(1.0,float(a["condition"]) + 0.018 + _effect("animal_welfare"))
+			a["condition"] = minf(1.0,float(a["condition"]) + 0.018 + 0.006*float(needs.get("grazing_effect",0.0)) + _effect("animal_welfare"))
 			a["nutrition"] = minf(1.0,float(a["nutrition"]) + float(needs["nutrition_gain"]))
 			_wear_machine("mixer",0.003)
 		else:
@@ -2924,7 +3043,8 @@ func _update_animals_daily() -> void:
 		var multiplier: float = 1.0 + (0.1 if has_course("livestock") else 0.0) + (0.15 if has_talent("rancher") else 0.0) + (0.12 if has_talent("happyHerd") else 0.0)
 		multiplier *= 1.09 if str(state["life"]["path"]) == "livestock" else 1.0
 		var yield_factor: float = (0.0 if not enough_feed or not enough_water else 1.0)
-		var produced: float = count * float(species["produceKgDaily"]) * float(a["condition"]) * float(a["health"]) * (0.55 + 0.45*float(a["nutrition"])) * multiplier * elderly * yield_factor * (1.0 + mastery_bonus("livestock"))
+		var grazing_bonus: float = 1.0 + 0.04*float(needs.get("grazing_effect",0.0))
+		var produced: float = count * float(species["produceKgDaily"]) * float(a["condition"]) * float(a["health"]) * (0.55 + 0.45*float(a["nutrition"])) * multiplier * elderly * yield_factor * grazing_bonus * (1.0 + mastery_bonus("livestock"))
 		var accepted: float = _stock_add(str(species["produceGood"]),produced)
 		state["stats"]["animal_kg"] += accepted
 	if ready("apiary"):

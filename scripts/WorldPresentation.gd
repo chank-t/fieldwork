@@ -53,6 +53,8 @@ static func animal_behavior(animal: Dictionary, hour: int, index: int, elapsed: 
 		return "unwell"
 	if hour >= 20 or hour < 6:
 		return "sleeping"
+	if is_grazing_hour(animal,hour):
+		return "grazing"
 	if hour >= 12 and hour < 14:
 		return "resting"
 	# Pattern is deterministic: no RNG, and the clock is the only simulation input.
@@ -62,6 +64,19 @@ static func animal_behavior(animal: Dictionary, hour: int, index: int, elapsed: 
 	if phase == 1:
 		return "walking"
 	return "grazing"
+
+static func is_grazing_hour(animal: Dictionary, hour: int) -> bool:
+	var schedule: String = str(animal.get("pasture_schedule","off"))
+	if str(animal.get("pasture_field","")).is_empty():
+		return false
+	match schedule:
+		"morning":
+			return hour >= 6 and hour < 12
+		"afternoon":
+			return hour >= 12 and hour < 18
+		"day":
+			return hour >= 6 and hour < 18
+	return false
 
 static func animal_offset(index: int, hour: int, elapsed: float, condition: float) -> Vector2:
 	var pacing: float = 0.14 if condition < 0.40 else 0.46
