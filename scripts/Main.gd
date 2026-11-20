@@ -381,15 +381,13 @@ func _button(value: String, cb: Callable, parent: Node, primary: bool = false) -
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.focus_mode = Control.FOCUS_ALL
 	b.add_theme_font_size_override("font_size",maxi(12,int(round(14.0 * ui_scale))))
-	b.add_theme_stylebox_override("normal", _style(Color("#24563c") if high_contrast and primary else (ACCENT if primary else (Color("#f1f9eb") if high_contrast else ACCENT2)),9))
-	b.add_theme_stylebox_override("hover", _style(Color("#355a47") if primary else Color("#d6e0cc"),9))
-	b.add_theme_stylebox_override("pressed", _style(Color("#2c4b3b") if primary else Color("#c5d3b9"),9))
+	var normal := _style(Color("#24563c") if high_contrast and primary else (ACCENT if primary else (Color("#f1f9eb") if high_contrast else ACCENT2)), 9)
+	var hover := _style(Color("#355a47") if primary else Color("#d6e0cc"), 9)
+	var pressed := _style(Color("#2c4b3b") if primary else Color("#c5d3b9"), 9)
+	ThemeKit.button_states(b, normal, hover, pressed)
 	b.add_theme_stylebox_override("disabled", _style(Color("#e0e2d7"),9))
-	b.add_theme_color_override("font_disabled_color",Color("#7b8475"))
+	b.add_theme_color_override("font_disabled_color",Color("#596759"))
 	b.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT,9,Color("#f3b24e")))
-	b.add_theme_color_override("font_color", Color.WHITE if primary else INK)
-	b.add_theme_color_override("font_hover_color", Color.WHITE if primary else INK)
-	b.add_theme_color_override("font_pressed_color", Color.WHITE if primary else INK)
 	b.pressed.connect(cb)
 	parent.add_child(b)
 	return b
@@ -432,12 +430,12 @@ func _tab_style(active: bool) -> StyleBoxFlat:
 	return style
 
 func _style_tab(button: Button, active: bool) -> void:
-	button.add_theme_stylebox_override("normal",_tab_style(active))
-	var hover: StyleBoxFlat = _tab_style(active)
-	if not active: hover.bg_color = Color("#dfe6d5")
-	button.add_theme_stylebox_override("hover",hover)
-	button.add_theme_color_override("font_color",Color.WHITE if active else INK)
-	button.add_theme_color_override("font_hover_color",Color.WHITE if active else INK)
+	var normal := _tab_style(active)
+	var hover := _tab_style(active)
+	var pressed := _tab_style(active)
+	hover.bg_color = Color("#355a47") if active else Color("#dfe6d5")
+	pressed.bg_color = Color("#2c4b3b") if active else Color("#c5d3b9")
+	ThemeKit.button_states(button, normal, hover, pressed)
 
 func _stat_tile(parent: Node, icon_path: String, title: String, value: String, value_color: Color = INK) -> void:
 	var tile: PanelContainer = PanelContainer.new()
@@ -551,6 +549,7 @@ func _clear_scene() -> void:
 		remove_child(child)
 		child.queue_free()
 	game_running = false
+	pending.clear()
 	confirm = null
 	info = null
 	import_dialog = null
@@ -933,14 +932,18 @@ func _create_mobile_nav55(parent: Node) -> void:
 		b.custom_minimum_size = Vector2(0,55.0*ui_scale)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.add_theme_font_size_override("font_size",maxi(12,int(13.0*ui_scale)))
-		b.add_theme_stylebox_override("normal",_nav_style55(ACCENT if id == active_tab else ACCENT2))
-		b.add_theme_stylebox_override("hover",_nav_style55(Color("#b7dac5")))
+		_style_mobile_tab(b, id == active_tab)
 		mobile_nav_buttons[id] = b
 	var more: Button = _button(tx("More","Más"),_show_screen_picker,nav)
 	more.custom_minimum_size = Vector2(0,55.0*ui_scale)
 	more.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	more.add_theme_font_size_override("font_size",maxi(12,int(13.0*ui_scale)))
-	more.add_theme_stylebox_override("normal",_nav_style55(ACCENT2))
+	_style_mobile_tab(more, false)
+
+func _style_mobile_tab(button: Button, active: bool) -> void:
+	ThemeKit.button_states(button, _nav_style55(ACCENT if active else ACCENT2),
+		_nav_style55(Color("#355a47") if active else Color("#b7dac5")),
+		_nav_style55(Color("#2c4b3b") if active else Color("#c5d3b9")))
 
 func _sync_mobile_panels55() -> void:
 	if not compact_mode or mobile_map_pane == null or mobile_detail_pane == null:
@@ -1303,6 +1306,7 @@ func _show_game() -> void:
 	confirm.theme = theme
 	confirm.title = tx("Confirm farm action","Confirmar acción")
 	confirm.confirmed.connect(_commit_pending)
+	confirm.canceled.connect(func(): pending.clear())
 	layer.add_child(confirm)
 	_style_dialog_button(confirm.get_ok_button())
 	_style_dialog_button(confirm.get_cancel_button())
@@ -1473,16 +1477,15 @@ func _update_nav_state() -> void:
 	for id in mobile_nav_buttons.keys():
 		var mobile: Button = mobile_nav_buttons[id]
 		if is_instance_valid(mobile):
-			var mobile_active: bool = str(id) == active_tab
-			mobile.add_theme_stylebox_override("normal",_nav_style55(ACCENT if mobile_active else ACCENT2))
-			mobile.add_theme_color_override("font_color",Color.WHITE if mobile_active else INK)
+			_style_mobile_tab(mobile, str(id) == active_tab)
 	for id in nav_buttons.keys():
 		var button: Button = nav_buttons[id]
 		if not is_instance_valid(button):
 			continue
 		var is_active: bool = str(id) == active_tab
-		button.add_theme_stylebox_override("normal",_style(ACCENT if is_active else ACCENT2,9))
-		button.add_theme_color_override("font_color",Color.WHITE if is_active else INK)
+		ThemeKit.button_states(button, _style(ACCENT if is_active else ACCENT2, 9),
+			_style(Color("#355a47") if is_active else Color("#d6e0cc"), 9),
+			_style(Color("#2c4b3b") if is_active else Color("#c5d3b9"), 9))
 
 func _update_visual_mode() -> void:
 	_sync_mobile_panels55()
@@ -1895,7 +1898,7 @@ func _ask(kind: String, args: Dictionary = {}) -> void:
 				effect += "\n" + tx("Reservoir water %.1f m³", "Agua de la reserva %.1f m³") % float(preview["water_m3"])
 
 	if kind == "harvest":
-		effect = _plot_name(str(args["fieldId"])) + " · " + tx("To storage", "Al almacén") + " %.1f kg" % float(preview["stored_kg"])
+		effect = _plot_name(str(preview["harvest_report"]["field_id"])) + " · " + tx("To storage", "Al almacén") + " %.1f kg" % float(preview["stored_kg"])
 		if preview["early"]:
 			effect += "\n" + tx("Early harvest yields 25% less at the current biomass and gives standard grade only.", "Cosechar antes reduce un 25 % el rendimiento de la biomasa actual. Todo el producto será de calidad estándar.")
 		if float(preview["overflow_kg"]) > 0.0:
@@ -1928,8 +1931,9 @@ func _direct(kind: String, args: Dictionary = {}) -> void:
 	if not result.get("ok",false):
 		_notify(str(result.get("error","Unknown failure")))
 		return
+	var tutorial_advanced: bool = onboarding != null and onboarding.on_action_completed(kind, args)
 	var saved59: Dictionary = {}
-	if kind != "move" and kind != "inspect":
+	if tutorial_advanced or (kind != "move" and kind != "inspect"):
 		saved59 = farm.save_file()
 	if world != null and is_instance_valid(world):
 		world.trigger_work_effect57(kind, str(args.get("fieldId", "")), result)

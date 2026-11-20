@@ -13,6 +13,25 @@ static func panel(color: Color = PAPER, radius: int = 12) -> StyleBoxFlat:
 	style.set_content_margin_all(12)
 	return style
 
+static func readable_text(background: Color) -> Color:
+	if background.a < 0.5:
+		return INK
+	var luminance := background.srgb_to_linear().get_luminance()
+	var dark := (luminance + 0.05) / (INK.srgb_to_linear().get_luminance() + 0.05)
+	var light := 1.05 / (luminance + 0.05)
+	return Color.WHITE if light > dark else INK
+
+static func button_states(button: Button, normal: StyleBoxFlat, hover: StyleBoxFlat, pressed: StyleBoxFlat) -> void:
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("hover_pressed", pressed)
+	button.add_theme_color_override("font_color", readable_text(normal.bg_color))
+	button.add_theme_color_override("font_focus_color", readable_text(normal.bg_color))
+	button.add_theme_color_override("font_hover_color", readable_text(hover.bg_color))
+	button.add_theme_color_override("font_pressed_color", readable_text(pressed.bg_color))
+	button.add_theme_color_override("font_hover_pressed_color", readable_text(pressed.bg_color))
+
 static func create() -> Theme:
 	var theme := Theme.new()
 	theme.default_font = SANS
@@ -21,6 +40,9 @@ static func create() -> Theme:
 		theme.set_color("font_color",type,INK)
 		theme.set_color("font_disabled_color",type,Color("#7e877a"))
 		theme.set_color("font_hover_color",type,INK)
+		theme.set_color("font_focus_color",type,INK)
+		theme.set_color("font_pressed_color",type,INK)
+		theme.set_color("font_hover_pressed_color",type,INK)
 	theme.set_stylebox("panel","PanelContainer",panel())
 	theme.set_stylebox("panel","PopupMenu",panel())
 	theme.set_stylebox("panel","AcceptDialog",panel())

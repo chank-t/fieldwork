@@ -191,11 +191,8 @@ func _build_ui() -> void:
 	skip_button.text = "Skip"
 	skip_button.custom_minimum_size = Vector2(100, 44)
 	skip_button.add_theme_font_size_override("font_size", 14)
-	var skip_style = StyleBoxFlat.new()
-	skip_style.bg_color = Color("#e1e5d6")
-	skip_style.set_corner_radius_all(8)
-	skip_button.add_theme_stylebox_override("normal", skip_style)
-	skip_button.add_theme_color_override("font_color", Color("#687e70"))
+	ThemeKit.button_states(skip_button, ThemeKit.panel(Color("#e1e5d6"), 8),
+		ThemeKit.panel(Color("#d6e0cc"), 8), ThemeKit.panel(Color("#c5d3b9"), 8))
 	skip_button.pressed.connect(_on_skip)
 	button_row.add_child(skip_button)
 
@@ -207,11 +204,8 @@ func _build_ui() -> void:
 	next_button.text = "Next"
 	next_button.custom_minimum_size = Vector2(120, 44)
 	next_button.add_theme_font_size_override("font_size", 14)
-	var next_style = StyleBoxFlat.new()
-	next_style.bg_color = Color("#3f6652")
-	next_style.set_corner_radius_all(8)
-	next_button.add_theme_stylebox_override("normal", next_style)
-	next_button.add_theme_color_override("font_color", Color("#f7f4e9"))
+	ThemeKit.button_states(next_button, ThemeKit.panel(Color("#3f6652"), 8),
+		ThemeKit.panel(Color("#355a47"), 8), ThemeKit.panel(Color("#2c4b3b"), 8))
 	next_button.pressed.connect(_on_next)
 	button_row.add_child(next_button)
 
@@ -257,11 +251,11 @@ func _show_step() -> void:
 
 	# Auto-advance for non-interactive steps
 	if step_data["action"] in ["none", "complete"]:
-		call_deferred("_auto_advance")
+		call_deferred("_auto_advance", current_step)
 
-func _auto_advance() -> void:
+func _auto_advance(step: int) -> void:
 	await main_ui.get_tree().create_timer(3.0).timeout
-	if is_active and current_step < STEPS.size():
+	if is_active and is_instance_valid(overlay) and overlay.is_inside_tree() and current_step == step:
 		_on_next()
 
 func _highlight_target(target: Variant) -> void:
@@ -394,63 +388,54 @@ func _draw_ring(canvas: Control, radius: float, color: Color) -> void:
 func _on_next() -> void:
 	var step_data: Dictionary = STEPS[current_step]
 	var action: String = str(step_data["action"])
-	if ["inspect","plant","irrigate","harvest","buyField"].has(action):
-		var action_args: Dictionary = step_data.get("args",{})
-		var preview: Dictionary = farm.quote(action,action_args)
-		if not bool(preview.get("ok",false)):
-			var lang: String = farm.language
-			var instruction: String = str(step_data["message"].get(lang,step_data["message"]["en"]))
-			message_label.text = instruction + "\n\n" + farm.message(str(preview.get("error","Action is not available yet")))
+	if action in ["inspect", "plant", "irrigate", "harvest"]:
+		var action_args: Dictionary = step_data.get("args", {}).duplicate()
+		action_args["fieldId"] = step_data["target"]["id"]
+		var preview: Dictionary = farm.quote(action, action_args)
+		if not preview.get("ok", false):
+			_show_action_error(step_data, str(preview.get("error", "")))
 			return
-
-	# Execute step action if needed
+		if action in ["plant", "harvest"]:
+			main_ui._ask(action, action_args)
+		else:
+			main_ui._direct(action, action_args)
+		return
 	if action == "grow":
-		var growth_result: Dictionary = farm.act("tutorialGrowCrop",{})
-		if not bool(growth_result.get("ok",false)):
-			var lang: String = farm.language
-			var instruction: String = str(step_data["message"].get(lang,step_data["message"]["en"]))
-			message_label.text = instruction + "\n\n" + farm.message(str(growth_result.get("error","Tutorial growth is unavailable")))
+		var result: Dictionary = farm.act("tutorialGrowCrop", {})
+		if not result.get("ok", false):
+			_show_action_error(step_data, str(result.get("error", "")))
 			return
-	elif action != "none" and action != "complete" and action != "navigate":
-		_execute_action(step_data)
-
-	current_step += 1
-
-	# Save progress
-	farm.state["story"]["guided_onboarding"] = current_step
+	_advance_step()
 	farm.save_file()
 
-	if current_step >= STEPS.size():
-		_complete()
-	else:
-		_show_step()
+func _show_action_error(step_data: Dictionary, error: String) -> void:
+	var lang: String = farm.language
+	var instruction: String = str(step_data["message"].get(lang, step_data["message"]["en"]))
+	message_label.text = instruction + "\n\n" + farm.message(error)
 
-func _execute_action(step_data: Dictionary) -> void:
-	var action: String = step_data["action"]
-	var args: Dictionary = step_data.get("args", {})
+func on_action_completed(action: String, args: Dictionary) -> bool:
+	if not is_active or current_step >= STEPS.size():
+		return false
+	var step: Dictionary = STEPS[current_step]
+	var target: Variant = step.get("target")
+	if step["action"] != action or not target is Dictionary or target.get("type") != "field":
+		return false
+	if str(args.get("fieldId", "plot1")) != target.get("id"):
+		return false
+	_advance_step()
+	return true
 
-	match action:
-		"inspect":
-			main_ui._direct("inspect", args)
-		"plant":
-			main_ui._ask("plant", args)
-		"irrigate":
-			main_ui._direct("irrigate", args)
-		"speed":
-			main_ui._set_speed(args.get("speed", 1))
-		"harvest":
-			main_ui._ask("harvest", args)
-		"buyField":
-			main_ui._ask("buyField", args)
-		_:
-			pass
+func _advance_step() -> void:
+	current_step += 1
+	farm.state["story"]["guided_onboarding"] = current_step
+	_show_step()
 
 func _on_skip() -> void:
 	if current_step < STEPS.size() - 1:
 		# Skip to completion
 		current_step = STEPS.size() - 1
 		farm.state["story"]["guided_onboarding"] = current_step
-		farm._direct("starterGuide", {"skip": true})
+		farm.act("starterGuide", {"skip": true})
 		farm.save_file()
 		_show_step()
 	else:

@@ -28,6 +28,34 @@ func check(condition: bool, description: String) -> void:
 func frames(count: int = 3) -> void:
 	for i in range(count): await process_frame
 
+func check_button_contrast(button: Button, caption: String) -> void:
+	for pair in [["normal","font_color"], ["normal","font_focus_color"], ["hover","font_hover_color"], ["pressed","font_pressed_color"]]:
+		var style: StyleBoxFlat = button.get_theme_stylebox(pair[0])
+		var background := style.bg_color
+		if background.a < 0.5:
+			background = Color("#fafaf2")
+		var bg := background.srgb_to_linear().get_luminance()
+		var fg := button.get_theme_color(pair[1]).srgb_to_linear().get_luminance()
+		check((maxf(bg, fg) + 0.05) / (minf(bg, fg) + 0.05) >= 4.5, caption + " contrast in " + pair[1])
+
+func check_roof() -> void:
+	var surface := Models.roof_mesh().surface_get_arrays(0)
+	var vertices: PackedVector3Array = surface[Mesh.ARRAY_VERTEX]
+	var normals: PackedVector3Array = surface[Mesh.ARRAY_NORMAL]
+	var edges := {}
+	var faces_outward := vertices.size() == 24
+	var interior := Vector3(0, 0.15, 0)
+	for i in range(0, vertices.size(), 3):
+		var center := (vertices[i] + vertices[i + 1] + vertices[i + 2]) / 3.0
+		faces_outward = faces_outward and normals[i].dot(center - interior) > 0.0
+		for j in range(3):
+			var a := str(vertices[i + j])
+			var b := str(vertices[i + (j + 1) % 3])
+			var edge := a + b if a < b else b + a
+			edges[edge] = int(edges.get(edge, 0)) + 1
+	check(faces_outward, "Gabled roof triangles face outward")
+	check(edges.values().all(func(count: int): return count == 2), "Gabled roof has no gaps or open edges")
+
 func check_early_harvest() -> void:
 	var farm := Farm.new()
 	farm.new_game({"language": "en", "seed": 4572})
@@ -155,6 +183,7 @@ func check_valley_upgrades() -> void:
 	valley.free()
 
 func run() -> void:
+	check_roof()
 	check_early_harvest()
 	check_farm_work()
 	check_valley_upgrades()
@@ -451,6 +480,29 @@ func run() -> void:
 	app.onboarding._on_next()
 	check(app.onboarding.current_step == 5 and app.pending.is_empty() and app.onboarding.message_label.text.contains("\n\n"),"Tutorial waits for the crop to ripen before advancing harvest")
 	farm.state["fields"][0]["crop"] = tutorial_crop
+	farm.state["fields"][0]["crop"]["development"] = 1.0
+	farm.state["story"]["guided_onboarding"] = 5
+	var tutorial_snapshot: Dictionary = farm.state.duplicate(true)
+	check_button_contrast(app.onboarding.next_button, "Tutorial Next")
+	app._ask("harvest")
+	check(app.confirm.visible and app.confirm.dialog_text.contains("Parcela 1"), "Harvest preview resolves the default field without a fieldId argument")
+	app.confirm.get_cancel_button().pressed.emit()
+	app.onboarding.next_button.pressed.emit()
+	check(app.confirm.visible and app.pending.get("args", {}).get("fieldId") == "plot1" and app.onboarding.current_step == 5,
+		"Tutorial Next confirms the highlighted harvest without advancing")
+	app.confirm.get_cancel_button().pressed.emit()
+	check(app.pending.is_empty() and app.onboarding.current_step == 5 and farm.field_of("plot1")["crop"]["development"] == 1.0, "Cancel leaves the crop and tutorial step intact")
+	app.onboarding.next_button.pressed.emit()
+	app.confirm.get_ok_button().pressed.emit()
+	var saved_tutorial := Farm.new()
+	check(app.onboarding.current_step == 6 and farm.field_of("plot1")["crop"].is_empty()
+		and saved_tutorial.load_file()["ok"] and saved_tutorial.state["story"]["guided_onboarding"] == 6,
+		"Confirmed tutorial harvest saves the crop and next step together")
+	app.confirm.hide()
+	app.info.hide()
+	farm.state = tutorial_snapshot
+	farm.state["fields"][0]["crop"] = tutorial_crop.duplicate(true)
+
 	app.onboarding._highlight_field("plot1")
 	check(not radial.is_open,"Tutorial field highlight does not open the radial menu")
 	var field_screen_position: Vector2 = app.world.get_field_screen_pos("plot1")
@@ -775,6 +827,10 @@ func run() -> void:
 		check(app.scene_root.size.x <= dimensions.x+1,"Layout width "+str(dimensions))
 		check(app.game_base.get_global_rect().end.y <= dimensions.y+2,"Layout height "+str(dimensions))
 		if dimensions.x == 440:
+			app._change_tab("Planning")
+			check_button_contrast(app.mobile_nav_buttons["Planning"], "Selected mobile tab")
+			app._change_tab("Farm")
+			check_button_contrast(app.mobile_nav_buttons["Planning"], "Unselected mobile tab")
 			app.language = "es"
 			farm.language = "es"
 			farm.state["events"]["active"] = {}

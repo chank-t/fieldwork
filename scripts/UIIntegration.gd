@@ -167,7 +167,7 @@ static func build_panel_cards(parent: Node, hub_id: String, main_ui: Variant, la
         title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
         title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         title.add_theme_font_size_override("font_size", maxi(14, int(16 * ui_scale)))
-        title.add_theme_color_override("font_color", Color("#263a32") if not is_active else Color.WHITE)
+        title.add_theme_color_override("font_color", ThemeKit.readable_text(card_style.bg_color))
         if is_active:
             title.add_theme_font_override("font", ThemeKit.SERIF)
         icon_row.add_child(title)
@@ -178,7 +178,7 @@ static func build_panel_cards(parent: Node, hub_id: String, main_ui: Variant, la
         desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
         desc.add_theme_font_size_override("font_size", maxi(11, int(12 * ui_scale)))
-        desc.add_theme_color_override("font_color", Color("#687e70") if not is_active else Color("#f7f4e9"))
+        desc.add_theme_color_override("font_color", ThemeKit.readable_text(card_style.bg_color))
         card_layout.add_child(desc)
 
         # Make whole card clickable
