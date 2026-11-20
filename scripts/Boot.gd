@@ -92,8 +92,8 @@ func _button(parent: Node, value: String, callback: Callable, primary: bool = fa
 	node.custom_minimum_size.y = 50
 	node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if primary:
-		node.add_theme_stylebox_override("normal",ThemeKit.panel(ThemeKit.GREEN,9))
-		node.add_theme_color_override("font_color",Color("#fff9e9"))
+		ThemeKit.button_states(node, ThemeKit.panel(ThemeKit.GREEN, 9),
+			ThemeKit.panel(Color("#355a47"), 9), ThemeKit.panel(Color("#2c4b3b"), 9))
 	node.pressed.connect(callback)
 	parent.add_child(node)
 	return node

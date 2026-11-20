@@ -188,13 +188,22 @@ static func roof_mesh() -> ArrayMesh:
 		return meshes["roof"]
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var front_left := Vector3(-0.5, 0, 0.5)
+	var front_right := Vector3(0.5, 0, 0.5)
+	var front_ridge := Vector3(0, 0.68, 0.5)
+	var back_left := Vector3(-0.5, 0, -0.5)
+	var back_right := Vector3(0.5, 0, -0.5)
+	var back_ridge := Vector3(0, 0.68, -0.5)
+	# Clockwise from outside so every face survives back-face culling.
 	var vertices: Array[Vector3] = [
-		Vector3(-0.5,0,-0.5), Vector3(0.5,0,-0.5), Vector3(0,0.68,-0.5),
-		Vector3(-0.5,0,0.5), Vector3(0.5,0,0.5), Vector3(0,0.68,0.5),
-		Vector3(-0.5,0,-0.5), Vector3(0.5,0,0.5), Vector3(0,0.68,0.5),
-		Vector3(-0.5,0,-0.5), Vector3(0,0.68,-0.5), Vector3(-0.5,0,0.5),
-		Vector3(0.5,0,-0.5), Vector3(0.5,0,0.5), Vector3(0,0.68,0.5),
-		Vector3(0.5,0,-0.5), Vector3(0,0.68,-0.5), Vector3(0,0.68,0.5)
+		front_left, front_ridge, front_right,
+		back_left, back_right, back_ridge,
+		front_left, back_left, front_ridge,
+		back_left, back_ridge, front_ridge,
+		front_right, front_ridge, back_right,
+		back_right, front_ridge, back_ridge,
+		front_left, front_right, back_left,
+		back_left, front_right, back_right,
 	]
 	for vertex in vertices:
 		st.add_vertex(vertex)
