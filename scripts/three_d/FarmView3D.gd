@@ -4,6 +4,8 @@ extends "res://scripts/three_d/Viewport3D.gd"
 const Beauty = preload("res://scripts/BeautifulFarm.gd")
 const Living = preload("res://scripts/LivingFarm.gd")
 const AnimalPresentation = preload("res://scripts/WorldPresentation.gd")
+const FarmScript = preload("res://scripts/NativeFarm.gd")
+const SoilShader = preload("res://scripts/three_d/tilled_soil.gdshader")
 const Life = preload("res://scripts/FarmingLife.gd")
 const GRID_X = [7.3,16.6,25.9,35.2,44.5,53.8]
 const GRID_Y = [10.8,18.6,26.4,34.2]
@@ -203,7 +205,8 @@ func _build_scene() -> void:
 func _plot(field: Dictionary, index: int) -> void:
 	var id: String = str(field["id"])
 	var crop: Dictionary = field["crop"]
-	var phase: int = clampi(int(float(crop.get("development",0))*4),0,3)
+	var growth := float(crop.get("development", 0.0))
+	var phase := 4 if growth >= FarmScript.RIPE_STAGE else clampi(int(growth * 4), 0, 3)
 	var season: int = int(farm.state["time"]["season"])%4
 	var pasture_kg: float = float(field.get("pasture",{}).get("forage_kg",0.0))
 	var is_paddock: bool = false
@@ -212,7 +215,10 @@ func _plot(field: Dictionary, index: int) -> void:
 			is_paddock = true
 			break
 	var signature: String = str([field["owned"],field.get("plot_type","open"),field["terrain"],crop.get("id",""),phase,int(float(field["soil"]["water"])/10),int(pasture_kg/5.0),is_paddock,overlay_mode,int(Beauty.overlay_value(overlay_mode,field)*20),show_growth_labels,high_visibility_labels,overlay_numbers59,season])
-	if plot_signatures.get(id,"") == signature: return
+	if plot_signatures.get(id,"") == signature:
+		if not scenic:
+			_update_plot_label(plot_tags[id], field, index, is_paddock, pasture_kg)
+		return
 	plot_signatures[id] = signature
 	if plot_roots.has(id):
 		plot_roots[id].free()
@@ -225,10 +231,15 @@ func _plot(field: Dictionary, index: int) -> void:
 	if owned and is_paddock:
 		soil_color = soil_color.lerp(Color("#75984f"),0.22+0.28*clampf(pasture_kg/70.0,0.0,1.0))
 	if overlay_mode != "none" and owned: soil_color = Beauty.overlay_tint(overlay_mode,Beauty.overlay_value(overlay_mode,field))
-	Models.box(node,Vector3(0,0,0),Vector3(FIELD_W,0.18,FIELD_H),soil_color)
+	var bed := Models.box(node, Vector3.ZERO, Vector3(FIELD_W, 0.18, FIELD_H), soil_color)
+	if owned and not is_paddock and overlay_mode == "none":
+		var surface := ShaderMaterial.new()
+		surface.shader = SoilShader
+		surface.set_shader_parameter("earth", soil_color)
+		surface.set_shader_parameter("moisture", clampf(float(field["soil"]["water"]) / maxf(1.0, float(field["soil"]["capacity"])), 0.0, 1.0))
+		bed.material_override = surface
 	Models.hitbox(node,"field",id,Vector3(0,0.15,0),Vector3(FIELD_W,0.4,FIELD_H))
 	if owned:
-		for row in range(6): Models.box(node,Vector3(0,0.11,-2.6+row*1.03),Vector3(7.9,0.12,0.26),soil_color.lightened(0.12))
 		if is_paddock:
 			for j in range(20):
 				var grass_position := Vector3(-3.3+fmod(j*2.37,6.6),0.24,-2.5+fmod(j*1.61,5.0))
@@ -247,27 +258,49 @@ func _plot(field: Dictionary, index: int) -> void:
 		instances.instance_count = count
 		for j in range(count):
 			var p := Vector3(-3.3+(j%8)*0.94,0.18,-2.6+(j/8)*1.03) if not is_tree else Vector3(-2.7+(j%3)*2.7,0.18,-1.8+(j/3)*3.6)
-			instances.set_instance_transform(j,Transform3D(Basis(Vector3.UP,j*0.75),p))
+			# Fixed variation keeps the same plants in place as the field grows.
+			var seed_angle := float(index * 37 + j * 13)
+			var plant_scale := 1.0 + 0.10 * sin(seed_angle)
+			p += Vector3(0.10 * sin(seed_angle * 2.1), -0.09, 0.08 * cos(seed_angle))
+			instances.set_instance_transform(j, Transform3D(Basis(Vector3.UP, j * 0.75).scaled(Vector3.ONE * plant_scale), p))
 		var plants := MultiMeshInstance3D.new()
 		plants.multimesh = instances
 		node.add_child(plants)
 	Models.box(node,Vector3(-3.4,0.45,2.9),Vector3(0.10,0.9,0.10),Color("#c5ac7c"))
 	Models.box(node,Vector3(-3.4,0.93,2.9),Vector3(0.8,0.5,0.12),Color("#ded0a2"))
-	var status: String = "%02d" % (index+1)
+	if scenic: return
+	var tag: Label3D = Models.label(node, "", Vector3(0,1.1,FIELD_H/2+0.2),44)
+	plot_tags[id] = tag
+	tag.pixel_size = _plot_tag_pixel_size()
+	_update_plot_label(tag, field, index, is_paddock, pasture_kg)
+	tag.text = str(tag.get_meta("full_text"))
+	Models.refresh_tag(tag)
+
+func _update_plot_label(tag: Label3D, field: Dictionary, index: int, is_paddock: bool, pasture_kg: float) -> void:
+	var number := "%02d" % (index + 1)
+	var owned := bool(field["owned"])
+	var status := number
+	var short_text := number
+	var tint := Color("#fffcf0")
 	if high_visibility_labels: status += "  ✓" if owned else "  +"
-	if owned and show_growth_labels and not crop.is_empty():
-		status += " · %d%%" % (float(crop.get("development",0))*100)
+	if owned and show_growth_labels and not field["crop"].is_empty():
+		var growth := float(field["crop"]["development"])
+		if growth >= FarmScript.RIPE_STAGE:
+			status += " · Lista" if farm.language == "es" else " · Ripe"
+			short_text += " ✓"
+			tint = Color("#ffda7a")
+		elif growth >= FarmScript.EARLY_HARVEST_STAGE:
+			status += (" · Temprana" if farm.language == "es" else " · Early") + " %d%%" % int(growth * 100)
+			short_text += " ◒"
+			tint = Color("#d9eaa5")
+		else:
+			status += " · %d%%" % int(growth * 100)
 	if owned and is_paddock:
 		status += (" · PASTO " if farm.language == "es" else " · GRAZE ") + "%d%%" % int(clampf(pasture_kg/70.0,0.0,1.0)*100.0)
 	if owned and overlay_mode != "none" and overlay_numbers59: status += " · %d%%" % (Beauty.overlay_value(overlay_mode,field)*100)
-	if scenic: return
-	var tag: Label3D = Models.label(node,status,Vector3(0,1.1,FIELD_H/2+0.2),44)
-	# Plot tags are rescaled with the zoom so they stay readable (see _tick).
-	tag.set_meta("full_text",status)
-	tag.set_meta("short_text","%02d" % (index+1))
-	tag.pixel_size = _plot_tag_pixel_size()
-	Models.refresh_tag(tag)
-	plot_tags[id] = tag
+	tag.modulate = tint
+	tag.set_meta("full_text", status)
+	tag.set_meta("short_text", short_text)
 
 func _building_anchor(index: int) -> Vector3:
 	return Vector3(7.6+(index/2%12)*4.42,0,7.5 if index%2 == 0 else 51.8)
@@ -543,7 +576,7 @@ func _tick(delta: float) -> void:
 				requested_move.emit(clampf(float(p["x"])+d.x,1,63),clampf(float(p["y"])+d.y,1,53))
 	if feedback != null:
 		feedback_age += delta
-		feedback.position.y += delta*0.8
+		if not reduced_motion: feedback.position.y += delta*0.8
 		if feedback_age >= 1.5:
 			feedback.queue_free()
 			feedback = null
@@ -562,7 +595,7 @@ func _on_picked(kind: String, id: String) -> void:
 func _on_ground(point: Vector3) -> void:
 	requested_move.emit(clampf(point.x,1,63),clampf(point.z,1,53))
 
-func trigger_work_effect57(kind: String, field_id: String) -> void:
+func trigger_work_effect57(kind: String, field_id: String, result: Dictionary = {}) -> void:
 	var i: int = int(field_id.trim_prefix("plot"))-1
 	if i < 0 or i >= 24 or stage == null: return
 	if kind in ["plant","irrigate","water","harvest"] and avatar != null and not reduced_motion:
@@ -571,4 +604,7 @@ func trigger_work_effect57(kind: String, field_id: String) -> void:
 	if feedback != null: feedback.free()
 	feedback = Models.root(stage,Vector3(GRID_X[i%6]+FIELD_W/2,1.5,GRID_Y[i/6]+FIELD_H/2))
 	feedback_age = 0
-	Models.label(feedback,{"water":"+ AGUA" if farm.language == "es" else "+ WATER","irrigate":"+ AGUA" if farm.language == "es" else "+ WATER","harvest":"COSECHA" if farm.language == "es" else "HARVEST","plant":"SEMBRADO" if farm.language == "es" else "PLANTED"}.get(kind,"✓"),Vector3.ZERO,46)
+	var caption: String = {"water":"+ AGUA" if farm.language == "es" else "+ WATER","irrigate":"+ AGUA" if farm.language == "es" else "+ WATER","harvest":"COSECHA" if farm.language == "es" else "HARVEST","plant":"SEMBRADO" if farm.language == "es" else "PLANTED"}.get(kind,"✓")
+	if kind == "harvest" and result.has("stored_kg"):
+		caption += " +%.1f kg" % float(result["stored_kg"])
+	Models.label(feedback, caption, Vector3.ZERO, 46)

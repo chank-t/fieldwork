@@ -258,10 +258,12 @@ func _field_actions(field_id: String) -> Array[Dictionary]:
 				actions.append({"action": "coverCrop", "label": {"en": "Cover Crop", "es": "Cubrir"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_cover.svg"})
 			actions.append({"action": "aerateSoil", "label": {"en": "Aerate", "es": "Airear"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_aerate.svg"})
 		else:
-			if development >= 0.995:
-				actions.append({"action": "harvest", "label": {"en": "Harvest", "es": "Cosechar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_harvest.svg"})
+			if development >= FarmScript.EARLY_HARVEST_STAGE:
+				var early := development < FarmScript.RIPE_STAGE
+				var caption := {"en": "Harvest early", "es": "Cosechar antes"} if early else {"en": "Harvest", "es": "Cosechar"}
+				actions.append({"action": "harvest", "label": caption, "args": {"fieldId": field_id, "early": early}, "icon": "res://assets/icons/actions/icon_harvest.svg"})
 			actions.append({"action": "irrigate", "label": {"en": "Water +15mm", "es": "Regar +15mm"}, "args": {"fieldId": field_id, "mm": 15.0}, "icon": "res://assets/icons/actions/icon_water.svg"})
-			actions.append({"action": "inspect", "label": {"en": "Inspect", "es": "Inspeccionar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_inspect.svg"})
+			actions.append({"action": "fieldOutlook", "label": {"en": "Outlook", "es": "Previsión"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_inspect.svg"})
 			actions.append({"action": "treat", "label": {"en": "Treat Pests", "es": "Tratar Plagas"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_treat.svg"})
 			actions.append({"action": "fertilize", "label": {"en": "Fertilize", "es": "Fertilizar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_fertilize.svg"})
 			actions.append({"action": "mulch", "label": {"en": "Mulch", "es": "Acolchar"}, "args": {"fieldId": field_id}, "icon": "res://assets/icons/actions/icon_mulch.svg"})

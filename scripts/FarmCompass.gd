@@ -167,11 +167,12 @@ static func _contract_priority(farm: Variant, language: String) -> Dictionary:
 	var best: Dictionary = {}
 	for contract in state.get("market",{}).get("contracts",[]):
 		var status: String = str(contract.get("status",""))
-		if not ["open","active"].has(status):
+		if not ["open","active"].has(status) or int(contract.get("deadline", 0)) <= current_hour:
 			continue
-		var good: String = str(contract.get("good",""))
+		var good: String = str(contract["good"])
 		var amount: float = maxf(0.1,float(contract.get("kg",0.0)))
-		var available: float = float(farm.stock(good))
+		var missing: float = farm.contract_missing(contract)
+		var can_deliver: bool = current_hour >= int(contract.get("opens", 0))
 		var due_hours: int = maxi(0,int(contract.get("deadline",current_hour))-current_hour)
 		var priority: int = -1
 		var id: String = ""
@@ -179,15 +180,14 @@ static func _contract_priority(farm: Variant, language: String) -> Dictionary:
 		var title_es: String = ""
 		var detail_en: String = ""
 		var detail_es: String = ""
-		if status == "active" and available + 0.001 >= amount:
+		if status == "active" and missing <= 0.0001 and can_deliver:
 			priority = 1
 			id = "contract_deliver"
 			title_en = "Deliver a ready contract"
 			title_es = "Entrega un contrato con existencias listas"
-			detail_en = "Your stock covers this %.1f kg order, due in %d h for EUR %.0f. Deliver it or keep the produce for the market." % [amount,due_hours,float(contract.get("payout",0.0))]
-			detail_es = "Tus existencias cubren este pedido de %.1f kg, que vence en %d h y paga %.0f EUR. Entrégalo o guarda el producto para el mercado." % [amount,due_hours,float(contract.get("payout",0.0))]
+			detail_en = "Your stock covers this %.1f kg order, due in %d h for EUR %.0f. Deliver it or keep the produce for the market." % [amount,due_hours,farm.contract_payout(contract)]
+			detail_es = "Tus existencias cubren este pedido de %.1f kg, que vence en %d h y paga %.0f EUR. Entrégalo o guarda el producto para el mercado." % [amount,due_hours,farm.contract_payout(contract)]
 		elif status == "active" and due_hours <= 48:
-			var missing: float = maxf(0.0,amount-available)
 			var deposit: float = float(contract.get("deposit",0.0))
 			priority = 4
 			id = "contract_deadline"
@@ -195,15 +195,15 @@ static func _contract_priority(farm: Variant, language: String) -> Dictionary:
 			title_es = "El contrato vence pronto"
 			detail_en = "%.1f kg are still needed with %d h left; missing the deadline loses the EUR %.0f deposit and 3 reputation." % [missing,due_hours,deposit]
 			detail_es = "Faltan %.1f kg y quedan %d h; si vence, pierdes %.0f EUR del depósito y 3 puntos de reputación." % [missing,due_hours,deposit]
-		elif status == "open" and available + 0.001 >= amount:
-			var contract_rate: float = float(contract.get("payout",0.0))/amount
+		elif status == "open" and missing <= 0.0001 and can_deliver:
+			var contract_rate: float = farm.contract_payout(contract)/amount
 			var market_rate: float = float(farm.market_price(good))
 			if contract_rate > market_rate * 1.05:
 				var deposit: float = float(contract.get("deposit",0.0))
 				priority = 12
 				id = "contract_offer"
-				title_en = "Compare a premium contract"
-				title_es = "Compara un contrato prémium"
+				title_en = "Compare the order with market prices"
+				title_es = "Compara el pedido con el precio de mercado"
 				detail_en = "Pays EUR %.2f/kg versus EUR %.2f/kg at market; accepting puts the EUR %.0f deposit at risk until delivery." % [contract_rate,market_rate,deposit]
 				detail_es = "Paga %.2f EUR/kg frente a %.2f EUR/kg en el mercado; al aceptarlo arriesgas %.0f EUR de depósito hasta entregarlo." % [contract_rate,market_rate,deposit]
 		if id != "" and (best.is_empty() or priority < int(best["priority"])):
@@ -241,6 +241,12 @@ static func priorities(farm: Variant, language: String) -> Array:
 		tasks.append({"priority":3,"id":"water","title":{"en":"Inspect dry fields","es":"Inspecciona las parcelas secas"},"detail":{"en":water_detail_en,"es":water_detail_es},"tab":"Fields","field":s["first_dry"],"count":s["dry"]})
 	if not contract_task.is_empty() and int(contract_task["priority"]) == 4:
 		tasks.append(contract_task)
+	var watched: Dictionary = farm.state["farm_work"]["watch"]
+	for id in watched:
+		if int(watched[id]["day"]) < int(farm.state["time"]["day"]):
+			tasks.append({"priority":4,"id":"pest_review","title":{"en":"Recheck a watched field","es":"Revisa una parcela vigilada"},
+				"detail":{"en":"Compare today's visible pest pressure with your last observation.","es":"Compara la presión visible de hoy con tu última observación."},"tab":"Ecology","field":str(id),"count":1})
+			break
 	if int(s["pests"]) > 0:
 		tasks.append({"priority":5,"id":"pests","title":{"en":"Scout pest pressure","es":"Revisa la presion de plagas"},"detail":{"en":"Choose a treatment only after checking conditions.","es":"Elige tratamientos tras comprobar el cultivo."},"tab":"Ecology","field":s["first_pest"],"count":s["pests"]})
 	if int(s["nutrient"]) > 0:

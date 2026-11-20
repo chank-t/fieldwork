@@ -544,7 +544,7 @@ static func crop_mesh(kind: String, stage: int) -> ArrayMesh:
 	var key: String = "crop:%s:%s:%s" % [group,kind,stage]
 	if meshes.has(key): return meshes[key]
 	var temp := Node3D.new()
-	var height: float = 0.28+stage*0.38
+	var height: float = 0.28 + mini(stage, 3) * 0.38
 	match group:
 		"grain":
 			_crop_grain(temp,kind,stage,height)
@@ -581,8 +581,8 @@ static func crop_mesh(kind: String, stage: int) -> ArrayMesh:
 	return result
 
 static func _crop_grain(parent: Node3D, kind: String, stage: int, height: float) -> void:
-	var stem_color: Color = Color("#6f9c4e")
-	var head_color: Color = Color("#d9b653") if stage >= 2 else stem_color.lightened(0.1)
+	var stem_color := Color("#c8a35c") if stage == 4 else Color("#6f9c4e")
+	var head_color := Color("#efd07b") if stage == 4 else stem_color.lightened(0.1).lerp(Color("#c6ab66"), stage / 4.0)
 	if kind == "maize":
 		cylinder(parent,Vector3(0,height*0.52,0),0.11,height,stem_color,0.07)
 		for side in [-1.0,1.0]:
@@ -689,6 +689,8 @@ static func _crop_fruiting(parent: Node3D, kind: String, stage: int, height: flo
 	if kind == "cucumber": fruit_color = Color("#59894b")
 	if kind in ["chickpea","lentil"]: fruit_color = Color("#bea46c")
 	if kind == "pumpkin": fruit_color = Color("#df9d43")
+	if stage < 4:
+		fruit_color = Color("#79a256").lerp(fruit_color, 0.50 if stage == 3 else 0.18)
 	var stems: int = 3 if kind in ["bean","chickpea","lentil"] else 1
 	for i in range(stems):
 		var x: float = (float(i)-float(stems-1)*0.5)*0.2
