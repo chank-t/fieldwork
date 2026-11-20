@@ -182,6 +182,46 @@ func check_valley_upgrades() -> void:
 	check(valley.restored_sites["village"].visible and valley.restored_sites["river"].visible, "Both finished projects appear on the valley map")
 	valley.free()
 
+func check_event_clock() -> void:
+	var app: Variant = MainScene.instantiate()
+	root.add_child(app)
+	app.set_process(false)
+	app.language = "en"
+	app.ambient_enabled = false
+	app.farm.new_game({"language": "en", "seed": 1, "difficulty": "hard"})
+	app.farm.state["story"]["guided_onboarding"] = GuidedOnboarding.STEPS.size()
+	app.farm.state["events"]["next"] = 1
+	app._show_game()
+	app._set_speed(4)
+	app._process(0.56)
+	var event_hour: int = int(app.farm.state["time"]["total"])
+	check(event_hour == 1 and app.modal != null, "Running clock opens a newly triggered decision")
+	app._process(1.0)
+	check(int(app.farm.state["time"]["total"]) == event_hour, "Pending decision suspends the clock")
+
+	for button in app.modal.find_children("*", "Button", true, false):
+		if button.text == "Choose this option" and not button.disabled:
+			button.pressed.emit()
+			break
+	check(app.farm.state["events"]["active"].is_empty() and app.info.visible, "Choosing an option clears the decision and opens its outcome")
+	app._process(1.0)
+	check(int(app.farm.state["time"]["total"]) == event_hour, "Outcome dialog gives the player time to read")
+	app.info.hide()
+	app._process(0.56)
+	check(app.speed == 4 and int(app.farm.state["time"]["total"]) == event_hour + 1, "Clock resumes at 4× after reading the outcome")
+
+	app._set_speed(0)
+	var paused_hour: int = int(app.farm.state["time"]["total"])
+	app.farm.state["events"]["active"] = {"id": "dry_spell", "hour": paused_hour}
+	app._show_decision_board()
+	app._event_decide("water")
+	app.info.hide()
+	app._process(1.0)
+	check(app.farm.state["events"]["active"].is_empty() and app.speed == 0 and int(app.farm.state["time"]["total"]) == paused_hour,
+		"Resolving a decision preserves a manual pause")
+	root.remove_child(app)
+	app.free()
+
 func run() -> void:
 	check_roof()
 	check_early_harvest()
@@ -189,6 +229,7 @@ func run() -> void:
 	check_valley_upgrades()
 	root.size = Vector2i(1280,720)
 	root.content_scale_size = Vector2i(1280,720)
+	check_event_clock()
 	var farm := Farm.new()
 	farm.new_game({"language":"es","seed":4567})
 	check(farm.state["fields"].size() == 24,"24 plots retained")

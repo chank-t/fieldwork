@@ -2038,7 +2038,6 @@ func _process(delta: float) -> void:
 				speed = 0
 				_notify(tx("Autosave failed; the clock is paused: ","Fallo el autoguardado; reloj pausado: ") + str(autosaved59.get("error","Unknown write error")))
 		if not farm.state["events"]["active"].is_empty():
-			speed = 0
 			_show_decision_board()
 	else:
 		speed = 0
@@ -4322,7 +4321,7 @@ func _show_decision_board() -> void:
 		_button(tx("Read the decision journal","Leer el diario de decisiones"),_go_from_modal.bind("Journal"),calm)
 		_button(tx("Close","Cerrar"),_close_modal,calm,true)
 		return
-	speed = 0
+	# The decision modal and its outcome dialog suspend ticks without changing the chosen speed.
 	var id: String = str(current["id"])
 	var is_chain: bool = str(current.get("arc","")) != ""
 	var decision_title: String = Chains.title(id,language) if is_chain else Decisions.title(id,language)
@@ -4377,6 +4376,7 @@ func _research_current_event() -> void:
 	var saved: Dictionary = farm.save_file()
 	_show_decision_board()
 	if not bool(saved.get("ok",false)):
+		_set_speed(0)
 		_notify(tx("The research succeeded but autosave failed: ","La investigación se completó, pero falló el autoguardado: ") + str(saved.get("error","Unknown write error")))
 
 func _event_decide(choice: String) -> void:
@@ -4396,6 +4396,7 @@ func _event_decide(choice: String) -> void:
 	var outcome_title: String = Chains.title(id,language) if not Chains.stage(id).is_empty() else Decisions.title(id,language)
 	var outcome_message: String = outcome_title + "\n" + str(selected_option.get("effect","")) + "\n" + str(result.get("message",""))
 	if not bool(saved.get("ok",false)):
+		_set_speed(0)
 		outcome_message += "\n" + tx("The choice was applied but autosave failed: ","La decisión se aplicó, pero falló el autoguardado: ") + str(saved.get("error","Unknown write error"))
 	_notify(outcome_message)
 
