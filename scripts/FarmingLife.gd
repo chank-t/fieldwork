@@ -11,8 +11,9 @@ const MACHINES = {
 
 const PATHS = {
 	"balanced":{"name":{"en":"Independent farm","es":"Finca independiente"},"description":{"en":"Flexible production, no specialist bonus or penalty.","es":"Produccion flexible, sin bonificaciones ni penalizaciones."}},
-	"crops":{"name":{"en":"Crop producer","es":"Productor agricola"},"description":{"en":"Harvest +8%, seeds +5%. Best with efficient field rotations.","es":"Cosecha +8%, semillas +5%. Favorece las rotaciones eficientes."}},
-	"livestock":{"name":{"en":"Livestock keeper","es":"Ganaderia"},"description":{"en":"Feed -12%, animal production +9%, veterinary visits +10%.","es":"Pienso -12%, produccion animal +9%, visitas veterinarias +10%."}},
+	"crops":{"name":{"en":"Crop producer","es":"Productor agricola"},"description":{"en":"Harvest +8%, seeds +5%, cereal contracts +12%.","es":"Cosecha +8 %, semillas +5 % y contratos de cereal +12 %."}},
+	"horticulture":{"name":{"en":"Market gardener","es":"Horticultura de mercado"},"description":{"en":"Orders for vegetables, berries and similar produce pay 12% more.","es":"Los pedidos de hortalizas, frutos del bosque y cultivos afines pagan un 12 % más."}},
+	"livestock":{"name":{"en":"Livestock keeper","es":"Ganaderia"},"description":{"en":"Feed -12%, animal production +9%, veterinary visits +10%, cheese processing cost −15%.","es":"Pienso -12%, produccion animal +9%, visitas veterinarias +10 % y coste de elaborar queso −15 %."}},
 	"artisan":{"name":{"en":"Artisan processor","es":"Elaboracion artesana"},"description":{"en":"Processed output +12%, processing costs +8%.","es":"Elaboracion +12%, costes de procesado +8%."}},
 	"ecology":{"name":{"en":"Ecological steward","es":"Gestion ecologica"},"description":{"en":"Healthier habitats, slower erosion, premium produce sells for more; field care costs +8%.","es":"Habitat saludable, menos erosion y mayor precio premium; cuidado del suelo +8%."}}
 }

@@ -3,6 +3,7 @@ extends RefCounted
 ## via act(). A rejected action restores cash, RNG, crops and inventory.
 ## The equations are a new game-model adaptation, not bitwise parity with JS.
 
+const Work = preload("res://scripts/FarmWork.gd")
 const Data = preload("res://scripts/NativeData.gd")
 const Decisions = preload("res://scripts/DecisionContent.gd")
 const Chains = preload("res://scripts/ChoiceChains.gd")
@@ -43,8 +44,11 @@ const V51_SLOT_DIRECTORY = "user://fieldwork_slots_51"
 const V50_SLOT_DIRECTORY = "user://fieldwork_slots_50"
 const V49_SLOT_DIRECTORY = "user://fieldwork_slots_49"
 const LEGACY_SLOT_DIRECTORY = "user://fieldwork_slots"
+const EARLY_HARVEST_STAGE := 0.80
+const RIPE_STAGE := 0.995
+const EARLY_YIELD_FACTOR := 0.75
 const MAX_FIELDS = 24
-const SEASON_DAYS = 12
+const SEASON_DAYS = Work.SEASON_DAYS
 const AREA_HA = 0.25
 const TERRAIN_ORDER = [
 	"loam", "stream", "hill", "clay", "wild", "sand",
@@ -398,6 +402,11 @@ func _upgrade_state(candidate: Dictionary) -> Dictionary:
 					animal["pasture_schedule"] = "off"
 	if typeof(loaded.get("world50")) == TYPE_DICTIONARY and typeof(loaded.get("stats")) == TYPE_DICTIONARY:
 		loaded["world50"] = World50.ensure_state(loaded["world50"],loaded["stats"],world_catalog)
+	if not loaded.has("farm_work") and loaded.get("stats") is Dictionary and loaded.get("economy") is Dictionary:
+		if not loaded.has("hourly_baselines"):
+			loaded["hourly_baselines"] = {"water_in": 0.0, "water_out": 0.0, "nutrient_input": 0.0, "nutrient_export": 0.0}
+		if loaded["stats"].has("harvest_kg") and loaded["economy"].has("revenue") and loaded["economy"].has("costs") and loaded["hourly_baselines"] is Dictionary and loaded["hourly_baselines"].has("water_out"):
+			loaded["farm_work"] = Work.initial(loaded, false)
 	return loaded
 
 func npc_trust(npc_id: String) -> int:
@@ -502,6 +511,8 @@ func new_game(options: Dictionary = {}) -> void:
 	if mode == "challenge":
 		for field in fields:
 			field["pests"]["aphids"] *= 1.9
+	state["farm_work"] = Work.initial(state, mode == "story")
+	_announce_seasonal_order()
 	_log("You inherited one field. Listen to the valley, learn the land, and grow your farm.")
 
 func _rand() -> float:
@@ -743,7 +754,13 @@ func soil_health(field_id: String) -> float:
 	return Life.organic_score(field) if not field.is_empty() else 0.0
 
 func farm_forecast() -> Array:
-	return Life.forecast(state,language=="es")
+	var reports := Life.forecast(state, language == "es")
+	for report in reports:
+		if Work.dry_spell(state["farm_work"], int(report["day"])):
+			report["rain_percent"] = 0
+			report["temperature"] = int(report["temperature"]) + 5
+			report["summary"] = "Periodo seco" if language == "es" else "Dry spell"
+	return reports
 
 func operating_budget() -> Dictionary:
 	return Life.budget(state,content["buildings"],content["animals"])
@@ -751,6 +768,9 @@ func operating_budget() -> Dictionary:
 func market_price(good: String) -> float:
 	var base: float = float(content.get("goods", {}).get(good, {}).get("basePrice", 0.0))
 	var factor: float = float(state["market"]["price_index"].get(good, 1.0))
+	var calendar: Dictionary = Work.SEASONAL_ORDERS[int(state["time"]["season"])]
+	if good == calendar["good"] and (int(state["time"]["day"]) - 1) % SEASON_DAYS + 1 >= Work.FIRST_MARKET_DAY:
+		factor *= 1.12
 	return Data.money(base * factor * (1.08 if has_talent("fairTrader") else 1.0) * (1.0 + mastery_bonus("trading")) * (1.0 + _effect("market_trust")) * (1.06 if has_certificate("market_mentor") else 1.0))
 
 func weather_text() -> String:
@@ -844,6 +864,8 @@ func _valid_state(candidate: Dictionary) -> bool:
 	for key in ["player", "economy", "time", "water", "weather", "inventory", "market", "events", "story", "stats", "overworld", "wildlife", "neighbours", "progression", "resources", "decisions", "life", "world50", "wardrobe53", "countryside54"]:
 		if typeof(candidate.get(key)) != TYPE_DICTIONARY:
 			return false
+	if not Data.is_json_integer(candidate["time"].get("day")) or not Work.valid(candidate.get("farm_work"), int(candidate["time"]["day"]), candidate["fields"]):
+		return false
 	var story: Dictionary = candidate["story"]
 	if not Data.is_json_integer(story.get("starter_guide",-1)) or int(story["starter_guide"]) < 0 or int(story["starter_guide"]) > STARTER_GUIDE.size():
 		return false
@@ -1287,8 +1309,9 @@ func act(kind: String, args: Dictionary = {}) -> Dictionary:
 		state = original
 		return _fail("Action violated the farm state invariant")
 	if kind != "tutorial":
-		_checkpoint_tutorial(kind)
-		_checkpoint_starter_guide(kind)
+		var lesson: String = {"workBatch": str(args.get("operation", "")), "endDay": "tick"}.get(kind, kind)
+		_checkpoint_tutorial(lesson)
+		_checkpoint_starter_guide(lesson)
 	if kind != "move" and kind != "inspect" and kind != "tutorial":
 		_check_milestones(original["stats"])
 	return result
@@ -1362,6 +1385,38 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 	var current: int = int(state["time"]["total"])
 	var ecological_care_cost: float = 1.08 if str(state["life"]["path"]) == "ecology" else 1.0
 	match kind:
+		"workBatch":
+			return _work_batch(args)
+		"planIrrigation":
+			var target: Variant = args.get("target", 0)
+			if not _owned(field_id) or not Data.is_json_integer(target) or (int(target) != 0 and int(target) not in Work.IRRIGATION_TARGETS):
+				return _fail("Choose an owned field and a valid irrigation target")
+			if int(target) == 0:
+				state["farm_work"]["irrigation"].erase(field_id)
+			elif machine_efficiency("pump") <= 0.0:
+				return _fail("A working irrigation pump is required")
+			else:
+				state["farm_work"]["irrigation"][field_id] = int(target)
+			return _ok("Irrigation plan updated")
+		"watchPests":
+			if args.get("clear", false) == true:
+				if not state["farm_work"]["watch"].erase(field_id):
+					return _fail("This field has no pest watch to clear")
+				return _ok("Pest review completed")
+			var pressure := Work.pest_level(field)
+			if not _owned(field_id) or pressure == 0:
+				return _fail("There is no visible pest alert to monitor")
+			state["farm_work"]["watch"][field_id] = {"day": int(state["time"]["day"]), "pressure": pressure}
+			return _ok("Field marked for a pest review tomorrow")
+		"endDay":
+			return _apply("tick", {"hours": 24 - current % 24})
+		"contractDecline":
+			for contract in state["market"]["contracts"]:
+				if contract["id"] == args.get("contractId") and contract.get("kind") == "starter" and contract["status"] == "open":
+					contract["status"] = "declined"
+					state["farm_work"]["starter"] = "done"
+					return _ok("The farm will sell independently")
+			return _fail("This offer is no longer available")
 		"configurePlot":
 			if not _owned(field_id) or not field["crop"].is_empty():
 				return _fail("Plot conversion needs empty land you own")
@@ -1637,6 +1692,7 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			var wet_machine_pressure: float = 0.020 if machine_efficiency("cultivator") > 0.0 and float(field["soil"]["water"]) > float(field["soil"]["capacity"]) * 0.70 else 0.0
 			_wear_machine("cultivator",0.009)
 			field["soil"]["compaction"] = clampf(float(field["soil"]["compaction"]) + 0.015 + wet_machine_pressure,0.0,1.0)
+			state["farm_work"]["watch"].erase(field_id)
 			field["crop"] = {"id":crop_id,"age":0.0,"development":0.0,"biomass":0.0,"health":1.0,"planted_at":current,"water_stress":0.0,"pest_stress":0.0,"disease_stress":0.0,"variety":variety_id,"harvest_cycles":0}
 			field["pasture"]["forage_kg"] = 0.0
 			var soil: Dictionary = field["soil"]
@@ -1649,7 +1705,9 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			if not _owned(field_id) or field["crop"].is_empty():
 				return _fail("No growing crop in this field")
 			var crop: Dictionary = field["crop"]
-			if float(crop["development"]) < 0.995:
+			var development := float(crop["development"])
+			var early := development < RIPE_STAGE
+			if early and (development < EARLY_HARVEST_STAGE or args.get("early", false) != true):
 				return _fail("The crop is not ripe yet")
 			var crop_def: Dictionary = content["crops"][str(crop["id"])]
 			var kg: float = maxf(0.0, float(crop["biomass"]) * float(crop_def["harvestIndex"]) * AREA_HA * (1.0 + mastery_bonus("farming")))
@@ -1658,13 +1716,15 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 				kg *= 1.08
 			# With functioning harvest equipment, less production is lost in the field.
 			kg *= 1.0 + 0.035 * machine_efficiency("harvester")
+			if early:
+				kg *= EARLY_YIELD_FACTOR
 			var labor: float = float(crop_def["harvestLabor"]) * AREA_HA * 15.0 * _labor_multiplier()
 			labor *= 1.0 - 0.26 * machine_efficiency("harvester")
 			if not _pay(labor, "labor", "Harvest " + str(crop["id"])):
 				return _fail("Cannot pay the harvest crew")
 			var accepted: float = _stock_add(str(crop["id"]), kg)
 			var grade: float = clampf((float(crop["health"]) * 0.65 + Life.organic_score(field) * 0.35 - 0.23) / 0.75,0.0,1.0)
-			var premium_amount: float = accepted * clampf((grade - 0.60) * 1.6,0.0,0.65)
+			var premium_amount: float = 0.0 if early else accepted * clampf((grade - 0.60) * 1.6,0.0,0.65)
 			state["life"]["quality_stock"][str(crop["id"])] = premium_stock(str(crop["id"])) + premium_amount
 			_wear_machine("harvester",0.012)
 			var loss: float = kg - accepted
@@ -1702,13 +1762,14 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 				crop["health"] = clampf(float(crop["health"]) + 0.10,0.0,1.0)
 			else:
 				field["crop"] = {}
+			state["farm_work"]["watch"].erase(field_id)
 			field["harvests"] = int(field["harvests"]) + 1
 			state["stats"]["harvest_kg"] = float(state["stats"]["harvest_kg"]) + accepted
 			state["economy"]["reputation"] = int(state["economy"]["reputation"]) + 1
 			_xp(80, "farming")
 			_log("Harvest " + str(snappedf(accepted, 0.1)) + " kg from " + field_id + "; overflow " + str(snappedf(loss, 0.1)) + " kg", "harvest")
 			var harvest_result: Dictionary = _ok("Harvest stored: " + str(snappedf(accepted, 0.1)) + " kg")
-			harvest_result["harvest_report"] = report
+			harvest_result.merge({"harvest_report": report, "early": early, "stored_kg": accepted, "overflow_kg": loss})
 			return harvest_result
 		"irrigate":
 			if not _owned(field_id):
@@ -1719,6 +1780,7 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			var water: float = mm * AREA_HA * 10.0
 			water *= 1.0 - 0.12 * machine_efficiency("pump")
 			water *= 0.93 if has_certificate("water_engineer") else 1.0
+			water *= 0.90 if project_complete("river") else 1.0
 			if has_talent("rainPlanner"):
 				water *= 0.90
 			if float(state["water"]["stored"]) + 0.0001 < water:
@@ -1734,7 +1796,9 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			soil["water"] = minf(float(soil["capacity"]), float(soil["water"]) + mm)
 			_wear_machine("pump",0.008)
 			state["hourly_baselines"]["water_out"] += water
-			return _ok("Applied " + str(mm) + " mm of water")
+			var result := _ok("Applied " + str(mm) + " mm of water")
+			result["water_m3"] = water
+			return result
 		"fertilize":
 			if not _owned(field_id):
 				return _fail("You must own this field")
@@ -1819,6 +1883,7 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 					var harm: float = 0.65 if not has_talent("gentleControl") else 0.83
 					for ally in field["beneficial"].keys():
 						field["beneficial"][ally] *= harm
+			state["farm_work"]["watch"].erase(field_id)
 			_log("Treatment applied: " + method + " to " + field_id)
 			return _ok("Pest/disease action completed")
 		"release":
@@ -2009,8 +2074,11 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			var premium_factor: float = 1.12 if str(state["life"]["path"]) == "ecology" else 1.0
 			_earn((kg-premium)*market_price(good) + premium*market_price(good)*1.28*premium_factor, "revenue", "Sell " + good)
 			state["stats"]["sold_kg"] += kg
+			var result := _ok("Sold " + str(snappedf(kg, 0.1)) + " kg " + good)
+			if float(state["stats"]["harvest_kg"]) > 0.0 and content["crops"].has(good):
+				result["first_order"] = _offer_first_order()
 			_xp(2, "trading")
-			return _ok("Sold " + str(snappedf(kg, 0.1)) + " kg " + good)
+			return result
 		"buySupply":
 			var good: String = str(args.get("goodId", "feed"))
 			var kg: float = float(args.get("kg", 0.0))
@@ -2063,11 +2131,11 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			if not RECIPES.has(recipe_id) or not is_finite(kg) or kg <= 0.0 or kg > 500.0:
 				return _fail("Unknown recipe or invalid batch size")
 			var rec: Dictionary = RECIPES[recipe_id]
-			if not ready(str(rec["building"])):
+			if not processing_available(recipe_id):
 				return _fail("A completed processing building is required")
 			if stock(str(rec["input"])) + 0.0001 < kg:
 				return _fail("Not enough ingredients for this batch")
-			if not _pay(kg * float(rec["cost"]) * (1.08 if str(state["life"]["path"]) == "artisan" else 1.0), "processing", "Process " + recipe_id):
+			if not _pay(kg * float(rec["cost"]) * processing_cost_factor(recipe_id), "processing", "Process " + recipe_id):
 				return _fail("Insufficient money for processing")
 			_stock_take(str(rec["input"]), kg)
 			var duration: float = float(rec["hours"]) * (0.85 if has_talent("artisanHands") else 1.0)
@@ -2833,6 +2901,113 @@ func _resolve_story_stage(choice_id: String) -> Dictionary:
 	_xp(28,"community")
 	return _ok("Village decision applied: " + outcome)
 
+func _work_batch(args: Dictionary) -> Dictionary:
+	var ids: Variant = args.get("fields")
+	var operation := str(args.get("operation", ""))
+	if not ids is Array or ids.is_empty() or ids.size() > MAX_FIELDS or operation not in ["irrigate", "harvest", "plant"]:
+		return _fail("Select fields and a valid batch operation")
+	if operation == "plant" and machine_efficiency("cultivator") <= 0.0:
+		return _fail("A working cultivator is required to sow in one pass")
+	var checked := {}
+	for id in ids:
+		if not id is String or not _owned(id) or checked.has(id):
+			return _fail("Choose distinct fields that you own")
+		checked[id] = true
+	var summary := _ok("Field work completed")
+	summary.merge({"stored_kg": 0.0, "overflow_kg": 0.0, "water_m3": 0.0, "count": ids.size()})
+	for id in ids:
+		if operation == "plant" and machine_efficiency("cultivator") <= 0.0:
+			return _fail("Service the cultivator before sowing this many fields")
+		var work_args := args.duplicate()
+		work_args["fieldId"] = id
+		if operation == "irrigate":
+			var mm := float(args.get("mm", 0.0))
+			if not is_finite(mm) or mm <= 0.0 or mm > 60.0:
+				return _fail("Irrigation must be between 0 and 60 mm")
+			var soil: Dictionary = field_of(id)["soil"]
+			work_args["mm"] = minf(mm, float(soil["capacity"]) - float(soil["water"]))
+		var result := _apply(operation, work_args)
+		if not result["ok"]:
+			return {"ok": false, "error": "%s · %s" % [id, result["error"]]}
+		for metric in ["stored_kg", "overflow_kg", "water_m3"]:
+			summary[metric] += float(result.get(metric, 0.0))
+	return summary
+
+func _run_irrigation_plan() -> void:
+	var plans: Dictionary = state["farm_work"]["irrigation"]
+	for field in state["fields"]:
+		var id := str(field["id"])
+		if not plans.has(id) or field["crop"].is_empty() or float(field["crop"]["development"]) >= RIPE_STAGE:
+			continue
+		var soil: Dictionary = field["soil"]
+		var needed := minf(60.0, float(soil["capacity"]) * float(plans[id]) / 100.0 - float(soil["water"]))
+		if needed <= 0.01:
+			continue
+		if machine_efficiency("pump") <= 0.0 or not _apply("irrigate", {"fieldId": id, "mm": snappedf(needed, 0.01)})["ok"]:
+			_log("Scheduled irrigation skipped on " + id, "warning")
+
+func _close_daily_report() -> void:
+	var planner: Dictionary = state["farm_work"]
+	var totals := Work.totals(state)
+	var report := {"day": int(state["time"]["day"]) - 1}
+	for metric in totals:
+		report[metric] = maxf(0.0, float(totals[metric]) - float(planner["baseline"][metric]))
+	planner["baseline"] = totals
+	planner["last_day"] = report
+
+func project_complete(region_id: String) -> bool:
+	return int(state.get("countryside54", {}).get("beyond58", {}).get("chapters", {}).get(region_id, 0)) >= 3
+
+func processing_available(recipe_id: String) -> bool:
+	var recipe: Dictionary = RECIPES.get(recipe_id, {})
+	return not recipe.is_empty() and (ready(str(recipe["building"])) or (recipe_id == "flour" and project_complete("village")))
+
+func processing_cost_factor(recipe_id: String) -> float:
+	var path := str(state["life"]["path"])
+	var factor := 1.08 if path == "artisan" else 1.0
+	if recipe_id == "cheese" and path == "livestock":
+		factor *= 0.85
+	if recipe_id == "flour" and not ready("mill") and project_complete("village"):
+		factor *= 1.25
+	return factor
+
+func field_outlook(field_id: String) -> Dictionary:
+	var field := field_of(field_id)
+	if not field.get("owned", false) or field["crop"].is_empty():
+		return {}
+	var crop: Dictionary = field["crop"]
+	var definition: Dictionary = content["crops"][str(crop["id"])]
+	var soil: Dictionary = field["soil"]
+	var progress := float(crop["development"])
+	var forecast: Dictionary = farm_forecast()[0]
+	var current_thermal := _crop_thermal(field, definition, float(state["weather"]["temperature"]))
+	var next_thermal := _crop_thermal(field, definition, float(forecast["temperature"]))
+	var current_rate := _crop_development_rate(field, crop, definition, current_thermal)
+	var next_rate := _crop_development_rate(field, crop, definition, next_thermal)
+	return {
+		"hours": 0 if progress >= RIPE_STAGE else (ceili((RIPE_STAGE - progress) / current_rate) if current_rate > 0.0 else -1),
+		"rain": forecast["rain_percent"],
+		"temperature": forecast["temperature"],
+		"maturity_change": 100.0 * (next_rate - current_rate) * 24.0,
+		"water": Fields52.water_factor(field, crop),
+		"nutrients": minf(1.0, minf(float(soil["n"]) / 24.0, minf(float(soil["p"]) / 10.0, float(soil["k"]) / 45.0))),
+		"pests": Work.pest_level(field),
+		"disease": float(crop.get("disease_stress", 0.0))
+	}
+
+func _crop_thermal(field: Dictionary, definition: Dictionary, temperature: float) -> float:
+	var terrain: Dictionary = content["terrains"][str(field["terrain"])]
+	var local_temp := temperature + float(terrain.get("temp", 0.0)) + 2.0 * level_of("greenhouse", str(field["id"]))
+	var base := float(definition.get("baseTempC", 3.0))
+	return clampf((local_temp - base) / maxf(1.0, float(definition.get("optimumTempC", 20.0)) - base), 0.0, 1.25)
+
+func _crop_development_rate(field: Dictionary, crop: Dictionary, definition: Dictionary, thermal: float) -> float:
+	var rate := thermal * (1.15 if has_talent("greenThumb") else 1.0)
+	if has_talent("hillGrower") and str(field["terrain"]) == "hill":
+		rate *= 1.1
+	rate *= 1.0 + 0.07 * level_of("greenhouse", str(field["id"]))
+	return rate * Fields52.growth_factor(field, crop, int(state["time"]["season"])) / Fields52.duration(definition, crop)
+
 func _advance_hour() -> void:
 	var clock: Dictionary = state["time"]
 	clock["total"] = int(clock["total"]) + 1
@@ -2844,7 +3019,9 @@ func _advance_hour() -> void:
 		state["wildlife"]["venom_hours"] = int(state["wildlife"]["venom_hours"]) - 1
 	_grow_one_hour()
 	if int(clock["total"]) % 24 == 0:
+		_close_daily_report()
 		_roll_day()
+	_expire_contracts()
 	# Remove expired event modifiers without consuming simulation RNG.
 	for effect_id in state["decisions"]["effects"].keys():
 		if int(state["decisions"]["effects"][effect_id]["until"]) <= int(clock["total"]):
@@ -2915,10 +3092,7 @@ func _grow_one_hour(only_field_id: String = "") -> void:
 			continue
 		var soil: Dictionary = f["soil"]
 		var terrain: Dictionary = content["terrains"].get(str(f["terrain"]), {})
-		var local_temp: float = temperature + float(terrain.get("temp", 0.0)) + 2.0 * level_of("greenhouse", str(f["id"]))
-		var base_temp: float = float(def.get("baseTempC", 3.0))
-		var optimum: float = float(def.get("optimumTempC", 20.0))
-		var thermal: float = clampf((local_temp - base_temp) / maxf(1.0, optimum - base_temp), 0.0, 1.25)
+		var thermal := _crop_thermal(f, def, temperature)
 		var water_ratio: float = Fields52.water_factor(f,crop)
 		var nutrient_ratio: float = minf(1.0, minf(float(soil["n"]) / 24.0, minf(float(soil["p"]) / 10.0, float(soil["k"]) / 45.0)))
 		var pest_pressure: float = 0.0
@@ -2938,13 +3112,8 @@ func _grow_one_hour(only_field_id: String = "") -> void:
 		var bee_dependency: float = float(def.get("pollinationDependence", 0.0))
 		var bee_sufficiency: float = clampf(float(f["beneficial"]["bees"]) * float(terrain.get("bees", 1.0)), 0.25, 1.0)
 		var pollination: float = 1.0 - bee_dependency * (1.0 - bee_sufficiency)
-		var growth_rate: float = thermal * (1.15 if has_talent("greenThumb") else 1.0)
-		if has_talent("hillGrower") and str(f["terrain"]) == "hill":
-			growth_rate *= 1.1
-		growth_rate *= 1.0 + 0.07 * level_of("greenhouse", str(f["id"]))
-		growth_rate *= Fields52.growth_factor(f,crop,int(state["time"]["season"]))
 		crop["age"] = float(crop["age"]) + 1.0
-		var delta_development: float = minf(1.0 - float(crop["development"]), growth_rate / Fields52.duration(def,crop))
+		var delta_development := _crop_development_rate(f, crop, def, thermal)
 		crop["development"] = minf(1.0, float(crop["development"]) + delta_development)
 		var gain_ratio: float = maxf(0.0, nutrient_ratio * water_ratio * rotation * pollination * (1.0 - pest_pressure) * (1.0 - disease_pressure))
 		gain_ratio *= Life.organic_score(f)
@@ -2983,7 +3152,7 @@ func _roll_day() -> void:
 	var rain: float = float(weather["rain"])
 	var temp: float = float(weather["temperature"])
 	# Rain capture produces finite reservoir input; no implied infinite water.
-	state["water"]["stored"] = minf(float(state["water"]["capacity"]), float(state["water"]["stored"]) + rain * (0.65 + 0.10 * level_of("pond")) * 1.0)
+	state["water"]["stored"] = minf(float(state["water"]["capacity"]), float(state["water"]["stored"]) + rain * (0.65 + 0.10 * level_of("pond")) * (1.30 if project_complete("river") else 1.0))
 	for f in state["fields"]:
 		if not f["owned"]:
 			continue
@@ -3044,6 +3213,7 @@ func _roll_day() -> void:
 	_update_story()
 	if bool(state["automation"]):
 		_automate_care()
+	_run_irrigation_plan()
 
 func _generate_weather() -> void:
 	var season: int = int(state["time"]["season"])
@@ -3057,6 +3227,10 @@ func _generate_weather() -> void:
 	if _rand() < 0.09 and rain == 0.0:
 		weather_kind = "heat"
 		temperature += 7.0
+	if Work.dry_spell(state["farm_work"], int(state["time"]["day"])):
+		rain = 0.0
+		temperature += 5.0
+		weather_kind = "heat"
 	state["weather"] = {"kind":weather_kind,"temperature":temperature,"rain":rain,"humidity":0.80 if rain > 0.0 else 0.35 + _rand() * 0.3,"forecast":"variable"}
 
 func _update_field_ecology(f: Dictionary, temp: float, rain: float) -> void:
@@ -3208,13 +3382,7 @@ func _update_market() -> void:
 	for offer in state["market"]["offers"]:
 		if offer["status"] == "open" and int(offer["expires"]) <= int(state["time"]["total"]):
 			offer["status"] = "expired"
-	for contract in state["market"]["contracts"]:
-		if contract["status"] == "open" and int(contract["deadline"]) <= int(state["time"]["total"]):
-			contract["status"] = "expired"
-		if contract["status"] == "active" and int(contract["deadline"]) <= int(state["time"]["total"]):
-			contract["status"] = "failed"
-			state["economy"]["reputation"] = maxi(0, int(state["economy"]["reputation"]) - 3)
-			_log("A contract was missed; deposit is forfeited", "warning")
+	_announce_seasonal_order()
 	if int(state["time"]["day"]) % 3 == 0:
 		_spawn_offer()
 	if int(state["time"]["day"]) % 4 == 0:
@@ -3241,19 +3409,106 @@ func _spawn_offer() -> void:
 	_log("A travelling buyer has made a time-limited offer", "market")
 
 func _spawn_contract() -> void:
-	var contracts: Array = state["market"]["contracts"]
-	var active: int = 0
-	for c in contracts:
-		if c["status"] == "open" or c["status"] == "active":
+	var active := 0
+	for contract in state["market"]["contracts"]:
+		if contract.get("kind", "") in ["starter", "seasonal"]:
+			continue
+		if contract["status"] in ["open", "active"]:
 			active += 1
 	if active >= 3:
 		return
-	var goods: Array = ["wheat", "bean", "sunflower", "barley", "potato", "carrot", "lettuce", "strawberry", "maize", "tomato", "pumpkin", "lavender", "eggs", "milk", "wool"]
-	var good: String = str(goods[int(_rand() * goods.size())])
-	var kg: float = 30.0 + float(int(_rand() * 70.0))
-	var price: float = market_price(good) * (1.18 + _rand() * 0.25)
-	contracts.append({"id":_id(),"good":good,"kg":kg,"payout":Data.money(kg * price),"deposit":Data.money(kg * price * 0.10),"deadline":int(state["time"]["total"]) + 120,"status":"open"})
+	var goods := ["wheat", "bean", "sunflower", "barley", "potato", "carrot", "lettuce", "strawberry", "maize", "tomato", "pumpkin", "lavender", "eggs", "milk", "wool"]
+	var path: String = str(state["life"]["path"])
+	match path:
+		"crops":
+			goods.append_array(["wheat", "barley", "oats", "rye", "maize", "rice"])
+		"horticulture":
+			goods.append_array(["lettuce", "carrot", "tomato", "strawberry", "cucumber", "beetroot"])
+		"livestock":
+			goods.append_array(["milk", "eggs", "wool", "cheese", "honey"])
+	var good := str(goods[int(_rand() * goods.size())])
+	var kg := 30.0 + floorf(_rand() * 70.0)
+	var price := market_price(good) * (1.18 + _rand() * 0.25)
+	var kind := "regular"
+	var premium := 0.0
+	var hours := 120
+	# Once the market develops, rotate through standard, urgent and premium orders.
+	var day := int(state["time"]["day"])
+	if day > 8:
+		match day % 12:
+			0:
+				kind = "urgent"
+				hours = 36
+				for field in state["fields"]:
+					var crop: Dictionary = field["crop"]
+					var growth := float(crop.get("development", 0.0))
+					if field["owned"] and growth >= 0.72 and growth < RIPE_STAGE:
+						good = str(crop["id"])
+						break
+				price = market_price(good) * 1.48
+			4:
+				kind = "premium"
+				if not content["crops"].has(good):
+					good = "wheat"
+				premium = ceilf(kg * 0.35)
+				price = market_price(good) * 1.72
+	var payout := Data.money(kg * price)
+	_post_contract(good, kg, payout, Data.money(payout * 0.10), hours, kind, premium)
+
+func _post_contract(good: String, kg: float, payout: float, deposit: float, hours: int, kind: String, premium: float = 0.0, opens: int = 0, buyer: String = "") -> void:
+	state["market"]["contracts"].append({"id": _id(), "good": good, "kg": kg, "payout": payout,
+		"deposit": deposit, "deadline": int(state["time"]["total"]) + hours, "status": "open",
+		"kind": kind, "premium_kg": premium, "opens": opens, "buyer": buyer})
 	_log("A buyer posted a fresh harvest contract", "market")
+
+func _offer_first_order() -> bool:
+	var work: Dictionary = state["farm_work"]
+	if work["starter"] != "waiting":
+		return false
+	work["starter"] = "offered"
+	work["dry_from"] = int(state["time"]["day"]) + 1
+	_post_contract("lettuce", 25.0, Data.money(25.0 * market_price("lettuce") * 1.75), 12.0, 120, "starter", 0.0, 0, "ines")
+	return true
+
+func _announce_seasonal_order() -> void:
+	var key := World50.season_key(int(state["time"]["day"]))
+	if int(state["farm_work"]["calendar_season"]) == key:
+		return
+	state["farm_work"]["calendar_season"] = key
+	var order: Dictionary = Work.SEASONAL_ORDERS[key % Work.SEASONAL_ORDERS.size()]
+	var good := str(order["good"])
+	var kg := float(order["kg"])
+	var payout := Data.money(kg * market_price(good) * (1.70 if float(order["premium"]) > 0.0 else 1.45))
+	var season_start := key * SEASON_DAYS * 24
+	var deadline := season_start + SEASON_DAYS * 24
+	_post_contract(good, kg, payout, Data.money(payout * 0.08), deadline - int(state["time"]["total"]),
+		"seasonal", float(order["premium"]), season_start + (Work.FIRST_MARKET_DAY - 1) * 24, str(order["buyer"]))
+
+func _expire_contracts() -> void:
+	for contract in state["market"]["contracts"]:
+		if int(contract["deadline"]) > int(state["time"]["total"]):
+			continue
+		if contract["status"] == "open":
+			contract["status"] = "expired"
+		elif contract["status"] == "active":
+			contract["status"] = "failed"
+			state["economy"]["reputation"] = maxi(0, int(state["economy"]["reputation"]) - 3)
+			_log("A contract was missed; deposit is forfeited", "warning")
+		if contract.get("kind") == "starter":
+			state["farm_work"]["starter"] = "done"
+
+func contract_payout(contract: Dictionary) -> float:
+	if contract["status"] != "open":
+		return float(contract["payout"])
+	var good := str(contract["good"])
+	var family := str(content["crops"].get(good, {}).get("family", ""))
+	var path := str(state["life"]["path"])
+	var specialty := (path == "crops" and family == "cereal") or (path == "horticulture" and family in ["vegetable", "berry", "solanaceae", "cucurbit"])
+	return Data.money(float(contract["payout"]) * (1.12 if specialty else 1.0))
+
+func contract_missing(contract: Dictionary) -> float:
+	var good := str(contract["good"])
+	return maxf(0.0, maxf(float(contract["kg"]) - stock(good), float(contract.get("premium_kg", 0.0)) - premium_stock(good)))
 
 func _resolve_offer(id: String, accept: bool) -> Dictionary:
 	for o in state["market"]["offers"]:
@@ -3280,6 +3535,7 @@ func _contract_accept(id: String) -> Dictionary:
 			return _fail("The contract is no longer available")
 		if not _pay(float(c["deposit"]), "penalty", "Contract deposit"):
 			return _fail("Insufficient cash for contract deposit")
+		c["payout"] = contract_payout(c)
 		c["status"] = "active"
 		return _ok("Contract accepted; deposit held until delivery")
 	return _fail("Contract not found")
@@ -3290,10 +3546,22 @@ func _contract_deliver(id: String) -> Dictionary:
 			continue
 		if c["status"] != "active" or int(c["deadline"]) <= int(state["time"]["total"]):
 			return _fail("Contract is not active")
-		if not _stock_take(str(c["good"]), float(c["kg"])):
-			return _fail("You must deliver the full contracted quantity")
-		_earn(float(c["payout"]) + float(c["deposit"]), "revenue", "Completed contract and returned deposit")
+		if int(state["time"]["total"]) < int(c.get("opens", 0)):
+			return _fail("This order can only be delivered when the seasonal market opens")
+		var good := str(c["good"])
+		var premium_required := float(c.get("premium_kg", 0.0))
+		var stock_before := stock(good)
+		var premium_before := premium_stock(good)
+		var kg := float(c["kg"])
+		if contract_missing(c) > 0.0001 or not _stock_take(good, kg):
+			return _fail("You must deliver the full contracted quantity and grade")
+		# Reserve required premium; fill the rest with standard stock first.
+		var premium_used := maxf(premium_required, kg - (stock_before - premium_before))
+		state["life"]["quality_stock"][good] = maxf(0.0, premium_before - premium_used)
+		_earn(contract_payout(c) + float(c["deposit"]), "revenue", "Completed contract and returned deposit")
 		c["status"] = "delivered"
+		if c.get("kind") == "starter":
+			state["farm_work"]["starter"] = "done"
 		state["stats"]["contracts_delivered"] += 1
 		state["economy"]["reputation"] += 3
 		_xp(55)

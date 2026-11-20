@@ -243,7 +243,11 @@ func _show_step() -> void:
 	progress_bar.value = current_step
 
 	skip_button.visible = bool(step_data.get("skipable", true))
-	next_button.text = "Complete" if current_step == STEPS.size() - 1 else "Next"
+	skip_button.text = "Saltar" if lang == "es" else "Skip"
+	if current_step == STEPS.size() - 1:
+		next_button.text = "Completar" if lang == "es" else "Complete"
+	else:
+		next_button.text = "Siguiente" if lang == "es" else "Next"
 
 	overlay.visible = true
 	is_active = true

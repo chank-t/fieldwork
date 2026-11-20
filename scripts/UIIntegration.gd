@@ -249,6 +249,8 @@ static func _show_pick_radial(world: Variant, radial_menu: Variant, local_positi
 
 static func on_radial_action(main_ui: Variant, action_id: String, args: Dictionary) -> void:
     match action_id:
+        "fieldOutlook":
+            main_ui._inspect_outlook(str(args["fieldId"]))
         "plant", "treat", "fertilize":
             main_ui.selected_field = str(args.get("fieldId", main_ui.selected_field))
             main_ui._change_tab("Fields")

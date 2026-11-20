@@ -56,6 +56,8 @@ There are **24 land plots**; not all are owned initially. The catalog has **27 c
 
 For crop selection: select a plot, inspect its type/terrain, choose a compatible seed and confirm the proposed action. Costs and consequences are executed by the farm's transaction engine. Dry soil, pests, fertility, compaction and crop development influence production and are represented through map visuals and overlays.
 
+From 80% growth, tap a planted plot and choose **Harvest early** if you need stock for a delivery. Picking early yields 25% less at the current biomass and produces standard grade only. At full ripeness the regular harvest rules apply. The confirmation shows how much fits in storage and any overflow you would lose.
+
 The rotation planner checks up to the last three harvested crop families on that plot. Repeating a family reduces biomass yield, increases N/P/K demand and encourages nematodes; legumes return part of their nitrogen use to the soil. Check the planner before planting to compare these long-term effects.
 
 After harvesting, the report shows produced and stored amounts, overflow, crop condition and the main growth factors. Use its suggested next step to plan the next cycle.
@@ -75,3 +77,12 @@ Options include interface scaling (source range 100%-165%), high-contrast modes,
 ## Before relying on a long campaign
 
 Use **Save** or one of three manual slots, keep an external backup of Godot `user://`, and verify that an exported build runs on your target PC or phone.
+
+## Planning work and sales
+
+- After your first crop sale in Story mode, Inés asks for lettuce and the forecast announces two hot, dry days. Take the order and plan seeds and irrigation around its deadline, or decline it and sell independently.
+- Tap a growing plot and choose **Outlook** to see estimated time to maturity, tomorrow’s weather and factors limiting yield. In **Fields** or **Ecology**, mark a visible pest problem to review the following day, treat it, or harvest early if the crop is far enough along.
+- Use **Work several fields** in Fields or Planning to select plots to irrigate or harvest. The confirmation shows the combined costs, water use and storage losses. A working cultivator adds batch sowing. A working pump enables a saved daily moisture target per plot.
+- Check the seasonal calendar in **Festivals**. The seasonal order is announced at the start of each season, with deliveries open on days 9–12. Urgent orders have short deadlines, and premium orders require a minimum quantity of premium stock. Specialize in cereals, market gardening or livestock to see different opportunities and operating costs.
+- Complete the village mill or Silver River channel in **Regional expeditions**. The reopened mill processes wheat for a fee. The restored channel captures more rain and reduces reservoir use. Both appear on the valley map.
+- Use **Finish day and save** in Planning to go to the next morning and see the balance. Pending village decisions pause the advance. The latest balance and follow-up tasks are available when you resume.

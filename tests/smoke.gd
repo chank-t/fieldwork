@@ -28,7 +28,136 @@ func check(condition: bool, description: String) -> void:
 func frames(count: int = 3) -> void:
 	for i in range(count): await process_frame
 
+func check_early_harvest() -> void:
+	var farm := Farm.new()
+	farm.new_game({"language": "en", "seed": 4572})
+	farm.act("plant", {"fieldId": "plot1", "cropId": "wheat"})
+	var args := {"fieldId": "plot1", "early": true}
+	var crop: Dictionary = farm.field_of("plot1")["crop"]
+	crop["biomass"] = 500.0
+	crop["development"] = 0.799
+	check(not farm.act("harvest", args)["ok"], "Immature crops cannot be picked early")
+	farm.field_of("plot1")["crop"]["development"] = Farm.EARLY_HARVEST_STAGE
+	check(not farm.act("harvest", {"fieldId": "plot1"})["ok"], "Early harvesting requires an explicit choice")
+	var before := farm.export_text()
+	var early := farm.quote("harvest", args)
+	check(early["ok"] and early["early"] and farm.export_text() == before, "Quoting at 80 percent leaves crop and resources untouched")
+	farm.field_of("plot1")["crop"]["development"] = Farm.RIPE_STAGE
+	var ripe := farm.quote("harvest", args)
+	check(not ripe["early"] and is_equal_approx(early["stored_kg"], ripe["stored_kg"] * 0.75), "At equal biomass a ripe crop yields more, even with the early option selected")
+	farm.field_of("plot1")["crop"]["development"] = 0.85
+	var original_stock := farm.stock("wheat")
+	farm.state["inventory"]["wheat"] = original_stock + farm.storage_capacity() - farm.stored() - 2.0
+	var limited := farm.quote("harvest", args)
+	check(is_equal_approx(limited["stored_kg"], 2.0) and is_equal_approx(limited["overflow_kg"], early["stored_kg"] - 2.0), "Harvest preview accounts for storage overflow")
+	farm.state["inventory"]["wheat"] = original_stock
+	var harvested := farm.act("harvest", args)
+	check(harvested["ok"] and farm.field_of("plot1")["crop"].is_empty() and is_equal_approx(farm.stock("wheat"), early["stored_kg"]) and is_zero_approx(farm.premium_stock("wheat")), "Early harvest banks the quoted standard-grade yield")
+
+func check_farm_work() -> void:
+	var farm := Farm.new()
+	farm.new_game({"language": "en", "seed": 47291})
+	farm.state["events"]["next"] = 10000
+	var season_order: Dictionary = farm.state["market"]["contracts"][0]
+	var season_args := {"contractId": season_order["id"]}
+	check(season_order["good"] == "lettuce" and int(season_order["opens"]) == 192, "Spring demand is advertised on day one")
+	check(farm.act("contractAccept", season_args)["ok"], "A seasonal order can be booked in advance")
+	farm.state["inventory"]["lettuce"] = 40.0
+	check(not farm.act("contractDeliver", season_args)["ok"], "The seasonal order cannot be delivered before the fair")
+	farm.state["inventory"]["lettuce"] = 0.0
+	farm.act("plant", {"fieldId": "plot1", "cropId": "wheat"})
+	var initial: Dictionary = farm.field_of("plot1")["crop"]
+	initial["development"] = 1.0
+	initial["biomass"] = 500.0
+	farm.act("harvest", {"fieldId": "plot1"})
+	var sale := farm.act("sell", {"goodId": "wheat", "kg": 10.0})
+	check(sale.get("first_order", false) and farm.farm_forecast()[0]["rain_percent"] == 0, "The first sale opens Inés's order and announces the dry spell")
+	var intro: Dictionary = farm.state["market"]["contracts"].back()
+	var independent := Farm.new()
+	check(independent.load_text(farm.export_text())["ok"] and independent.act("contractDecline", {"contractId": intro["id"]})["ok"], "The player can decline the first order after resuming")
+	check(independent.state["farm_work"]["starter"] == "done" and not independent.act("sell", {"goodId": "wheat", "kg": 1.0}).get("first_order", false), "Independent sales do not reopen the starter order")
+	check(farm.act("contractAccept", {"contractId": intro["id"]})["ok"], "Inés's order can be accepted")
+	check(farm.act("plant", {"fieldId": "plot1", "cropId": "lettuce", "variety": "resilient"})["ok"], "Drought-tolerant seeds can supply the starter order")
+	check(farm.act("buyField", {"fieldId": "plot2"})["ok"], "A second plot is available for batch work")
+	var batch := {"operation": "irrigate", "fields": ["plot1", "plot2"], "mm": 15.0}
+	farm.field_of("plot2")["soil"]["water"] = farm.field_of("plot2")["soil"]["capacity"]
+	var before := farm.export_text()
+	check(not farm.act("workBatch", batch)["ok"] and farm.export_text() == before, "A failing second field rolls back batch expenses and first-field work")
+	farm.field_of("plot2")["soil"]["water"] = 50.0
+	var quote := farm.quote("workBatch", batch)
+	var committed := farm.act("workBatch", batch)
+	check(quote["ok"] and committed["ok"] and is_equal_approx(quote["water_m3"], committed["water_m3"]), "Batch water consumption matches the preview")
+	check(not farm.act("workBatch", {"operation": "plant", "fields": ["plot2"], "cropId": "lettuce"})["ok"], "Mechanized sowing requires a cultivator")
+	check(farm.act("buyMachine", {"machineId": "cultivator"})["ok"] and farm.act("workBatch", {"operation": "plant", "fields": ["plot2"], "cropId": "lettuce"})["ok"], "A working cultivator sows a batch")
+	farm.field_of("plot1")["soil"]["water"] = 5.0
+	farm.field_of("plot1")["pests"]["aphids"] = 24.0
+	var outlook := farm.field_outlook("plot1")
+	check(int(outlook["hours"]) > 0 and float(outlook["water"]) < 1.0 and outlook["pests"] == 1, "Field outlook reports ripening, water and visible pest pressure")
+	check(farm.act("watchPests", {"fieldId": "plot1"})["ok"], "An early infestation can be marked for tomorrow")
+	check(farm.act("buyMachine", {"machineId": "pump"})["ok"] and farm.act("planIrrigation", {"fieldId": "plot1", "target": 45})["ok"], "A working pump can schedule irrigation")
+	check(farm.act("endDay")["ok"] and farm.state["time"]["day"] == 2 and farm.state["weather"]["rain"] == 0.0, "Closing the day reaches the first promised dry day")
+	check(float(farm.field_of("plot1")["soil"]["water"]) > 55.0 and float(farm.state["life"]["machines"]["pump"]["condition"]) < 1.0, "The schedule waters the crop and wears the pump")
+	check(int(farm.state["farm_work"]["watch"]["plot1"]["day"]) == 1 and int(farm.state["farm_work"]["last_day"]["day"]) == 1, "Day balance and follow-up survive the change of day")
+	var resumed := Farm.new()
+	check(resumed.load_text(farm.export_text())["ok"] and resumed.export_text() == farm.export_text(), "Plans, pest watch and daily balances survive saving and loading")
+	var legacy: Dictionary = farm.state.duplicate(true)
+	legacy.erase("farm_work")
+	check(farm._valid_state(farm._upgrade_state(legacy)), "Saves created before planning data load with defaults")
+	while int(farm.state["time"]["day"]) < 4:
+		farm.act("endDay")
+	var crop: Dictionary = farm.field_of("plot1")["crop"]
+	if float(crop.get("development", 0.0)) < Farm.RIPE_STAGE:
+		farm.act("endDay")
+	check(farm.act("harvest", {"fieldId": "plot1", "early": true})["ok"] and farm.act("contractDeliver", {"contractId": intro["id"]})["ok"], "The starter crop can mature sufficiently and reach Inés during the deadline")
+	while int(farm.state["time"]["day"]) < 9:
+		farm.act("endDay")
+	check(farm.act("contractDeliver", season_args)["ok"], "Spring order can be delivered once the fair opens")
+	while int(farm.state["time"]["day"]) < 13:
+		farm.act("endDay")
+	var contracts: Array = farm.state["market"]["contracts"]
+	var summer: Dictionary = contracts.back()
+	check(contracts.any(func(order): return order.get("kind") == "urgent" and order["deadline"] % 24 != 0), "Urgent orders with intraday deadlines are posted")
+	check(summer["good"] == "tomato" and summer["premium_kg"] == 12.0, "Summer adds a premium tomato request")
+	farm.act("choosePath", {"path": "horticulture"})
+	check(farm.contract_payout(summer) > float(summer["payout"]), "Market gardeners earn more from their specialist orders")
+	var grade_farm := Farm.new()
+	grade_farm.new_game()
+	grade_farm.state["market"]["contracts"].append({"id": "premium-test", "good": "tomato", "kg": 45.0, "premium_kg": 12.0,
+		"status":"active", "deposit": 0.0, "payout": 100.0, "deadline": 36})
+	grade_farm.state["inventory"]["tomato"] = 70.0
+	var grade_args := {"contractId": "premium-test"}
+	check(not grade_farm.act("contractDeliver", grade_args)["ok"], "Standard stock alone cannot fill a premium order")
+	grade_farm.state["life"]["quality_stock"]["tomato"] = 19.0
+	check(grade_farm.act("contractDeliver", grade_args)["ok"] and is_equal_approx(grade_farm.premium_stock("tomato"), 7.0), "Delivery consumes the required premium grade even with ample standard stock")
+
+func check_valley_upgrades() -> void:
+	var farm := Farm.new()
+	farm.new_game({"language": "en"})
+	farm.state["events"]["next"] = 10000
+	farm.state["inventory"]["wheat"] = 25.0
+	check(not farm.processing_available("flour"), "Flour needs either a farm mill or the reopened town mill")
+	var river_quote := farm.quote("irrigate", {"fieldId": "plot1", "mm": 15.0})
+	for region in ["village", "river"]:
+		if region == "river":
+			farm.act("explore", {"regionId": region})
+			farm.state["inventory"]["clay"] = 4.0
+		for stage in range(3):
+			farm.act("endDay")
+			var result := farm.act("advanceProject58", {"regionId": region, "approach": "protect"})
+			check(result["ok"], "Regional project advances: %s chapter %d" % [region, stage + 1])
+	check(farm.act("process", {"recipeId": "flour", "kg": 20.0})["ok"] and not farm.ready("mill"), "Restoring the village mill opens paid flour processing")
+	check(is_equal_approx(farm.quote("irrigate", {"fieldId": "plot1", "mm": 15.0})["water_m3"], river_quote["water_m3"] * 0.90), "The restored channel reduces actual reservoir use")
+	var valley = preload("res://scripts/three_d/ValleyView3D.gd").new()
+	valley.set_farm(farm)
+	root.add_child(valley)
+	valley._tick(0.0)
+	check(valley.restored_sites["village"].visible and valley.restored_sites["river"].visible, "Both finished projects appear on the valley map")
+	valley.free()
+
 func run() -> void:
+	check_early_harvest()
+	check_farm_work()
+	check_valley_upgrades()
 	root.size = Vector2i(1280,720)
 	root.content_scale_size = Vector2i(1280,720)
 	var farm := Farm.new()
@@ -409,6 +538,18 @@ func run() -> void:
 	var view: Control = app.world
 	check(view.viewport_3d.own_world_3d,"Farm is a separate real 3D world")
 	check(view.plot_roots.size() == 24,"All plot meshes built")
+	var field_crop: Dictionary = farm.field_of("plot1")["crop"]
+	var old_growth := float(field_crop["development"])
+	field_crop["development"] = 0.82
+	view._sync()
+	var harvest_actions: Array = radial._field_actions("plot1")
+	check(harvest_actions[0]["args"].get("early", false) and str(view.plot_tags["plot1"].get_meta("full_text")).contains("Temprana"), "Early harvest is marked on the field and available from its radial menu")
+	app._on_radial_action("harvest", harvest_actions[0]["args"])
+	check(app.confirm.visible and app.confirm.dialog_text.contains("25 %") and app.confirm.dialog_text.contains("Al almacén"), "Early picking opens a localized yield and storage confirmation")
+	app.confirm.hide()
+	app.pending = {}
+	farm.field_of("plot1")["crop"]["development"] = old_growth
+	view._sync()
 	view.show_build_slots = true
 	view.show_garden_slots57 = true
 	view._sync_slots()
@@ -633,6 +774,31 @@ func run() -> void:
 		await frames(6)
 		check(app.scene_root.size.x <= dimensions.x+1,"Layout width "+str(dimensions))
 		check(app.game_base.get_global_rect().end.y <= dimensions.y+2,"Layout height "+str(dimensions))
+		if dimensions.x == 440:
+			app.language = "es"
+			farm.language = "es"
+			farm.state["events"]["active"] = {}
+			farm.state["events"]["next"] = 10000
+			farm.field_of("plot1")["soil"]["water"] = 40.0
+			app._open_field_work()
+			await frames(2)
+			var boxes: Array = app.right_body.find_children("*", "CheckBox", true, false)
+			check(not boxes.is_empty() and app.mobile_detail_pane.visible, "Batch selection opens the mobile inspector")
+			boxes[0].button_pressed = true
+			for control in app.right_body.find_children("*", "Button", true, false):
+				if control.text == "Revisar trabajo seleccionado":
+					control.pressed.emit()
+					break
+			await frames(3)
+			check(app.confirm.visible and app.confirm.size.x <= dimensions.x and app.confirm.dialog_text.contains("Agua de la reserva"), "Mobile batch review shows water within screen width")
+			app.confirm.hide()
+			app._commit_pending()
+			check(is_equal_approx(float(farm.field_of("plot1")["soil"]["water"]), 55.0), "Confirming the mobile batch applies its irrigation")
+			var closing_day := int(farm.state["time"]["day"])
+			app._finish_day()
+			await frames(3)
+			check(int(farm.state["time"]["day"]) == closing_day + 1 and app.info.visible and app.info.size.x <= dimensions.x, "Closing the day on mobile shows the saved balance")
+			app.info.hide()
 	root.remove_child(app)
 	app.free()
 	await frames(2)

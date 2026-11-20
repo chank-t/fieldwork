@@ -90,6 +90,7 @@ var current_hub: String = "Farm"
 var current_panel: String = "overview"
 var hub_navigation_active: bool = false
 var hub_buttons: Dictionary = {}
+var field_work_operation := "irrigate"
 var context_title: Label = null
 var context_card_view: PanelContainer = null
 var context_detail: Label = null
@@ -872,8 +873,10 @@ func _quick_water_51() -> void:
 
 func _quick_harvest_51() -> void:
 	var field: Dictionary = farm.field_of(selected_field)
-	if not field.is_empty() and not field["crop"].is_empty() and float(field["crop"].get("development",0.0)) >= 0.995:
-		_ask("harvest",{"fieldId":selected_field})
+	var growth := float(field.get("crop", {}).get("development", 0.0))
+	if growth >= FarmScript.EARLY_HARVEST_STAGE:
+		_ask("harvest", {"fieldId": selected_field, "early": growth < FarmScript.RIPE_STAGE})
+
 
 func _update_context_51() -> void:
 	if context_title == null or not is_instance_valid(context_title):
@@ -882,6 +885,7 @@ func _update_context_51() -> void:
 	if field.is_empty():
 		return
 	var owned: bool = bool(field["owned"])
+	context_detail.tooltip_text = _field_outlook_text(selected_field)
 	var terrain: Dictionary = farm.content["terrains"][str(field["terrain"])]
 	var crop: Dictionary = field["crop"]
 	var plant_name: String = tx("Unclaimed land","Terreno disponible") if not owned else (tx("Unplanted","Sin sembrar") if crop.is_empty() else farm.n(farm.content["crops"][str(crop["id"])]))
@@ -894,16 +898,9 @@ func _update_context_51() -> void:
 	if context_moisture_label != null:
 		context_moisture_label.text = tx("Moisture","Humedad") + "  " + str(int(water)) + "%"
 		context_growth_label.text = tx("Growth","Crecimiento") + "  " + str(int(development)) + "%"
-	if owned and not crop.is_empty():
-		var priorities: PackedStringArray = []
-		if Fields52.water_factor(field,crop) < 0.98: priorities.append(tx("water","agua"))
-		var soil: Dictionary = field["soil"]
-		var nutrients: float = minf(1.0,minf(float(soil["n"])/24.0,minf(float(soil["p"])/10.0,float(soil["k"])/45.0)))
-		if nutrients < 0.98: priorities.append(tx("soil nutrients","nutrientes del suelo"))
-		if float(crop.get("pest_stress",0.0)) > 0.02: priorities.append(tx("pests","plagas"))
-		if float(crop.get("disease_stress",0.0)) > 0.02: priorities.append(tx("disease","enfermedad"))
-		if not priorities.is_empty():
-			context_detail.text += "  ·  "+tx("Needs ","Necesita ")+", ".join(priorities)
+	var outlook := context_detail.tooltip_text
+	if not outlook.is_empty():
+		context_detail.text = outlook.get_slice("\n", 0) + " · " + outlook.get_slice("\n", 2)
 	context_moisture.value = water
 	context_moisture.add_theme_stylebox_override("fill",_style(Color("#cb945f") if water < 25.0 else Color("#4b9ab3"),5))
 	context_growth.value = development
@@ -911,7 +908,9 @@ func _update_context_51() -> void:
 	if context_growth_col != null: context_growth_col.visible = context_growth.visible
 	context_manage.text = tx("Buy land","Comprar") if not owned else tx("Manage","Gestionar")
 	context_water.disabled = not owned
-	context_harvest.disabled = not owned or crop.is_empty() or development < 99.5
+	var growth := float(crop.get("development", 0.0))
+	context_harvest.disabled = not owned or growth < FarmScript.EARLY_HARVEST_STAGE
+	context_harvest.text = tx("Harvest early", "Cosechar antes") if growth >= FarmScript.EARLY_HARVEST_STAGE and growth < FarmScript.RIPE_STAGE else tx("Harvest", "Cosechar")
 
 func _nav_style55(fill: Color) -> StyleBoxFlat:
 	var style: StyleBoxFlat = _style(fill,9)
@@ -1741,6 +1740,7 @@ func _render_panel() -> void:
 		"Countryside54": _panel_countryside54()
 		"Expeditions58": _panel_expeditions58()
 		"Fields": _panel_fields()
+		"FieldWork": _panel_field_work()
 		"CropGuide52": _panel_crop_guide52()
 		"Ecology": _panel_ecology()
 		"Planning": _panel_planning()
@@ -1769,8 +1769,13 @@ func _notify(message: String, title: String = "FieldWork") -> void:
 		add_child(info)
 		_style_dialog_button(info.get_ok_button())
 	info.title = title
-	info.dialog_text = farm.message(message)
-	info.popup_centered()
+	_popup_game_dialog(info, farm.message(message))
+
+func _popup_game_dialog(dialog: AcceptDialog, description: String) -> void:
+	dialog.get_label().autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	dialog.dialog_text = description
+	var width := mini(540, maxi(200, int(get_viewport_rect().size.x) - 28))
+	dialog.popup_centered(Vector2i(width, 0))
 
 func _style_dialog_button(button: Button) -> void:
 	button.add_theme_stylebox_override("normal",theme.get_stylebox("normal","Button"))
@@ -1881,11 +1886,27 @@ func _ask(kind: String, args: Dictionary = {}) -> void:
 	var cost: float = float(preview.get("cost",0.0))
 	var revenue: float = float(preview.get("revenue",0.0))
 	var effect: String = _action_effect_text(kind,args)
+	if kind == "workBatch":
+		effect = tx("%d selected plots", "%d parcelas seleccionadas") % int(preview["count"])
+		match str(args["operation"]):
+			"harvest":
+				effect += "\n" + tx("To storage %.1f kg · overflow %.1f kg", "Al almacén %.1f kg · se pierden %.1f kg") % [preview["stored_kg"], preview["overflow_kg"]]
+			"irrigate":
+				effect += "\n" + tx("Reservoir water %.1f m³", "Agua de la reserva %.1f m³") % float(preview["water_m3"])
+
+	if kind == "harvest":
+		effect = _plot_name(str(args["fieldId"])) + " · " + tx("To storage", "Al almacén") + " %.1f kg" % float(preview["stored_kg"])
+		if preview["early"]:
+			effect += "\n" + tx("Early harvest yields 25% less at the current biomass and gives standard grade only.", "Cosechar antes reduce un 25 % el rendimiento de la biomasa actual. Todo el producto será de calidad estándar.")
+		if float(preview["overflow_kg"]) > 0.0:
+			effect += "\n" + tx("Lost for lack of space", "Pérdida por falta de espacio") + " %.1f kg" % float(preview["overflow_kg"])
 	if cost <= 0.0 and revenue <= 0.0 and effect.is_empty():
 		_direct(kind,args)
 		return
 	pending = {"type":kind,"args":args}
-	var details: PackedStringArray = [farm.message(str(preview.get("message",kind)))]
+	var details := PackedStringArray()
+	if kind != "harvest":
+		details.append(farm.message(str(preview.get("message",kind))))
 	if cost > 0.0:
 		details.append("EUR "+str(cost)+tx(" cost"," de coste"))
 	elif revenue > 0.0:
@@ -1893,8 +1914,7 @@ func _ask(kind: String, args: Dictionary = {}) -> void:
 	if not effect.is_empty():
 		details.append(effect)
 	details.append(tx("Confirm this action?","¿Confirmas esta acción?"))
-	confirm.dialog_text = "\n".join(details)
-	confirm.popup_centered()
+	_popup_game_dialog(confirm, "\n".join(details))
 
 func _commit_pending() -> void:
 	if pending.is_empty():
@@ -1912,8 +1932,11 @@ func _direct(kind: String, args: Dictionary = {}) -> void:
 	if kind != "move" and kind != "inspect":
 		saved59 = farm.save_file()
 	if world != null and is_instance_valid(world):
-		world.trigger_work_effect57(kind, str(args.get("fieldId", "")))
+		world.trigger_work_effect57(kind, str(args.get("fieldId", "")), result)
 	_refresh()
+	if result.get("first_order", false):
+		_set_speed(0)
+		_change_tab("Market")
 	var save_error: String = ""
 	if not saved59.is_empty() and not bool(saved59.get("ok",false)):
 		speed = 0
@@ -2122,6 +2145,7 @@ func _panel_compass60() -> void:
 	_button(tx("Daily planner and budget", "Plan diario y presupuesto"),_change_tab.bind("Planning"),right_body,true)
 
 func _panel_farm() -> void:
+	_panel_first_order()
 	var active60: Array = Compass60.priorities(farm,language)
 	var overall60: float = Compass60.overall_progress(farm)
 	_caption(right_body,tx("Today's briefing","Resumen diario"),tx("Day ","Día ")+str(int(farm.state["time"]["day"]))+" · "+farm.season_name())
@@ -2134,6 +2158,7 @@ func _panel_farm() -> void:
 		_line(right_body,Compass60.label(task60,language,"detail"),12,MUTED)
 		daily_index += 1
 	_button(tx("Open Farm Compass and long-term goals", "Abrir brújula y objetivos a largo plazo"),_change_tab.bind("Compass60"),right_body)
+	_button(tx("Review day and save", "Revisar y cerrar el día"), _change_tab.bind("Planning"), right_body)
 	var player: Dictionary = farm.state["player"]
 	_caption(right_body, str(player["farm"]),tx("Your new beginning in a living valley","Tu comienzo en un valle lleno de vida"))
 	var s: Dictionary = farm.status()
@@ -2234,6 +2259,7 @@ func _panel_farm() -> void:
 		_button(tx("Review choices","Ver opciones"),_show_decision_board,right_body,true)
 
 func _panel_farm_overview() -> void:
+	_panel_first_order()
 	# Farm status, weather, quick stats (cash, fields, water, storage, reputation)
 	var player: Dictionary = farm.state["player"]
 	_caption(right_body, str(player["farm"]), tx("Your new beginning in a living valley", "Tu comienzo en un valle lleno de vida"))
@@ -2262,6 +2288,7 @@ func _panel_farm_overview() -> void:
 	var bank: Dictionary = farm.operating_budget()
 	_line(right_body, tx("Fixed daily maintenance: ", "Mantenimiento fijo diario: ") + _money(float(float(bank["fixed_daily"]))), 13, MUTED)
 	_button(tx("Open daily planner", "Abrir plan diario"), _change_tab.bind("Planning"), right_body)
+	_button(tx("Finish day and save", "Cerrar día y guardar"), _finish_day, right_body)
 
 	_season_goal_summary(right_body)
 
@@ -2614,6 +2641,7 @@ func _rotation_suggestion_effect(suggestion: Dictionary) -> String:
 
 func _panel_fields() -> void:
 	_caption(right_body,tx("Your fields","Tus parcelas"),tx("Search and filter all 24 plots; select one to manage it.","Busca y filtra las 24 parcelas; elige una para gestionarla."))
+	_button(tx("Work several fields", "Trabajar varias parcelas"), _open_field_work, right_body)
 	var search: LineEdit = _field(right_body,"",tx("Search plot number or crop...","Buscar parcela o cultivo..."))
 	var filters: OptionButton = _select(right_body,["all","owned","for_sale","dry","pests","ready"],
 		[tx("All fields","Todas"),tx("Owned fields","Propias"),tx("For sale","En venta"),tx("Dry fields","Secas"),tx("Pest alerts","Con plagas"),tx("Ready for harvest","Listas para cosechar")])
@@ -2675,6 +2703,10 @@ func _panel_fields() -> void:
 		return
 	var soil: Dictionary = f["soil"]
 	var crop: Dictionary = f["crop"]
+	var outlook := _field_outlook_text(selected_field)
+	if not outlook.is_empty():
+		_line(right_body, outlook, 13, ACCENT)
+	_panel_pest_watch(right_body, f)
 	var current_layout: String = str(f.get("plot_type","open"))
 	var current_hour: int = int(farm.state["time"]["total"])
 	var cover_until: int = int(f.get("cover_until",0))
@@ -2772,8 +2804,11 @@ func _panel_fields() -> void:
 		if disease_factor < 0.98: priorities.append(tx("disease control","control de enfermedades"))
 		_line(right_body,tx("Current priority: ","Prioridad actual: ")+(", ".join(priorities) if not priorities.is_empty() else tx("no major growth limit","sin limitaciones importantes")),13,DANGER if not priorities.is_empty() else ACCENT)
 		_line(right_body,tx("A factor below 100% reduces crop growth or biomass gain.","Un factor inferior al 100% redueix el creixement o la biomassa del cultiu."),12,MUTED)
-		var harvest_button: Button = _button(tx("Harvest ready crop","Recoger cosecha"),_ask.bind("harvest",{"fieldId":selected_field}),right_body,true)
-		harvest_button.disabled = float(crop["development"]) < 0.995
+		var growth := float(crop["development"])
+		var early := growth >= FarmScript.EARLY_HARVEST_STAGE and growth < FarmScript.RIPE_STAGE
+		var harvest_label := tx("Harvest early", "Cosechar antes") if early else tx("Harvest ready crop", "Recoger cosecha")
+		var harvest_button := _button(harvest_label, _ask.bind("harvest", {"fieldId": selected_field, "early": early}), right_body, true)
+		harvest_button.disabled = growth < FarmScript.EARLY_HARVEST_STAGE
 	_line(right_body,tx("Root-zone water: ","Agua en raíz: ") + str(snappedf(float(soil["water"]),0.1)) + " / " + str(soil["capacity"]) + " mm")
 	_line(right_body,"N " + str(snappedf(float(soil["n"]),0.1)) + "  P " + str(snappedf(float(soil["p"]),0.1)) + "  K " + str(snappedf(float(soil["k"]),0.1)),13)
 	_line(right_body,tx("Organic matter ","Materia orgánica ")+str(snappedf(float(soil["organic_matter"]),0.01))+"% · "+tx("Compaction ","Compactación ")+str(int(float(soil["compaction"])*100.0))+"% · "+tx("Erosion ","Erosión ")+str(int(float(soil["erosion"])*100.0))+"%",13,ACCENT if farm.soil_health(selected_field)>=0.85 else DANGER)
@@ -2801,6 +2836,7 @@ func _panel_fields() -> void:
 	irrigation.value_changed.connect(func(_value):update_irrigation_preview.call())
 	update_irrigation_preview.call()
 	_button(tx("Irrigate","Regar"),func():_ask("irrigate",{"fieldId":selected_field,"mm":irrigation.value}),right_body)
+	_panel_irrigation_plan(right_body, selected_field)
 	var fert: HBoxContainer = _hbox(right_body)
 	var elements: OptionButton = _select(fert,["n","p","k"],["N", "P", "K"])
 	var quantity: SpinBox = _spin(fert,12,1,80,1)
@@ -2871,6 +2907,7 @@ func _panel_ecology() -> void:
 		_line(right_body,tx("Choose an owned field first","Elige una parcela propia"))
 		return
 	var soil: Dictionary = f["soil"]
+	_panel_pest_watch(right_body, f)
 	_line(right_body,tx("Selected field: ","Parcela: ")+selected_field,17,ACCENT)
 	_line(right_body,"Water " + str(snappedf(float(soil["water"]),0.1)) + " mm  /  " + str(soil["capacity"]) + " mm")
 	_line(right_body,"N " + str(snappedf(float(soil["n"]),0.1)) + " kg   P " + str(snappedf(float(soil["p"]),0.1)) + " kg   K " + str(snappedf(float(soil["k"]),0.1)) + " kg")
@@ -2907,7 +2944,259 @@ func _panel_ecology() -> void:
 	_button(tx("Go to field actions","Volver a tratamientos"),_change_tab.bind("Fields"),right_body,true)
 	_line(right_body,tx("Educational game values, not real pest thresholds or fertilizer advice.","Datos de videojuego, no consejos agricolas reales."),12,MUTED)
 
+func _field_outlook_text(field_id: String) -> String:
+	var outlook: Dictionary = farm.field_outlook(field_id)
+	if outlook.is_empty():
+		return ""
+	var hours := int(outlook["hours"])
+	var eta := tx("Ripe", "Madura")
+	if hours < 0:
+		eta = tx("Too cold to ripen at today's temperature", "Demasiado frío para madurar al ritmo de hoy")
+	elif hours > 0:
+		eta = tx("Ripe in about %d h at today's pace", "Madurará en unas %d h al ritmo de hoy") % hours
+	var factors: PackedStringArray = []
+	if float(outlook["water"]) < 0.98:
+		factors.append(tx("water", "agua"))
+	if float(outlook["nutrients"]) < 0.98:
+		factors.append(tx("nutrients", "nutrientes"))
+	if outlook["pests"] > 0:
+		factors.append(tx("pests", "plagas"))
+	if outlook["disease"] > 0.02:
+		factors.append(tx("disease", "enfermedad"))
+	var weather := tx("Tomorrow: %d%% chance of rain · %d °C", "Mañana: %d %% de prob. de lluvia · %d °C") % [outlook["rain"], outlook["temperature"]]
+	if hours != 0 and absf(float(outlook["maturity_change"])) >= 1.0:
+		weather += tx(" · warmer weather could speed ripening", " · el calor podría acelerar la maduración") if outlook["maturity_change"] > 0.0 else tx(" · cooler weather could slow ripening", " · el frío podría retrasar la maduración")
+	if hours != 0 and float(outlook["water"]) < 0.98:
+		weather += tx(" · rain could ease water stress", " · la lluvia podría aliviar el estrés hídrico") if int(outlook["rain"]) >= 50 else tx(" · check whether the crop needs watering", " · comprueba si el cultivo necesita riego")
+	var yield_text := tx("Yield limits: ", "Limita el rendimiento: ") + ", ".join(factors) if not factors.is_empty() else tx("No major yield limits", "Sin límites importantes de rendimiento")
+	return "%s\n%s\n%s" % [eta, weather, yield_text]
+
+func _inspect_outlook(field_id: String) -> void:
+	_direct("inspect", {"fieldId": field_id})
+	var outlook := _field_outlook_text(field_id)
+	if not outlook.is_empty():
+		_notify(_plot_name(field_id) + "\n" + outlook)
+
+func _open_field_work(operation: String = "irrigate") -> void:
+	field_work_operation = operation
+	_set_speed(0)
+	_change_tab("FieldWork")
+
+func _panel_field_work() -> void:
+	_caption(right_body, tx("Work several fields", "Trabajar varias parcelas"))
+	var operations := ["irrigate", "harvest", "plant"]
+	var names := [tx("Irrigate", "Regar"), tx("Harvest ripe crops", "Cosechar cultivos maduros"), tx("Sow with the cultivator", "Sembrar con el cultivador")]
+	var operation := _select(right_body, operations, names)
+	operation.select(operations.find(field_work_operation))
+	var water_row := _hbox(right_body)
+	_line(water_row, tx("Millimetres per plot", "Milímetros por parcela"), 13)
+	var water := _spin(water_row, 15, 1, 60, 1)
+	var crop_ids: Array = farm.content["crops"].keys()
+	var crop_names: Array = []
+	for id in crop_ids:
+		crop_names.append(farm.n(farm.content["crops"][id]))
+	var seeds := _select(right_body, crop_ids, crop_names)
+	var varieties := _select(right_body, Fields52.VARIETIES.keys(), [
+		Fields52.localized(Fields52.VARIETIES["standard"], language),
+		Fields52.localized(Fields52.VARIETIES["early"], language),
+		Fields52.localized(Fields52.VARIETIES["resilient"], language)])
+	var checkboxes: Dictionary = {}
+	for field in farm.state["fields"]:
+		if not field["owned"]:
+			continue
+		var id := str(field["id"])
+		var crop: Dictionary = field["crop"]
+		var button := CheckBox.new()
+		button.custom_minimum_size.y = 44.0 * ui_scale
+		button.text = _plot_name(id) + " · " + (tx("Fallow", "Barbecho") if crop.is_empty() else farm.n(farm.content["crops"][str(crop["id"])]))
+		right_body.add_child(button)
+		checkboxes[id] = button
+	var hint := _line(right_body, "", 13, MUTED)
+	var review := _button(tx("Review selected work", "Revisar trabajo seleccionado"), func():
+		var selected: Array = []
+		for id in checkboxes:
+			if checkboxes[id].button_pressed and not checkboxes[id].disabled:
+				selected.append(id)
+		_ask("workBatch", {"operation": operations[operation.selected], "fields": selected, "mm": water.value,
+			"cropId": crop_ids[seeds.selected], "variety": str(varieties.get_item_metadata(varieties.selected))})
+	, right_body, true)
+	var update := func():
+		var kind: String = operations[operation.selected]
+		field_work_operation = kind
+		water_row.visible = kind == "irrigate"
+		seeds.visible = kind == "plant"
+		varieties.visible = seeds.visible
+		var needs_machine: bool = kind == "plant" and farm.machine_efficiency("cultivator") <= 0.0
+		var any_selected := false
+		for id in checkboxes:
+			var field: Dictionary = farm.field_of(id)
+			var crop: Dictionary = field["crop"]
+			var box: CheckBox = checkboxes[id]
+			match kind:
+				"irrigate":
+					box.disabled = float(field["soil"]["water"]) >= float(field["soil"]["capacity"])
+				"harvest":
+					box.disabled = float(crop.get("development", 0.0)) < FarmScript.RIPE_STAGE
+				"plant":
+					box.disabled = needs_machine or not crop.is_empty() or not Fields52.allows_crop(field, farm.content["crops"][crop_ids[seeds.selected]])
+			if box.disabled:
+				box.set_pressed_no_signal(false)
+			any_selected = any_selected or box.button_pressed
+		review.disabled = not any_selected
+		hint.text = tx("Buy or service a cultivator in Machinery.", "Compra o repara el cultivador en Maquinaria.") if needs_machine else tx("Select the plots to include.", "Marca las parcelas que quieres incluir.")
+	operation.item_selected.connect(func(_index: int): update.call())
+	seeds.item_selected.connect(func(_index: int): update.call())
+	for box in checkboxes.values():
+		box.toggled.connect(func(_pressed: bool): update.call())
+	update.call()
+
+func _panel_irrigation_plan(parent: Node, field_id: String) -> void:
+	var targets: Array = [0]
+	targets.append_array(FarmScript.Work.IRRIGATION_TARGETS)
+	var names: Array = [tx("Off", "Desactivado")]
+	for target in FarmScript.Work.IRRIGATION_TARGETS:
+		names.append("%d%%" % target)
+	var plan: Dictionary = farm.state["farm_work"]["irrigation"]
+	var configured := int(plan.get(field_id, 0))
+	_caption(parent, tx("Daily irrigation for this field", "Riego diario de esta parcela"))
+	_line(parent, tx("The pump tops up growing crops after the daily rain, using reservoir water and money.", "La bomba riega los cultivos en crecimiento después de la lluvia del día y consume agua de la reserva y dinero."), 13, MUTED)
+	if farm.machine_efficiency("pump") <= 0.0 and configured == 0:
+		_button(tx("Buy or service the pump", "Comprar o reparar la bomba"), _change_tab.bind("Machinery"), parent)
+		return
+	var picker := _select(parent, targets, names)
+	picker.select(targets.find(configured))
+	_button(tx("Save irrigation plan", "Guardar plan de riego"), func():
+		_direct("planIrrigation", {"fieldId": field_id, "target": int(picker.get_item_metadata(picker.selected))})
+	, parent)
+
+func _panel_pest_watch(parent: Node, field: Dictionary) -> void:
+	var pressure := FarmScript.Work.pest_level(field)
+	var id := str(field["id"])
+	var note: Dictionary = farm.state["farm_work"]["watch"].get(id, {})
+	if pressure == 0 and note.is_empty():
+		return
+	_caption(parent, tx("Pest watch", "Vigilancia de plagas"))
+	var levels := [tx("Low", "Baja"), tx("Rising", "Incipiente"), tx("High", "Alta")]
+	_line(parent, tx("Visible pressure · ", "Presión visible · ") + levels[pressure], 14, DANGER if pressure == 2 else ACCENT)
+	if not note.is_empty():
+		if int(note["day"]) < int(farm.state["time"]["day"]):
+			_line(parent, tx("Last observation · ", "Última observación · ") + levels[int(note["pressure"])] + " → " + levels[pressure], 13)
+			_button(tx("Mark as reviewed", "Marcar como revisada"), _direct.bind("watchPests", {"fieldId": id, "clear": true}), parent)
+		else:
+			_line(parent, tx("Marked for review tomorrow.", "Marcada para revisar mañana."), 13, MUTED)
+	if pressure > 0:
+		_line(parent, tx("Treat now or check again tomorrow for free. An untreated infestation can lower yield.", "Puedes tratar ahora o volver a observar mañana sin coste. Si la plaga avanza, puede reducir el rendimiento."), 13, MUTED)
+		var watch := _button(tx("Watch until tomorrow", "Vigilar hasta mañana"), _direct.bind("watchPests", {"fieldId": id}), parent)
+		watch.disabled = int(note.get("day", -1)) == int(farm.state["time"]["day"])
+	var growth := float(field["crop"].get("development", 0.0))
+	if growth >= FarmScript.EARLY_HARVEST_STAGE and growth < FarmScript.RIPE_STAGE:
+		_button(tx("Harvest early", "Cosechar antes"), _ask.bind("harvest", {"fieldId": id, "early": true}), parent)
+
+func _finish_day() -> void:
+	_set_speed(0)
+	var day: int = int(farm.state["time"]["day"])
+	_direct("endDay")
+	if int(farm.state["time"]["day"]) > day and farm.state["events"]["active"].is_empty():
+		var summary: String = _day_report_text() + "\n\n" + farm.weather_text()
+		var tasks: Array = Compass60.priorities(farm, language)
+		if not tasks.is_empty():
+			summary += "\n" + Compass60.label(tasks[0], language)
+		_notify(summary)
+
+func _day_report_text() -> String:
+	var report: Dictionary = farm.state["farm_work"]["last_day"]
+	if report.is_empty():
+		return ""
+	var balance := tx("Day %d\nHarvest: %.1f kg · Water used: %.1f m³\nIncome: %s · Costs: %s", "Día %d\nCosecha: %.1f kg · Agua usada: %.1f m³\nIngresos: %s · Gastos: %s")
+	return balance % [report["day"], report["harvest"], report["water"], _money(float(report["revenue"])), _money(float(report["costs"]))]
+
+func _panel_day_end() -> void:
+	_caption(right_body, tx("End the day", "Cerrar el día"))
+	var last := _day_report_text()
+	if not last.is_empty():
+		_line(right_body, last, 13)
+		_line(right_body, farm.weather_text(), 13, MUTED)
+		for task in Compass60.priorities(farm, language).slice(0, 2):
+			_button(Compass60.label(task, language), _jump_compass60.bind(task), right_body)
+	_line(right_body, tx("Advance to the next morning and save. A valley decision can interrupt the advance.", "Avanza hasta la mañana siguiente y guarda. Una decisión del valle puede interrumpir el avance."), 13, MUTED)
+	_button(tx("Finish day and save", "Cerrar día y guardar"), _finish_day, right_body, true)
+	_button(tx("Save now", "Guardar ahora"), _save_notice, right_body)
+
+func _panel_first_order() -> void:
+	if farm.state["farm_work"]["starter"] != "offered":
+		return
+	for contract in farm.state["market"]["contracts"]:
+		if contract.get("kind") != "starter" or contract["status"] not in ["open", "active"]:
+			continue
+		_caption(right_body, tx("Inés needs lettuce", "Inés necesita lechugas"))
+		_line(right_body, tx("Two dry days follow your first sale. Reserve water for Inés's order, try drought-tolerant seed, or grow for the open market.", "Tras tu primera venta llegan dos días secos. Reserva agua para el pedido de Inés, prueba semillas resistentes o cultiva para vender por tu cuenta."), 13)
+		_contract_row(contract)
+		if contract["status"] == "active":
+			_button(tx("Prepare a plot for the order", "Preparar una parcela para el pedido"), _change_tab.bind("Fields"), right_body)
+func _contract_row(contract: Dictionary) -> void:
+	var good: String = str(contract["good"])
+	var now: int = int(farm.state["time"]["total"])
+	var opens := int(contract.get("opens", 0))
+	var hours := int(contract["deadline"]) - now
+	if hours <= 0:
+		return
+	var title: String = {
+		"starter": tx("First delivery", "Primera entrega"),
+		"urgent": tx("Urgent", "Urgente"),
+		"premium": tx("Premium quality", "Calidad prémium"),
+		"seasonal": tx("Seasonal order", "Pedido de temporada")
+	}.get(contract.get("kind", ""), tx("Standard delivery", "Entrega normal"))
+	var buyer: String = str(contract.get("buyer", ""))
+	if not buyer.is_empty():
+		title += " · " + farm.n(farm.content["npcs"].get(buyer, {}))
+	_line(right_body, title, 14, ACCENT)
+	_line(right_body, "%.1f kg %s · %s · %s" % [float(contract["kg"]), farm.n(farm.content["goods"][good]),
+		_money(farm.contract_payout(contract)), tx("due in %d h", "vence en %d h") % hours], 13)
+	if opens > now:
+		_line(right_body, tx("Deliveries open in %d h.", "Las entregas se abren en %d h.") % (opens - now), 13, MUTED)
+	var premium := float(contract.get("premium_kg", 0.0))
+	_line(right_body, tx("In storage: %.1f kg", "En almacén: %.1f kg") % farm.stock(good), 13, MUTED)
+	if premium > 0.0:
+		_line(right_body, tx("Premium required %.1f kg · stored %.1f kg", "Prémium requerido %.1f kg · en almacén %.1f kg") % [premium, farm.premium_stock(good)], 13, MUTED)
+	var args := {"contractId": str(contract["id"])}
+	if contract["status"] == "open":
+		_button(tx("Accept · %s deposit", "Aceptar · depósito de %s") % _money(float(contract["deposit"])), _ask.bind("contractAccept", args), right_body)
+		if contract.get("kind") == "starter":
+			_button(tx("Grow for the open market", "Cultivar para vender por mi cuenta"), _direct.bind("contractDecline", args), right_body)
+	else:
+		var deliver := _button(tx("Deliver order", "Entregar pedido"), _ask.bind("contractDeliver", args), right_body, true)
+		deliver.disabled = farm.contract_missing(contract) > 0.0001 or opens > now
+
+func _panel_contracts() -> void:
+	_caption(right_body, tx("Delivery contracts", "Contratos de entrega"))
+	var listed := false
+	for contract in farm.state["market"]["contracts"]:
+		if contract["status"] in ["open", "active"] and contract.get("kind") != "starter":
+			_contract_row(contract)
+			listed = true
+	if not listed:
+		_line(right_body, tx("No open or active delivery contracts.", "No hay contratos de entrega abiertos o activos."), 13, MUTED)
+
+func _panel_market_calendar() -> void:
+	_caption(right_body, tx("Seasonal market calendar", "Calendario comercial de temporada"))
+	var table := FarmScript.Work.SEASONAL_ORDERS
+	var season: int = int(farm.state["time"]["season"])
+	var weekdays := tx("Market and festival on season days %d–%d", "Mercado y feria del día %d al %d de cada estación")
+	_line(right_body, weekdays % [FarmScript.Work.FIRST_MARKET_DAY, FarmScript.SEASON_DAYS], 13, MUTED)
+	var names := [tx("Spring", "Primavera"), tx("Summer", "Verano"), tx("Autumn", "Otoño"), tx("Winter", "Invierno")]
+	for offset in range(table.size()):
+		var index := (season + offset) % table.size()
+		var order: Dictionary = table[index]
+		var text := "%s · %.0f kg %s" % [names[index], float(order["kg"]), farm.n(farm.content["goods"][order["good"]])]
+		if float(order["premium"]) > 0.0:
+			text += tx(" · %.0f kg premium", " · %.0f kg prémium") % float(order["premium"])
+		_line(right_body, text, 13, ACCENT if offset == 0 else MUTED)
+	_line(right_body, tx("The advertised product earns 12% more at the open market while the fair is on.", "El producto anunciado vale un 12 % más en el mercado durante la feria."), 13, MUTED)
+	_button(tx("See orders and prices", "Ver pedidos y precios"), _change_tab.bind("Market"), right_body)
+
 func _panel_planning() -> void:
+	_panel_day_end()
+	_button(tx("Work several fields", "Trabajar varias parcelas"), _open_field_work, right_body)
 	_caption(right_body,tx("Tomorrow starts today","El mañana empieza hoy"),tx("Forecast probabilities are estimates. Outcomes remain uncertain.","Las probabilidades son orientativas; el clima real sigue siendo incierto."))
 	_line(right_body,tx("Current weather: ","Tiempo actual: ")+farm.weather_text(),14,ACCENT)
 	for report in farm.farm_forecast():
@@ -3004,6 +3293,11 @@ func _panel_garden_studio57() -> void:
 	_button(tx("Gather more materials", "Recoger más materiales"),_change_tab.bind("Resources"),right_body)
 
 func _panel_machinery() -> void:
+	if farm.machine_efficiency("cultivator") > 0.0:
+		_button(tx("Sow several fields", "Sembrar varias parcelas"), _open_field_work.bind("plant"), right_body)
+	if farm.state["life"]["machines"].has("pump") and farm.field_of(selected_field).get("owned", false):
+		_panel_irrigation_plan(right_body, selected_field)
+
 	_caption(right_body,tx("Machinery yard","Parque de maquinaria"),tx("Equipment changes actual costs and resources. Usage wears parts; neglected machines can break down.","La maquinaria cambia los costes reales. Se desgasta con el uso y puede averiarse."))
 	_line(right_body,tx("Your machines appear as selectable models in the farmyard.", "Tus máquinas aparecen como modelos seleccionables en el patio."),13,MUTED)
 	for id in Life.MACHINES.keys():
@@ -3243,7 +3537,10 @@ func _panel_processing() -> void:
 		var row: HBoxContainer = _hbox(right_body)
 		var amount: SpinBox = _spin(row,20,1,500,5)
 		var button: Button = _button(tx("Start job","Elaborar"),_process_batch.bind(str(id),amount),row)
-		button.disabled = not farm.ready(required)
+		button.disabled = not farm.processing_available(str(id))
+		if str(id) == "flour" and not farm.ready("mill"):
+			var service := tx("Village mill available (+25% fee)", "Molino del pueblo disponible (+25 % de recargo)") if farm.project_complete("village") else tx("Reopen the village mill to mill wheat here.", "Reabre el molino del pueblo para moler trigo aquí.")
+			_line(right_body, service, 13, MUTED)
 	var queue: Array = farm.state["processing"]
 	_caption(right_body,tx("Jobs in progress","Trabajos en curso"))
 	if queue.is_empty():
@@ -3259,6 +3556,7 @@ func _panel_market() -> void:
 	_button(tx("Visit the market building","Visitar el mercado"),_enter_building.bind("market"),right_body)
 	_line(right_body,tx("Cash: ","Dinero: ") + _money(float(farm.state["economy"]["cash"])),17,ACCENT)
 	_line(right_body,tx("Storage: ","Almacén: ") + str(snappedf(farm.stored(),0.1)) + "/" + str(farm.storage_capacity()) + " kg")
+	_panel_first_order()
 	_caption(right_body,tx("Sell stored products","Vender productos almacenados"))
 	for id in farm.content["goods"].keys():
 		var kg: float = farm.stock(str(id))
@@ -3283,21 +3581,14 @@ func _panel_market() -> void:
 		var row: HBoxContainer = _hbox(right_body)
 		_button(tx("Accept","Aceptar"),_ask.bind("offer",{"offerId":str(o["id"]),"accept":true}),row,true)
 		_button(tx("Decline","Rechazar"),_direct.bind("offer",{"offerId":str(o["id"]),"accept":false}),row)
-	_caption(right_body,tx("Delivery contracts","Contratos de entrega"))
-	for contract in farm.state["market"]["contracts"]:
-		if contract["status"] != "open" and contract["status"] != "active":
-			continue
-		_line(right_body,str(contract["kg"]) + " kg " + str(contract["good"]) + "  EUR " + str(contract["payout"]) + "  " + str(contract["status"]),13)
-		if contract["status"] == "open":
-			_button(tx("Accept contract","Aceptar contrato"),_ask.bind("contractAccept",{"contractId":str(contract["id"])}),right_body)
-		else:
-			_button(tx("Deliver complete order","Entregar pedido completo"),_ask.bind("contractDeliver",{"contractId":str(contract["id"])}),right_body)
+	_panel_contracts()
 	_button(tx("Enter seasonal festival (10 kg produce)","Participar en feria (10 kg)"),_ask.bind("festivalEnter",{}),right_body)
 
 func _panel_market_trade() -> void:
 	_caption(right_body,tx("Supply orders & deliveries","Pedidos y entregas"),
 		tx("Order feed and seed supplies, then fulfill active market contracts from your stored goods.","Pide pienso y semillas y completa los contratos del mercado con tus productos almacenados."))
 	_line(right_body,tx("Storage: ","Almacén: ")+str(snappedf(farm.stored(),0.1))+" / "+str(farm.storage_capacity())+" kg",14,ACCENT)
+	_panel_first_order()
 
 	_caption(right_body,tx("Order supplies","Pedir suministros"))
 	var supply_ids: Array = ["feed","wheat","barley"]
@@ -3325,26 +3616,7 @@ func _panel_market_trade() -> void:
 	quantity.value_changed.connect(func(_value: float):update_order_preview.call())
 	update_order_preview.call()
 
-	_caption(right_body,tx("Delivery contracts","Contratos de entrega"))
-	var active_contracts: int = 0
-	for contract in farm.state["market"]["contracts"]:
-		var contract_status: String = str(contract.get("status",""))
-		if contract_status != "open" and contract_status != "active":
-			continue
-		active_contracts += 1
-		var good_id: String = str(contract.get("good",""))
-		var good_name: String = farm.n(farm.content["goods"].get(good_id,{}))
-		_line(right_body,str(contract["kg"])+" kg "+good_name+" · "+_money(float(contract["payout"]))+" · "+
-			tx("deadline in ","vence en ")+str(maxi(0,int(contract.get("deadline",0))-int(farm.state["time"]["total"])))+" h",14)
-		if contract_status == "open":
-			_button(tx("Accept contract","Aceptar contrato"),
-				_ask.bind("contractAccept",{"contractId":str(contract["id"])}),right_body)
-		else:
-			var deliver: Button = _button(tx("Deliver order","Entregar pedido"),
-				_ask.bind("contractDeliver",{"contractId":str(contract["id"])}),right_body)
-			deliver.disabled = farm.stock(good_id)+0.0001 < float(contract["kg"])
-	if active_contracts == 0:
-		_line(right_body,tx("No open or active delivery contracts.","No hay contratos de entrega abiertos o activos."),13,MUTED)
+	_panel_contracts()
 
 func _sell_quick(id: String) -> void:
 	_ask("sell",{"goodId":id,"kg":minf(10.0,farm.stock(id))})
@@ -3759,6 +4031,7 @@ func _panel_community50() -> void:
 		_line(right_body,farm.n(farm.content["npcs"][str(entry["npc"])])+" · "+tx("chapter ","capítulo ")+str(entry["chapter"])+" · "+str(entry["kg"])+" kg "+str(entry["good"]),12,MUTED)
 
 func _panel_festivals50() -> void:
+	_panel_market_calendar()
 	_caption(right_body,tx("Festivals & seasonal ambitions","Fiestas y objetivos de estación"),
 		tx("A festival accepts one real exhibit on days 9–12 of each 12-day season. Once entered, you cannot repeat it that season.",
 		"Cada fiesta admite una exposición real entre los días 9 y 12 de cada estación de 12 días. Solo puedes participar una vez por estación."))

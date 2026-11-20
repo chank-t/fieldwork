@@ -244,5 +244,21 @@
   "This wardrobe slot is empty": "Ese espacio del vestuario esta vacio",
   "One of these cosmetics is still locked": "Uno de estos cosmeticos sigue bloqueado",
   "Wardrobe outfit equipped": "Conjunto equipado",
-  "Wardrobe slot cleared": "Espacio del vestuario vaciado"
+  "Wardrobe slot cleared": "Espacio del vestuario vaciado",
+  "Choose an owned field and a valid irrigation target": "Elige una parcela propia y un objetivo de humedad válido",
+  "A working irrigation pump is required": "Necesitas una bomba de riego operativa",
+  "Irrigation plan updated": "Plan de riego actualizado",
+  "There is no visible pest alert to monitor": "La parcela no presenta una alerta visible de plagas",
+  "Field marked for a pest review tomorrow": "Parcela marcada para revisar mañana",
+  "This field has no pest watch to clear": "Esta parcela no tiene un aviso de vigilancia pendiente",
+  "Pest review completed": "Vigilancia de la parcela completada",
+  "The farm will sell independently": "La finca venderá por su cuenta",
+  "This offer is no longer available": "La oferta ya ha vencido",
+  "Select fields and a valid batch operation": "Selecciona parcelas y una tarea válida",
+  "A working cultivator is required to sow in one pass": "Necesitas un cultivador operativo para sembrar varias parcelas",
+  "Service the cultivator before sowing this many fields": "Revisa el cultivador antes de sembrar tantas parcelas",
+  "Choose distinct fields that you own": "Elige parcelas propias sin repetir",
+  "Field work completed": "Trabajo en las parcelas completado",
+  "This order can only be delivered when the seasonal market opens": "Podrás entregar el pedido cuando abra el mercado de temporada",
+  "You must deliver the full contracted quantity and grade": "La entrega debe cumplir la cantidad y la calidad acordadas"
 }
