@@ -216,6 +216,8 @@ static func priorities(farm: Variant, language: String) -> Array:
 		return []
 	var tasks: Array = []
 	var contract_task: Dictionary = _contract_priority(farm,language)
+	if farm.season_goal_selection_open():
+		tasks.append({"priority":2,"id":"season_goal","title":{"en":"Choose a seasonal objective","es":"Elige un objetivo estacional"},"detail":{"en":"Pick one of three optional goals by day 3; it is locked for the season and targets scale with your farm.","es":"Elige una de las tres metas opcionales antes del día 4; queda fijada toda la estación y se ajusta al tamaño de la finca."},"tab":"Festivals50","count":0})
 	if int(s["ready"]) > 0:
 		tasks.append({"priority":0,"id":"harvest","title":{"en":"Harvest ready crops","es":"Recoge las cosechas maduras"},"detail":{"en":"Ripe fields are waiting for harvest.","es":"Hay parcelas maduras esperando la cosecha."},"tab":"Fields","field":s["first_ready"],"count":s["ready"]})
 	if not contract_task.is_empty() and int(contract_task["priority"]) <= 1:
@@ -260,4 +262,4 @@ static func priorities(farm: Variant, language: String) -> Array:
 	if tasks.size() < 3:
 		tasks.append({"priority":14,"id":"planner","title":{"en":"Plan tomorrow","es":"Planifica manana"},"detail":{"en":"Compare the forecast, budget and expected workloads.","es":"Compara la prevision, los costes y el trabajo previsto."},"tab":"Planning","count":0})
 	tasks.sort_custom(func(a: Dictionary, b: Dictionary): return int(a["priority"]) < int(b["priority"]))
-	return tasks.slice(0,mini(7,tasks.size()))
+	return tasks.slice(0,mini(8,tasks.size()))

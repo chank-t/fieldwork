@@ -706,16 +706,47 @@
   },
   "season_goals": {
     "spring": {
+      "id": "inspect",
       "stat": "inspections",
       "target": 4,
       "cash": 105,
       "xp": 65,
       "name": {
-        "en": "Inspect four fields",
-        "es": "Inspecciona cuatro parcelas"
-      }
+        "en": "Complete four field inspections",
+        "es": "Haz cuatro inspecciones del suelo"
+      },
+      "options": [
+        {
+          "id": "inspect",
+          "stat": "inspections",
+          "target": 4,
+          "cash": 105,
+          "xp": 65,
+          "name": {"en": "Complete four field inspections", "es": "Haz cuatro inspecciones del suelo"},
+          "description": {"en": "Scout your land before committing to this season's crops.", "es": "Revisa tus tierras antes de decidir qué sembrar esta estación."}
+        },
+        {
+          "id": "harvest",
+          "stat": "harvest_kg",
+          "target": 35,
+          "cash": 95,
+          "xp": 60,
+          "name": {"en": "Harvest 35 kg", "es": "Cosecha 35 kg"},
+          "description": {"en": "Focus on a reliable first harvest.", "es": "Concéntrate en lograr una primera cosecha fiable."}
+        },
+        {
+          "id": "market",
+          "stat": "sold_kg",
+          "target": 25,
+          "cash": 100,
+          "xp": 60,
+          "name": {"en": "Sell 25 kg", "es": "Vende 25 kg"},
+          "description": {"en": "Reserve part of your harvest for steady income.", "es": "Reserva parte de la cosecha para obtener ingresos."}
+        }
+      ]
     },
     "summer": {
+      "id": "harvest",
       "stat": "harvest_kg",
       "target": 60,
       "cash": 145,
@@ -723,9 +754,39 @@
       "name": {
         "en": "Harvest 60 kg",
         "es": "Cosecha 60 kg"
-      }
+      },
+      "options": [
+        {
+          "id": "harvest",
+          "stat": "harvest_kg",
+          "target": 60,
+          "cash": 145,
+          "xp": 75,
+          "name": {"en": "Harvest 60 kg", "es": "Cosecha 60 kg"},
+          "description": {"en": "Make the most of the growing season and bring in produce.", "es": "Aprovecha la temporada de crecimiento y recoge productos."}
+        },
+        {
+          "id": "animal",
+          "stat": "animal_kg",
+          "target": 25,
+          "cash": 150,
+          "xp": 75,
+          "name": {"en": "Produce 25 kg from livestock", "es": "Produce 25 kg de tus animales"},
+          "description": {"en": "Requires livestock. Invest in feed and animal care to build steady output.", "es": "Necesitas ganado. Invierte en pienso y cuidados para mantener su producción."}
+        },
+        {
+          "id": "market",
+          "stat": "sold_kg",
+          "target": 45,
+          "cash": 135,
+          "xp": 70,
+          "name": {"en": "Sell 45 kg", "es": "Vende 45 kg"},
+          "description": {"en": "Choose what to sell now and what to keep for later.", "es": "Decide qué vender ahora y qué reservar para más adelante."}
+        }
+      ]
     },
     "autumn": {
+      "id": "process",
       "stat": "processed_kg",
       "target": 20,
       "cash": 165,
@@ -733,9 +794,39 @@
       "name": {
         "en": "Process 20 kg",
         "es": "Elabora 20 kg"
-      }
+      },
+      "options": [
+        {
+          "id": "process",
+          "stat": "processed_kg",
+          "target": 20,
+          "cash": 165,
+          "xp": 85,
+          "name": {"en": "Process 20 kg", "es": "Elabora 20 kg"},
+          "description": {"en": "Requires a completed workshop. Turn stored crops into higher-value goods.", "es": "Necesitas un taller terminado. Transforma la cosecha en productos de más valor."}
+        },
+        {
+          "id": "compost",
+          "stat": "compost_used",
+          "target": 10,
+          "cash": 115,
+          "xp": 70,
+          "name": {"en": "Return 10 kg of compost to the soil", "es": "Aporta 10 kg de compost al suelo"},
+          "description": {"en": "Spend resources now to support long-term soil health.", "es": "Invierte recursos ahora para cuidar la salud futura del suelo."}
+        },
+        {
+          "id": "harvest",
+          "stat": "harvest_kg",
+          "target": 60,
+          "cash": 125,
+          "xp": 70,
+          "name": {"en": "Harvest 60 kg", "es": "Cosecha 60 kg"},
+          "description": {"en": "Prioritize a strong harvest before winter.", "es": "Prioriza una buena cosecha antes del invierno."}
+        }
+      ]
     },
     "winter": {
+      "id": "market",
       "stat": "sold_kg",
       "target": 40,
       "cash": 130,
@@ -743,7 +834,36 @@
       "name": {
         "en": "Sell 40 kg",
         "es": "Vende 40 kg"
-      }
+      },
+      "options": [
+        {
+          "id": "market",
+          "stat": "sold_kg",
+          "target": 40,
+          "cash": 130,
+          "xp": 70,
+          "name": {"en": "Sell 40 kg", "es": "Vende 40 kg"},
+          "description": {"en": "Turn stored goods into income during the quiet season.", "es": "Convierte tus existencias en ingresos durante la estación tranquila."}
+        },
+        {
+          "id": "animal",
+          "stat": "animal_kg",
+          "target": 25,
+          "cash": 150,
+          "xp": 75,
+          "name": {"en": "Produce 25 kg from livestock", "es": "Produce 25 kg de tus animales"},
+          "description": {"en": "Requires livestock. Keep animal care and supplies steady through winter.", "es": "Necesitas ganado. Mantén su cuidado y suministros durante el invierno."}
+        },
+        {
+          "id": "process",
+          "stat": "processed_kg",
+          "target": 18,
+          "cash": 155,
+          "xp": 80,
+          "name": {"en": "Process 18 kg", "es": "Elabora 18 kg"},
+          "description": {"en": "Requires a completed workshop. Add value to stored harvests.", "es": "Necesitas un taller terminado para aumentar el valor de las cosechas almacenadas."}
+        }
+      ]
     }
   },
   "season_order": [

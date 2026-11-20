@@ -129,6 +129,7 @@ const STARTER_GUIDE = [
 	{"en":"Advance time until the crop ripens, then harvest it.","es":"Avanza el tiempo hasta que madure y recoge la cosecha.","action":"harvest"}
 ]
 const GUIDED_ONBOARDING_STEP_COUNT: int = 10
+const GUIDED_ONBOARDING_GROWTH_STEP: int = 4
 
 # New lessons are appended so active 4.2 tutorials keep their step index.
 # Progression bonuses do not consume simulation RNG.
@@ -395,6 +396,8 @@ func _upgrade_state(candidate: Dictionary) -> Dictionary:
 					animal["pasture_field"] = ""
 				if not animal.has("pasture_schedule"):
 					animal["pasture_schedule"] = "off"
+	if typeof(loaded.get("world50")) == TYPE_DICTIONARY and typeof(loaded.get("stats")) == TYPE_DICTIONARY:
+		loaded["world50"] = World50.ensure_state(loaded["world50"],loaded["stats"],world_catalog)
 	return loaded
 
 func npc_trust(npc_id: String) -> int:
@@ -599,10 +602,41 @@ func npc_chapter_info(npc_id: String) -> Dictionary:
 func season_goal_info() -> Dictionary:
 	if state.is_empty():
 		return {}
-	return world_catalog.get("season_goals",{}).get(World50.season_id(int(state["world50"]["season_key"])),{})
+	var world_state: Dictionary = state["world50"]
+	var goal: Dictionary = World50.season_goal(world_catalog,int(world_state["season_key"]),str(world_state.get("season_goal_id","")))
+	if goal.is_empty():
+		return {}
+	var target: int = int(world_state.get("season_goal_target",goal["target"]))
+	return _scaled_season_goal(goal,float(target)/maxf(1.0,float(goal["target"])),target)
+
+func season_goal_options() -> Array:
+	if state.is_empty():
+		return []
+	var scale: float = clampf(sqrt(float(maxi(1,owned_count()))),1.0,2.0)
+	var options: Array = []
+	for goal in World50.season_goal_options(world_catalog,int(state["world50"]["season_key"])):
+		options.append(_scaled_season_goal(goal,scale))
+	return options
+
+func _scaled_season_goal(source: Dictionary, scale: float, fixed_target: int = 0) -> Dictionary:
+	var goal: Dictionary = source.duplicate(true)
+	goal["target"] = fixed_target if fixed_target > 0 else maxi(1,int(ceil(float(source.get("target",1))*scale)))
+	var reward_scale: float = float(goal["target"])/maxf(1.0,float(source.get("target",1)))
+	goal["cash"] = roundi(float(source.get("cash",0.0))*reward_scale)
+	goal["xp"] = roundi(float(source.get("xp",0.0))*reward_scale)
+	return goal
+
+func season_goal_selection_open() -> bool:
+	if state.is_empty() or not str(state["world50"].get("season_goal_id","")).is_empty():
+		return false
+	var day_in_season: int = 1+posmod(int(state["time"]["day"])-1,SEASON_DAYS)
+	return day_in_season <= 3
 
 func season_goal_progress() -> float:
-	return World50.goal_progress(world_catalog,state["world50"],state["stats"])
+	var objective: Dictionary = season_goal_info()
+	if objective.is_empty():
+		return 0.0
+	return World50.goal_progress(objective,state["world50"]["season_goal_snapshot"],state["stats"])
 
 func owned_count() -> int:
 	var count: int = 0
@@ -857,6 +891,20 @@ func _valid_state(candidate: Dictionary) -> bool:
 		return false
 	if int(world_state.get("season_key",-1)) < 0 or world_state["npc_history"].size() > 120 or world_state["festival_history"].size() > 100 or world_state["season_results"].size() > 100:
 		return false
+	var season_goal_id: Variant = world_state.get("season_goal_id",null)
+	var season_goal_target: Variant = world_state.get("season_goal_target",null)
+	var season_goal_snapshot: Variant = world_state.get("season_goal_snapshot",null)
+	if typeof(season_goal_id) != TYPE_STRING or not Data.is_json_integer(season_goal_target) or typeof(season_goal_snapshot) != TYPE_DICTIONARY:
+		return false
+	if str(season_goal_id).is_empty():
+		if int(season_goal_target) != 0:
+			return false
+	else:
+		var active_goal: Dictionary = World50.season_goal(world_catalog,int(world_state["season_key"]),str(season_goal_id))
+		if active_goal.is_empty() or int(season_goal_target) < int(active_goal.get("target",0)) or int(season_goal_target) > int(active_goal.get("target",0))*2:
+			return false
+		if not _valid_quantity(season_goal_snapshot.get(str(active_goal["stat"]),-1.0)):
+			return false
 	for npc_id in world_state["npc_chapters"].keys():
 		if not world_catalog.get("npc_chapters",{}).has(str(npc_id)) or not Data.is_json_integer(world_state["npc_chapters"][npc_id]):
 			return false
@@ -1483,6 +1531,20 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 				herd["pasture_schedule"] = schedule
 				return _ok("Grazing paddock and schedule updated")
 			return _fail("Unknown animal group")
+		"chooseSeasonGoal":
+			if not season_goal_selection_open():
+				return _fail("Seasonal goals can only be chosen during the first three days of a season")
+			var chosen_goal_id: String = str(args.get("goalId",""))
+			for goal in season_goal_options():
+				if str(goal.get("id","")) != chosen_goal_id:
+					continue
+				var world_state: Dictionary = state["world50"]
+				world_state["season_goal_id"] = chosen_goal_id
+				world_state["season_goal_target"] = int(goal["target"])
+				world_state["season_goal_snapshot"] = state["stats"].duplicate(true)
+				_log("Seasonal objective chosen: " + chosen_goal_id,"season")
+				return _ok("Seasonal objective chosen: " + World50.localized(goal.get("name",{}),language))
+			return _fail("Unknown seasonal objective")
 		"vetVisit":
 			var herd_id: String = str(args.get("animalId",""))
 			for herd in state["animals"]:
@@ -1606,6 +1668,31 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			state["life"]["quality_stock"][str(crop["id"])] = premium_stock(str(crop["id"])) + premium_amount
 			_wear_machine("harvester",0.012)
 			var loss: float = kg - accepted
+			var soil_nutrient_factor: float = minf(1.0,minf(float(field["soil"]["n"])/24.0,
+				minf(float(field["soil"]["p"])/10.0,float(field["soil"]["k"])/45.0)))
+			var rotation_streak: int = Life.rotation_streak(field,content["crops"],str(crop_def.get("family","")))
+			if str(field.get("plot_type","")) == "orchard":
+				rotation_streak = 0
+			var terrain: Dictionary = content["terrains"].get(str(field["terrain"]),{})
+			var bee_dependency: float = float(crop_def.get("pollinationDependence",0.0))
+			var bee_sufficiency: float = clampf(float(field["beneficial"].get("bees",0.0))*float(terrain.get("bees",1.0)),0.25,1.0)
+			var pollination_factor: float = 1.0-bee_dependency*(1.0-bee_sufficiency)
+			var biomass_max: float = maxf(0.001,float(crop_def.get("biomassMax",0.0)))
+			var report: Dictionary = {
+				"field_id":field_id,"crop_id":str(crop["id"]),
+				"produced_kg":kg,"stored_kg":accepted,"overflow_kg":loss,
+				"health":float(crop["health"]),"biomass":float(crop["biomass"]),
+				"biomass_max":biomass_max,"quality":grade,
+				"factors":{
+					"water":Fields52.water_factor(field,crop),
+					"nutrients":soil_nutrient_factor,
+					"organic_soil":Life.organic_score(field),
+					"pests":1.0-clampf(float(crop.get("pest_stress",0.0)),0.0,0.8),
+					"disease":1.0-clampf(float(crop.get("disease_stress",0.0)),0.0,0.8),
+					"rotation":Life.rotation_growth_factor(rotation_streak),
+					"pollination":pollination_factor
+				}
+			}
 			field["last_family"] = str(crop_def["family"])
 			field["history"].append({"crop":str(crop["id"]),"hour":current,"yield":accepted})
 			if bool(crop_def.get("perennial",false)):
@@ -1620,7 +1707,9 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 			state["economy"]["reputation"] = int(state["economy"]["reputation"]) + 1
 			_xp(80, "farming")
 			_log("Harvest " + str(snappedf(accepted, 0.1)) + " kg from " + field_id + "; overflow " + str(snappedf(loss, 0.1)) + " kg", "harvest")
-			return _ok("Harvest stored: " + str(snappedf(accepted, 0.1)) + " kg")
+			var harvest_result: Dictionary = _ok("Harvest stored: " + str(snappedf(accepted, 0.1)) + " kg")
+			harvest_result["harvest_report"] = report
+			return harvest_result
 		"irrigate":
 			if not _owned(field_id):
 				return _fail("You must own this field")
@@ -2031,6 +2120,23 @@ func _apply(kind: String, args: Dictionary) -> Dictionary:
 				state["story"]["tutorial_skipped"] = true
 				return _ok("Tutorial step skipped")
 			return _fail("Complete the lesson action or skip it explicitly")
+		"tutorialGrowCrop":
+			if int(state["story"].get("guided_onboarding",-1)) != GUIDED_ONBOARDING_GROWTH_STEP:
+				return _fail("Instant crop growth is only available in the guided tutorial")
+			if not _owned(field_id) or field["crop"].is_empty():
+				return _fail("Plant a crop before using instant tutorial growth")
+			var crop_def: Dictionary = content["crops"].get(str(field["crop"].get("id","")),{})
+			if crop_def.is_empty():
+				return _fail("Unknown tutorial crop")
+			var max_growth_hours: int = maxi(24,int(ceil(Fields52.duration(crop_def,field["crop"])*4.0)))
+			for hour in range(max_growth_hours):
+				if float(field["crop"].get("development",0.0)) >= 1.0:
+					break
+				_grow_one_hour(field_id)
+			if float(field["crop"].get("development",0.0)) < 0.995:
+				return _fail("The tutorial crop could not mature under current conditions")
+			_log("Tutorial crop matured instantly: " + field_id,"story")
+			return _ok("Tutorial crop is ready to harvest")
 		"starterGuide":
 			if not bool(args.get("skip", false)):
 				return _fail("Skip the starter guide explicitly")
@@ -2499,17 +2605,24 @@ func _seasonal_recap() -> void:
 		return
 	var objective: Dictionary = season_goal_info()
 	var achieved: float = season_goal_progress()
-	var completed: bool = not objective.is_empty() and achieved >= float(objective["target"])
+	var goal_selected: bool = not objective.is_empty()
+	var completed: bool = goal_selected and achieved >= float(objective["target"])
 	if completed:
 		_earn(float(objective["cash"]),"season","Seasonal goal reward")
 		_xp(int(objective["xp"]),"farming")
 	var previous_key: int = int(reports["season_key"])
-	reports["season_results"].append({"season_key":previous_key,"progress":snappedf(achieved,0.1),"target":float(objective.get("target",0.0)),"completed":completed,"cash":float(objective.get("cash",0.0)) if completed else 0.0})
+	reports["season_results"].append({"season_key":previous_key,"goal_id":str(objective.get("id","")),
+		"progress":snappedf(achieved,0.1),"target":float(objective.get("target",0.0)),
+		"completed":completed,"cash":float(objective.get("cash",0.0)) if completed else 0.0})
 	while reports["season_results"].size() > 95:
 		reports["season_results"].pop_front()
 	reports["season_key"] = new_key
 	reports["season_snapshot"] = state["stats"].duplicate(true)
-	_log("Season " + str(previous_key+1) + " completed; goal " + ("earned" if completed else "not met"),"season")
+	reports["season_goal_id"] = ""
+	reports["season_goal_target"] = 0
+	reports["season_goal_snapshot"] = state["stats"].duplicate(true)
+	var outcome: String = "earned" if completed else ("not met" if goal_selected else "no goal selected")
+	_log("Season " + str(previous_key+1) + " completed; goal " + outcome,"season")
 
 func _labor_multiplier() -> float:
 	var efficiency: float = 0.9 if has_talent("efficientWork") else 1.0
@@ -2789,9 +2902,11 @@ func _finish_timed_jobs() -> void:
 			_log("Processing finished: " + str(snappedf(accepted, 0.1)) + " kg " + str(batch["recipe"]), "processing")
 			_xp(20, "crafting")
 
-func _grow_one_hour() -> void:
+func _grow_one_hour(only_field_id: String = "") -> void:
 	var temperature: float = float(state["weather"]["temperature"])
 	for f in state["fields"]:
+		if not only_field_id.is_empty() and str(f["id"]) != only_field_id:
+			continue
 		if not f["owned"] or f["crop"].is_empty():
 			continue
 		var crop: Dictionary = f["crop"]

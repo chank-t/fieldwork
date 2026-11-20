@@ -40,12 +40,11 @@ const STEPS = [
 		"skipable": false
 	},
 	{
-		"id": "advance_time",
-		"title": {"en": "Let Time Pass", "es": "Deja Pasar el Tiempo"},
-		"message": {"en": "Use the speed controls (1×, 4×, 12×) to advance days. Watch your crop grow!", "es": "Usa los controles de velocidad (1×, 4×, 12×) para avanzar días. ¡Mira crecer tu cultivo!"},
-		"target": {"type": "speed_controls"},
-		"action": "speed",
-		"args": {"speed": 4},
+		"id": "instant_growth",
+		"title": {"en": "Your Crop Is Ready", "es": "Tu cultivo ya está listo"},
+		"message": {"en": "Tap Next to grow your crop instantly, then harvest it—no waiting required.", "es": "Pulsa Siguiente para que el cultivo madure al instante y puedas cosecharlo sin esperar."},
+		"target": {"type": "field", "id": "plot1"},
+		"action": "grow",
 		"skipable": true
 	},
 	{
@@ -390,9 +389,25 @@ func _draw_ring(canvas: Control, radius: float, color: Color) -> void:
 
 func _on_next() -> void:
 	var step_data: Dictionary = STEPS[current_step]
+	var action: String = str(step_data["action"])
+	if ["inspect","plant","irrigate","harvest","buyField"].has(action):
+		var action_args: Dictionary = step_data.get("args",{})
+		var preview: Dictionary = farm.quote(action,action_args)
+		if not bool(preview.get("ok",false)):
+			var lang: String = farm.language
+			var instruction: String = str(step_data["message"].get(lang,step_data["message"]["en"]))
+			message_label.text = instruction + "\n\n" + farm.message(str(preview.get("error","Action is not available yet")))
+			return
 
 	# Execute step action if needed
-	if step_data["action"] != "none" and step_data["action"] != "complete" and step_data["action"] != "navigate":
+	if action == "grow":
+		var growth_result: Dictionary = farm.act("tutorialGrowCrop",{})
+		if not bool(growth_result.get("ok",false)):
+			var lang: String = farm.language
+			var instruction: String = str(step_data["message"].get(lang,step_data["message"]["en"]))
+			message_label.text = instruction + "\n\n" + farm.message(str(growth_result.get("error","Tutorial growth is unavailable")))
+			return
+	elif action != "none" and action != "complete" and action != "navigate":
 		_execute_action(step_data)
 
 	current_step += 1

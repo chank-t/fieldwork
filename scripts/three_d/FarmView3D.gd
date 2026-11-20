@@ -31,6 +31,8 @@ var show_build_slots: bool = false
 var show_garden_slots57: bool = false
 var active_garden_slot57: int = -1
 var active_build_slot: int = -1
+var first_person_previous_target: Vector3 = Vector3(32,0,27)
+var first_person_previous_camera_target: Vector3 = Vector3(32,0,27)
 var plot_roots: Dictionary = {}
 var plot_signatures: Dictionary = {}
 var plot_tags: Dictionary = {}
@@ -68,6 +70,43 @@ func set_farm(value: Variant) -> void:
 func set_selected(value: String) -> void:
 	selected = value
 	_update_selection()
+
+func set_first_person(enabled: bool) -> void:
+	if first_person == enabled:
+		return
+	first_person = enabled
+	if farm == null or farm.state.is_empty():
+		return
+	var player: Dictionary = farm.state["player"]
+	if enabled:
+		first_person_previous_target = target
+		first_person_previous_camera_target = camera_target
+		first_person_yaw = PI+(avatar.rotation.y if avatar != null else 0.0)
+		first_person_pitch = -0.08
+		first_person_fov = 72.0
+		var position: Vector3 = avatar.position if avatar != null else Vector3(float(player["x"]),0,float(player["y"]))
+		camera_target = position+Vector3(0,1.62,0)
+		target = camera_target
+	else:
+		camera_target = first_person_previous_camera_target
+		target = first_person_previous_target
+	if avatar != null:
+		avatar.visible = not first_person
+	queue_redraw()
+
+func movement_offset(direction: Vector2, distance: float) -> Vector2:
+	if direction.length_squared() <= 0.0001:
+		return Vector2.ZERO
+	var normalized: Vector2 = direction.normalized()
+	if not first_person:
+		return normalized*distance
+	var forward := Vector2(-sin(first_person_yaw),-cos(first_person_yaw))
+	var right := Vector2(cos(first_person_yaw),-sin(first_person_yaw))
+	var world_direction: Vector2 = right*normalized.x+forward*(-normalized.y)
+	if world_direction.length_squared() <= 0.0001:
+		return Vector2.ZERO
+	world_direction = world_direction.normalized()*distance
+	return world_direction
 
 func focus_field(field_id: String) -> void:
 	var index: int = int(field_id.trim_prefix("plot"))-1
@@ -379,6 +418,9 @@ func _sync() -> void:
 		if avatar != null: avatar.free()
 		avatar = Models.farmer(stage,look,false)
 		avatar.position = Vector3(float(player["x"]),0,float(player["y"]))
+		avatar.visible = not first_person
+	if avatar != null:
+		avatar.visible = not first_person
 	_update_selection()
 	var season: int = int(farm.state["time"]["season"])%4
 	if season != active_season:
@@ -486,6 +528,9 @@ func _tick(delta: float) -> void:
 		walk_blend = move_toward(walk_blend,1.0 if walking else 0.0,delta*7.0)
 		if walk_blend > 0.001: walk_phase += delta*12.0
 		Models.pose_farmer(avatar,walk_phase,walk_blend,pose_action,pose_weight)
+		if first_person:
+			camera_target = avatar.position+Vector3(0,1.62,0)
+			target = camera_target
 	move_cooldown -= delta
 	if controls_enabled and not scenic and move_cooldown <= 0:
 		var focus: Control = get_viewport().gui_get_focus_owner()
@@ -493,7 +538,7 @@ func _tick(delta: float) -> void:
 			var move := Input.get_vector("move_left","move_right","move_up","move_down")+touchscreen_dir
 			if move.length_squared() > 0.01:
 				move_cooldown = 0.12
-				var d: Vector2 = move.normalized()*0.6
+				var d: Vector2 = movement_offset(move,0.6)
 				var p: Dictionary = farm.state["player"]
 				requested_move.emit(clampf(float(p["x"])+d.x,1,63),clampf(float(p["y"])+d.y,1,53))
 	if feedback != null:

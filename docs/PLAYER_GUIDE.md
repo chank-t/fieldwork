@@ -4,6 +4,8 @@
 
 Open the game from Godot or a later exported build. On the launcher select English or Spanish; choose **Create a new farm** or **Continue saved farm**. New-game creation includes a name, farm name, difficulty/background choices and appearance settings. The farmer's saved appearance also drives portraits and the world avatar.
 
+The guided tutorial checks that each requested action is available before advancing. It matures the first crop instantly in the growth lesson; if a harvest is still unavailable, it keeps that lesson open and explains why.
+
 ## Everyday loop
 
 1. **Inspect:** visit Farm or **Goals / Farm Compass** for ready harvests, dry fields, pests, animal care and useful follow-up screens.
@@ -34,15 +36,17 @@ The full set of screens is accessible through **All screens**; on narrow/mobile 
 | --- | --- |
 | W/A/S/D or arrow keys | Move the farmer on the live 3D farm |
 | Left-click / tap a plot | Select it and open its appropriate information or actions |
-| Mouse wheel | Zoom the farm map |
-| Middle-mouse drag | Pan the farm camera |
-| Touch drag / pinch | Pan / zoom in the 3D farm view |
+| Mouse wheel | Zoom the farm map or adjust first-person field of view |
+| Middle-mouse drag | Pan the map or look around in first person |
+| Touch drag / pinch | Pan / zoom in the map; look / adjust field of view in first person |
 | On-screen arrow buttons | Move the farmer when using the virtual controls |
+| First person button | Toggle an optional eye-level view; movement follows the view direction |
+| Right-mouse drag / touch drag in first person | Look around |
 | Pause, 1x, 4x and 12x* | Control simulated time (*12x is available in the noncompact layout) |
 | +1h | Advance one simulated hour |
 | Camera | Switch between orthographic and perspective 3D projection |
 | Right-mouse drag | Orbit and tilt the 3D camera |
-| Escape | Leave an interior or close a relevant overlay |
+| Escape | Exit first person, leave an interior or close a relevant overlay |
 
 Some gestures depend on whether a UI panel or a map is active. Mobile layouts offer larger touch targets and a bottom navigation route.
 
@@ -54,13 +58,15 @@ For crop selection: select a plot, inspect its type/terrain, choose a compatible
 
 The rotation planner checks up to the last three harvested crop families on that plot. Repeating a family reduces biomass yield, increases N/P/K demand and encourages nematodes; legumes return part of their nitrogen use to the soil. Check the planner before planting to compare these long-term effects.
 
+After harvesting, the report shows produced and stored amounts, overflow, crop condition and the main growth factors. Use its suggested next step to plan the next cycle.
+
 ## Animals, buildings and equipment
 
 The catalog includes **11 animal species**, **24 building definitions**, processing recipes and a machinery system. Animal care includes feeding, health interventions, breeding and optional grazing plans. Assign a herd to an owned, empty open field and choose a morning, afternoon or daylight schedule. Each paddock supports one group; grazing can reduce feed use and improve welfare and output, while forage recovers naturally when fields rest. Animals move to their paddock during their scheduled hours, so grazing does not require a daily command. Buildings take time/resources to construct. Machinery purchase, operation wear and servicing can change performance and costs. Garden Studio lets you place or relocate a limited collection of decorations.
 
 ## Community and goals
 
-The valley has eight regions and eight three-part regional projects (24 chapters). There are 10 neighbours and 30 neighbour story chapters, six professional certifications and four seasonal festivals. Explorer professions and farm specializations have different bonuses. See the Goals screen for six long-term farm-development tracks: land, harvesting, animals, production, community and exploration.
+The valley has eight regions and eight three-part regional projects (24 chapters). There are 10 neighbours and 30 neighbour story chapters, six professional certifications and four seasonal festivals. At the start of each season, choose one of three optional objectives by day 3; the choice is locked for that season, and targets and rewards scale with the number of owned fields. There is no penalty for passing, and progress begins when you choose. Some objectives require livestock or a completed workshop. Explorer professions and farm specializations have different bonuses. See the Goals screen for six long-term farm-development tracks: land, harvesting, animals, production, community and exploration.
 
 ## Readability and performance
 

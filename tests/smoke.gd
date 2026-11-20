@@ -12,6 +12,7 @@ const Life = preload("res://scripts/FarmingLife.gd")
 const AnimalPresentation = preload("res://scripts/WorldPresentation.gd")
 const UIHubs = preload("res://scripts/UIHubs.gd")
 const UIIntegration = preload("res://scripts/UIIntegration.gd")
+const GuidedOnboarding = preload("res://scripts/GuidedOnboarding.gd")
 var failures: Array[String] = []
 var checks: int = 0
 
@@ -63,6 +64,70 @@ func run() -> void:
 	var story_path: Array[Dictionary] = farm.story_objectives()
 	check(story_path.size() == 4,"Story path shows three chapters and an epilogue")
 	check(float(story_path[0]["goals"][0]["target"]) == 150.0 and float(story_path[3]["goals"][0]["target"]) == 3.0 and float(story_path[3]["goals"][1]["target"]) == 10.0,"Campaign objectives match the harvest and ending requirements")
+	var harvest_report_farm := Farm.new()
+	harvest_report_farm.new_game({"language":"en","seed":45670})
+	check(harvest_report_farm.act("plant",{"fieldId":"plot1","cropId":"wheat"}).get("ok",false),"Harvest report test crop planted")
+	var report_crop: Dictionary = harvest_report_farm.field_of("plot1")["crop"]
+	report_crop["development"] = 1.0
+	report_crop["biomass"] = 30.0
+	report_crop["health"] = 0.81
+	report_crop["water_stress"] = 0.18
+	report_crop["pest_stress"] = 0.12
+	report_crop["disease_stress"] = 0.08
+	var harvest_outcome: Dictionary = harvest_report_farm.act("harvest",{"fieldId":"plot1"})
+	var harvest_details: Dictionary = harvest_outcome.get("harvest_report",{})
+	var harvest_factors: Dictionary = harvest_details.get("factors",{})
+	check(harvest_outcome.get("ok",false) and str(harvest_details.get("crop_id",""))=="wheat"
+		and float(harvest_details.get("produced_kg",0.0))>=float(harvest_details.get("stored_kg",0.0))
+		and harvest_factors.has("water") and harvest_factors.has("nutrients") and harvest_factors.has("rotation")
+		and harvest_factors.has("pests") and harvest_factors.has("disease") and harvest_factors.has("pollination"),
+		"Harvest action reports yield, crop condition and growth factors")
+	var season_farm := Farm.new()
+	season_farm.new_game({"language":"en","seed":45671})
+	for field_index in range(1,4):
+		season_farm.state["fields"][field_index]["owned"] = true
+	var spring_options: Array = season_farm.season_goal_options()
+	check(spring_options.size()==3 and season_farm.season_goal_selection_open(),"A new season offers three optional objectives")
+	var season_priority: bool = false
+	for task in Compass.priorities(season_farm,"en"):
+		season_priority = season_priority or str(task["id"])=="season_goal"
+	check(season_priority,"Farm Compass prompts players to choose a seasonal objective")
+	var harvest_goal: Dictionary = {}
+	for goal in spring_options:
+		if str(goal.get("id","")) == "harvest":
+			harvest_goal = goal
+	check(not harvest_goal.is_empty() and int(harvest_goal["target"])==70,"Seasonal objective targets scale with owned land")
+	check(season_farm.act("chooseSeasonGoal",{"goalId":"harvest"}).get("ok",false),"A player can choose one seasonal objective")
+	season_farm.state["stats"]["harvest_kg"] += 21.0
+	check(is_equal_approx(season_farm.season_goal_progress(),21.0),"Seasonal progress starts when the objective is chosen")
+	check(not season_farm.act("chooseSeasonGoal",{"goalId":"market"}).get("ok",false),"A chosen seasonal objective cannot be replaced")
+	var season_save := Farm.new()
+	check(season_save.load_text(season_farm.export_text()).get("ok",false)
+		and str(season_save.season_goal_info().get("id",""))=="harvest"
+		and int(season_save.season_goal_info().get("target",0))==70,"Seasonal choice and scaled target survive save/load")
+	season_farm.state["stats"]["harvest_kg"] += 49.0
+	season_farm.state["time"]["day"] = 13
+	season_farm._seasonal_recap()
+	var spring_result: Dictionary = season_farm.state["world50"]["season_results"].back()
+	check(bool(spring_result["completed"]) and str(spring_result["goal_id"])=="harvest"
+		and season_farm.season_goal_selection_open(),"Season recap awards the chosen goal and opens choices for the next season")
+	var late_season_farm := Farm.new()
+	late_season_farm.new_game({"language":"en","seed":45672})
+	late_season_farm.state["time"]["day"] = 4
+	check(not late_season_farm.act("chooseSeasonGoal",{"goalId":"inspect"}).get("ok",false),"Seasonal objectives close after day three")
+	var legacy_season_state: Dictionary = season_farm.state.duplicate(true)
+	legacy_season_state["world50"].erase("season_goal_id")
+	legacy_season_state["world50"].erase("season_goal_target")
+	legacy_season_state["world50"].erase("season_goal_snapshot")
+	legacy_season_state["world50"]["season_key"] = 0
+	var legacy_season_wire: Dictionary = JSON.parse_string(JSON.stringify(legacy_season_state))
+	var legacy_season_envelope: Dictionary = JSON.parse_string(season_farm.export_text())
+	legacy_season_envelope["payload"] = legacy_season_wire
+	legacy_season_envelope["sha256"] = season_farm._canonical_json(legacy_season_wire).sha256_text()
+	var upgraded_season_farm := Farm.new()
+	check(upgraded_season_farm.load_text(JSON.stringify(legacy_season_envelope)).get("ok",false)
+		and str(upgraded_season_farm.season_goal_info().get("id",""))=="inspect"
+		and int(upgraded_season_farm.season_goal_info().get("target",0))==4,"Legacy saves retain the existing fixed seasonal objective")
 	var briefing_farm := Farm.new()
 	briefing_farm.new_game({"language":"en","seed":4570})
 	var briefing_field: Dictionary = briefing_farm.field_of("plot1")
@@ -109,6 +174,25 @@ func run() -> void:
 	var repaired_onboarding_farm := Farm.new()
 	var onboarding_recovery: Dictionary = repaired_onboarding_farm.load_text(JSON.stringify(old_onboarding_envelope))
 	check(onboarding_recovery.get("ok",false) and int(repaired_onboarding_farm.state["story"]["starter_guide"]) == Farm.STARTER_GUIDE.size() and int(repaired_onboarding_farm.state["story"]["guided_onboarding"]) == Farm.GUIDED_ONBOARDING_STEP_COUNT,"Legacy guided tutorial save is repaired when loaded")
+	var instant_growth_farm := Farm.new()
+	instant_growth_farm.new_game({"language":"en","seed":4569})
+	instant_growth_farm.state["fields"][1]["owned"] = true
+	var first_crop_planted: bool = instant_growth_farm.act("plant",{"fieldId":"plot1","cropId":"wheat"}).get("ok",false)
+	var second_crop_planted: bool = instant_growth_farm.act("plant",{"fieldId":"plot2","cropId":"barley"}).get("ok",false)
+	var tutorial_crop_watered: bool = instant_growth_farm.act("irrigate",{"fieldId":"plot1","mm":15.0}).get("ok",false)
+	instant_growth_farm.state["story"]["guided_onboarding"] = Farm.GUIDED_ONBOARDING_GROWTH_STEP
+	var growth_start_time: int = int(instant_growth_farm.state["time"]["total"])
+	var instant_growth: Dictionary = instant_growth_farm.act("tutorialGrowCrop",{})
+	check(first_crop_planted and second_crop_planted and tutorial_crop_watered
+		and GuidedOnboarding.STEPS[Farm.GUIDED_ONBOARDING_GROWTH_STEP]["action"]=="grow"
+		and instant_growth.get("ok",false)
+		and float(instant_growth_farm.field_of("plot1")["crop"]["development"])>=0.995
+		and float(instant_growth_farm.field_of("plot1")["crop"]["biomass"])>0.0
+		and is_zero_approx(float(instant_growth_farm.field_of("plot2")["crop"]["development"]))
+		and int(instant_growth_farm.state["time"]["total"])==growth_start_time,
+		"Guided tutorial instantly ripens only its first crop without advancing game time")
+	instant_growth_farm.state["story"]["guided_onboarding"] = Farm.GUIDED_ONBOARDING_GROWTH_STEP+1
+	check(not instant_growth_farm.act("tutorialGrowCrop",{}).get("ok",false),"Instant tutorial growth is unavailable after its lesson")
 	var hen_needs: Dictionary = guide_farm.animal_daily_requirements({"kind":"hen","count":2,"feeding":"standard"})
 	check(is_equal_approx(float(hen_needs["feed_kg"]),0.24),"Animal feed need matches the simulation")
 	check(is_equal_approx(float(hen_needs["water_m3"]),0.0005),"Animal water need matches the simulation")
@@ -201,12 +285,43 @@ func run() -> void:
 	app.farm = farm
 	app._show_game()
 	await frames(6)
+	app.farm = harvest_report_farm
+	app.language = "en"
+	var harvest_report_text: String = app._harvest_report_text(harvest_details)
+	check(harvest_report_text.contains("Produced:") and harvest_report_text.contains("Growth conditions at harvest:")
+		and harvest_report_text.contains("Next time:"),"Harvest report presents yield, factors and actionable advice")
+	app.language = "es"
+	check(app._harvest_report_text(harvest_details).contains("Para la próxima:"),"Harvest report is localized in Spanish")
+	app.farm = farm
+	var camera_state_before_walk: String = farm.export_text()
+	var orbit_target_before_walk: Vector3 = app.world.camera_target
+	app._toggle_first_person()
+	app.world.first_person_yaw = PI
+	await frames(2)
+	var first_person_forward: Vector2 = app.world.movement_offset(Vector2(0,-1),0.6)
+	var first_person_right: Vector2 = app.world.movement_offset(Vector2(1,0),0.6)
+	check(app.world.first_person and app.first_person_button.button_pressed and not app.world.avatar.visible
+		and app.world.camera.projection == Camera3D.PROJECTION_PERSPECTIVE,"First-person toggle follows the farmer and hides the avatar")
+	check(absf(first_person_forward.x) < 0.001 and is_equal_approx(first_person_forward.y,0.6)
+		and is_equal_approx(first_person_right.x,-0.6) and absf(first_person_right.y) < 0.001,"First-person movement follows the camera direction")
+	app._toggle_first_person()
+	await frames(2)
+	check(not app.world.first_person and not app.first_person_button.button_pressed and app.world.avatar.visible
+		and app.world.camera_target.is_equal_approx(orbit_target_before_walk)
+		and farm.export_text() == camera_state_before_walk,"Leaving first-person restores the orbit view without changing farm state")
 	var radial: Variant = app.radial_menu
 	check(radial.language == "es","Radial action labels follow the game language")
 	check(app.info.get_ok_button().get_theme_color("font_color") == Color("#233c32"),"Alert dialog OK button uses a visible dark font")
 	radial.close_menu()
 	if not app.onboarding.is_active:
 		app.onboarding.start(farm,app,app._on_onboarding_complete)
+	var tutorial_crop: Dictionary = farm.state["fields"][0]["crop"].duplicate(true)
+	farm.state["fields"][0]["crop"]["development"] = 0.5
+	app.onboarding.current_step = 5
+	app.onboarding._show_step()
+	app.onboarding._on_next()
+	check(app.onboarding.current_step == 5 and app.pending.is_empty() and app.onboarding.message_label.text.contains("\n\n"),"Tutorial waits for the crop to ripen before advancing harvest")
+	farm.state["fields"][0]["crop"] = tutorial_crop
 	app.onboarding._highlight_field("plot1")
 	check(not radial.is_open,"Tutorial field highlight does not open the radial menu")
 	var field_screen_position: Vector2 = app.world.get_field_screen_pos("plot1")
@@ -398,6 +513,15 @@ func run() -> void:
 			app._change_tab(tab)
 			await frames(1)
 			check(app.right_body.get_child_count()>0,"Screen "+str(tab)+" "+lang)
+	app.language = "es"
+	app._change_tab("Festivals50")
+	await frames(1)
+	var seasonal_choice_buttons: int = 0
+	for control in app.right_body.get_children():
+		if control is Button and str(control.text) == "Elegir este objetivo":
+			seasonal_choice_buttons += 1
+	check(seasonal_choice_buttons==3,"Season screen presents three localized seasonal choices")
+	app.language = "en"
 	app._change_tab("Valley")
 	await frames()
 	check(view.viewport_3d.render_target_update_mode == SubViewport.UPDATE_DISABLED,"Hidden farm stops rendering")

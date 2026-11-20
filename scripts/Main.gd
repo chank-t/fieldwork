@@ -104,6 +104,7 @@ var context_harvest: Button = null
 var overlay_picker: OptionButton = null
 var terrain_overlay: String = "none"
 var map_perspective: bool = false
+var first_person_button: Button = null
 var plot_status_label: Label = null
 var compact_mode: bool = false
 var reflow_pending: bool = false
@@ -564,6 +565,7 @@ func _clear_scene() -> void:
 	world = null
 	valley_view = null
 	movement_bar = null
+	first_person_button = null
 	plot_status_label = null
 	left_nav_holder = null
 	hud_values.clear()
@@ -839,6 +841,14 @@ func _toggle_map_view() -> void:
 		world.perspective = map_perspective
 	if valley_view != null and is_instance_valid(valley_view):
 		valley_view.perspective = map_perspective
+
+func _toggle_first_person() -> void:
+	if world == null or not is_instance_valid(world):
+		return
+	world.set_first_person(not world.first_person)
+	if first_person_button != null and is_instance_valid(first_person_button):
+		first_person_button.button_pressed = world.first_person
+		world.queue_redraw()
 
 
 func _set_overlay_51(index: int) -> void:
@@ -1258,6 +1268,10 @@ func _show_game() -> void:
 		zb.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		zb.add_theme_font_size_override("font_size",17)
 		zb.tooltip_text = str(pair[2])
+	first_person_button = _toolbar_button(movement,tx("First person","Primera persona"),_toggle_first_person)
+	first_person_button.toggle_mode = true
+	first_person_button.tooltip_text = tx("Toggle first-person view. Move with WASD/arrows; right-drag to look.","Activa la primera persona. Muévete con WASD/flechas y arrastra con el botón derecho para mirar.")
+	first_person_button.custom_minimum_size.x = 112.0*ui_scale
 	var movement_spacer: Control = Control.new()
 	movement_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	movement.add_child(movement_spacer)
@@ -1588,7 +1602,9 @@ func _walk_step(dx: int, dy: int) -> void:
 	if not game_running:
 		return
 	var p: Dictionary = farm.state["player"]
-	_move_to(clampf(float(p["x"])+dx*0.8,1.0,63.0),clampf(float(p["y"])+dy*0.8,1.0,53.0))
+	var direction: Vector2 = Vector2(dx,dy)
+	var offset: Vector2 = world.movement_offset(direction,0.8) if world != null and is_instance_valid(world) else direction.normalized()*0.8
+	_move_to(clampf(float(p["x"])+offset.x,1.0,63.0),clampf(float(p["y"])+offset.y,1.0,53.0))
 
 func _show_illustrated_view() -> void:
 	_show_panorama()
@@ -1638,6 +1654,7 @@ func _show_panorama() -> void:
 	grand.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	frame.add_child(grand)
 	grand.set_farm(farm)
+	grand.set_first_person(world != null and is_instance_valid(world) and world.first_person)
 	grand.set_selected(selected_field)
 	grand.selected_field.connect(_panorama_field)
 	grand.selected_npc.connect(_panorama_npc)
@@ -1649,7 +1666,7 @@ func _show_panorama() -> void:
 	_button(tx("Zoom out","Alejar"),func():grand.change_zoom(-0.25),controls)
 	_button(tx("Reset camera","Recentrar"),func():grand.reset_camera(),controls)
 	_button(tx("Photo","Foto"),_take_photo,controls)
-	var hint: Label = _text(tx("Select a field, neighbour, or building. WASD/arrows to walk, mouse wheel to zoom, middle-click to pan, right-drag to orbit.","Selecciona parcela, vecino o edificio. WASD/flechas para moverte, rueda para zoom y botón central para desplazar y derecho para girar."),12,Color("#f6edcf"))
+	var hint: Label = _text(tx("Select a field, neighbour, or building. WASD/arrows to walk, mouse wheel to zoom, middle-click to pan, right-drag to orbit or look in first person.","Selecciona parcela, vecino o edificio. WASD/flechas para moverte, rueda para acercar, botón central para desplazar y derecho para girar o mirar en primera persona."),12,Color("#f6edcf"))
 	shell.add_child(hint)
 
 func _panorama_field(id: String) -> void:
@@ -1745,12 +1762,13 @@ func _render_panel() -> void:
 		"Journal": _panel_journal()
 		"Options": _panel_options()
 
-func _notify(message: String) -> void:
+func _notify(message: String, title: String = "FieldWork") -> void:
 	if info == null or not is_instance_valid(info):
 		info = AcceptDialog.new()
 		info.theme = theme
 		add_child(info)
 		_style_dialog_button(info.get_ok_button())
+	info.title = title
 	info.dialog_text = farm.message(message)
 	info.popup_centered()
 
@@ -1896,9 +1914,73 @@ func _direct(kind: String, args: Dictionary = {}) -> void:
 	if world != null and is_instance_valid(world):
 		world.trigger_work_effect57(kind, str(args.get("fieldId", "")))
 	_refresh()
+	var save_error: String = ""
 	if not saved59.is_empty() and not bool(saved59.get("ok",false)):
 		speed = 0
-		_notify(tx("The action succeeded but autosave failed: ","La acción se ha completado, pero el guardado automático fallo: ") + str(saved59.get("error","Unknown write error")))
+		save_error = tx("The action succeeded but autosave failed: ","La acción se ha completado, pero el guardado automático falló: ") + str(saved59.get("error","Unknown write error"))
+	if kind == "harvest":
+		var report: Dictionary = result.get("harvest_report",{})
+		if not report.is_empty():
+			var report_text: String = _harvest_report_text(report)
+			if not save_error.is_empty():
+				report_text += "\n\n"+save_error
+			_notify(report_text,tx("Harvest report","Informe de cosecha"))
+			return
+	if not save_error.is_empty():
+		_notify(save_error)
+
+func _harvest_report_text(report: Dictionary) -> String:
+	var crop_id: String = str(report.get("crop_id",""))
+	var crop_info: Dictionary = farm.content["crops"].get(crop_id,{})
+	var lines: PackedStringArray = []
+	lines.append(tx("Crop: ","Cultivo: ")+(farm.n(crop_info) if not crop_info.is_empty() else crop_id))
+	lines.append(tx("Produced: ","Producción total: ")+str(snappedf(float(report.get("produced_kg",0.0)),0.1))+" kg")
+	lines.append(tx("Stored: ","Almacenado: ")+str(snappedf(float(report.get("stored_kg",0.0)),0.1))+" kg")
+	var overflow: float = float(report.get("overflow_kg",0.0))
+	if overflow > 0.01:
+		lines.append(tx("Could not store: ","No se pudo almacenar: ")+str(snappedf(overflow,0.1))+" kg")
+	var biomass: float = float(report.get("biomass",0.0))
+	var biomass_max: float = maxf(0.001,float(report.get("biomass_max",0.001)))
+	var biomass_ratio: float = clampf(biomass/biomass_max,0.0,1.0)
+	lines.append(tx("Crop health: ","Salud del cultivo: ")+str(roundi(float(report.get("health",0.0))*100.0))+"%  ·  "+tx("Produce quality: ","Calidad del producto: ")+str(roundi(float(report.get("quality",0.0))*100.0))+"%")
+	lines.append(tx("Biomass: ","Biomasa: ")+str(snappedf(biomass,0.1))+" / "+str(snappedf(biomass_max,0.1))+" kg/ha ("+str(roundi(biomass_ratio*100.0))+"%)")
+	lines.append(tx("Growth conditions at harvest:","Condiciones de crecimiento al cosechar:"))
+	var factors: Dictionary = report.get("factors",{})
+	var factor_labels: Dictionary = {
+		"water":tx("Water availability","Agua disponible"),
+		"nutrients":tx("N/P/K nutrients","Nutrientes N/P/K"),
+		"organic_soil":tx("Organic soil health","Salud orgánica del suelo"),
+		"pests":tx("Pest protection","Control de plagas"),
+		"disease":tx("Disease protection","Control de enfermedades"),
+		"rotation":tx("Crop rotation","Rotación de cultivos"),
+		"pollination":tx("Pollination","Polinización")
+	}
+	for factor_id in factor_labels.keys():
+		if factors.has(factor_id):
+			lines.append(str(factor_labels[factor_id])+": "+str(roundi(float(factors[factor_id])*100.0))+"%")
+	lines.append(tx("Biomass reflects the full crop cycle; the other factors are conditions at harvest.","La biomasa resume todo el ciclo; los demás factores reflejan las condiciones al cosechar."))
+	var recommendation: String = ""
+	if overflow > 0.01:
+		recommendation = tx("Make room in storage before the next harvest.","Libera espacio de almacén antes de la próxima cosecha.")
+	else:
+		var weakest_factor: String = ""
+		var weakest_value: float = 0.95
+		for factor_id in ["water","nutrients","organic_soil","pests","disease","rotation","pollination"]:
+			var factor_value: float = float(factors.get(factor_id,1.0))
+			if factor_value < weakest_value:
+				weakest_factor = factor_id
+				weakest_value = factor_value
+		recommendation = {
+			"water":tx("Irrigate before the plot becomes too dry.","Riega antes de que la parcela se seque demasiado."),
+			"nutrients":tx("Restore N/P/K or rotate with a legume.","Repón N/P/K o rota con una leguminosa."),
+			"organic_soil":tx("Improve organic matter with compost or cover crops.","Mejora la materia orgánica con compost o cubiertas."),
+			"pests":tx("Scout the field and use compatible pest control.","Inspecciona la parcela y usa un control de plagas compatible."),
+			"disease":tx("Review disease prevention for this crop.","Revisa la prevención de enfermedades de este cultivo."),
+			"rotation":tx("Plant a different crop family in this plot next time.","Planta otra familia de cultivo en esta parcela la próxima vez."),
+			"pollination":tx("Support pollinators with flowers and habitat.","Favorece a los polinizadores con flores y refugios.")
+		}.get(weakest_factor,tx("No major growth bottleneck stands out.","No destaca ningún factor limitante importante."))
+	lines.append(tx("Next time: ","Para la próxima: ")+recommendation)
+	return "\n".join(lines)
 
 func _process(delta: float) -> void:
 	if game_running and show_fps59 and fps_label59 != null and is_instance_valid(fps_label59):
@@ -1987,6 +2069,17 @@ func _jump_compass60(task: Dictionary) -> void:
 			world.set_selected(field_id)
 	_change_tab(str(task.get("tab","Farm")))
 
+func _season_goal_summary(parent: Node) -> void:
+	var objective: Dictionary = farm.season_goal_info()
+	if not objective.is_empty():
+		_caption(parent,tx("This season","Esta estación"))
+		_line(parent,World50.localized(objective["name"],language)+" · "+str(int(farm.season_goal_progress()))+"/"+str(objective["target"]),14,ACCENT)
+		_button(tx("View festival & seasonal progress","Ver fiestas y progreso estacional"),_change_tab.bind("Festivals50"),parent)
+	elif farm.season_goal_selection_open():
+		_caption(parent,tx("Choose a seasonal objective","Elige un objetivo estacional"))
+		_line(parent,tx("Choose one of three optional goals by day 3. Your choice is locked for the season; it is never a daily chore.","Elige una de las tres metas opcionales antes del día 4. La elección queda fijada toda la estación; no es una obligación diaria."),13,MUTED)
+		_button(tx("Compare seasonal goals","Comparar objetivos estacionales"),_change_tab.bind("Festivals50"),parent,true)
+
 func _panel_compass60() -> void:
 	var overall: float = Compass60.overall_progress(farm)
 	_caption(right_body,tx("FARM COMPASS","BRÚJULA DE LA FINCA"), tx("Real recommendations from your saved farm — never automatic spending.","Recomendaciones de tu finca real: nunca se gastan recursos automáticamente."))
@@ -2025,11 +2118,7 @@ func _panel_compass60() -> void:
 	_line(right_body,tx("Completed paths: ","Trayectorias completadas: ")+str(completed)+"/6",16,ACCENT)
 	if completed == 6:
 		_line(right_body,tx("Your farm is a valley landmark. Keep shaping its story!","Tu finca es un referente del valle. ¡Sigue construyendo su historia!"),15,ACCENT)
-	var season_goal: Dictionary = farm.season_goal_info()
-	if not season_goal.is_empty():
-		_caption(right_body,tx("This season", "Esta temporada"))
-		_line(right_body,World50.localized(season_goal["name"],language)+" · "+str(int(farm.season_goal_progress()))+"/"+str(season_goal["target"]),14)
-		_button(tx("Festivals & season review","Fiestas y balance estacional"),_change_tab.bind("Festivals50"),right_body)
+	_season_goal_summary(right_body)
 	_button(tx("Daily planner and budget", "Plan diario y presupuesto"),_change_tab.bind("Planning"),right_body,true)
 
 func _panel_farm() -> void:
@@ -2072,10 +2161,7 @@ func _panel_farm() -> void:
 	var bank: Dictionary = farm.operating_budget()
 	_line(right_body,tx("Fixed daily maintenance: ","Mantenimiento fijo diario: ") + _money(float(float(bank["fixed_daily"]))),13,MUTED)
 	_button(tx("Open daily planner","Abrir plan diario"),_change_tab.bind("Planning"),right_body)
-	var objective: Dictionary = farm.season_goal_info()
-	if not objective.is_empty():
-		_line(right_body,tx("Seasonal goal: ","Meta estacional: ")+World50.localized(objective["name"],language)+" ("+str(int(farm.season_goal_progress()))+"/"+str(objective["target"])+")",13,ACCENT)
-		_button(tx("View festival & seasonal progress","Ver fiestas y progreso estacional"),_change_tab.bind("Festivals50"),right_body)
+	_season_goal_summary(right_body)
 	var effect_list: Array = farm.active_effects()
 	if not effect_list.is_empty():
 		_caption(right_body,tx("Effects from your decisions","Efectos de tus decisiones"))
@@ -2177,10 +2263,7 @@ func _panel_farm_overview() -> void:
 	_line(right_body, tx("Fixed daily maintenance: ", "Mantenimiento fijo diario: ") + _money(float(float(bank["fixed_daily"]))), 13, MUTED)
 	_button(tx("Open daily planner", "Abrir plan diario"), _change_tab.bind("Planning"), right_body)
 
-	var objective: Dictionary = farm.season_goal_info()
-	if not objective.is_empty():
-		_line(right_body, tx("Seasonal goal: ", "Meta estacional: ") + World50.localized(objective["name"], language) + " (" + str(int(farm.season_goal_progress())) + "/" + str(objective["target"]) + ")", 13, ACCENT)
-		_button(tx("View festival & seasonal progress", "Ver fiestas y progreso estacional"), _change_tab.bind("Festivals50"), right_body)
+	_season_goal_summary(right_body)
 
 	var effect_list: Array = farm.active_effects()
 	if not effect_list.is_empty():
@@ -3699,11 +3782,12 @@ func _panel_festivals50() -> void:
 		_line(right_body,title+"  ·  "+str(quantity)+" kg "+farm.n(farm.content["goods"][good])+"  ·  "+tx("in storage ","en almacén ")+str(snappedf(farm.stock(good),0.1)),14)
 		var entry: Button = _button(tx("Enter exhibit · EUR 25","Participar · 25 EUR"),_ask.bind("festivalEnter",{"category":category}),right_body)
 		entry.disabled = not available or farm.stock(good)+0.00001 < quantity or float(farm.state["economy"]["cash"]) < 25.0
-	_caption(right_body,tx("Seasonal objective","Objetivo de la estación"))
 	var objective: Dictionary = farm.season_goal_info()
 	if not objective.is_empty():
-		var current: float = farm.season_goal_progress()
+		_caption(right_body,tx("Chosen seasonal objective","Objetivo estacional elegido"))
 		_line(right_body,World50.localized(objective["name"],language),17,ACCENT)
+		_line(right_body,World50.localized(objective.get("description",{}),language),13,MUTED)
+		var current: float = farm.season_goal_progress()
 		_line(right_body,str(snappedf(current,0.1))+" / "+str(objective["target"])+"  ·  EUR "+str(objective["cash"])+" +"+str(objective["xp"])+" XP",13)
 		var bar: ProgressBar = ProgressBar.new()
 		bar.custom_minimum_size.y = 14
@@ -3712,6 +3796,17 @@ func _panel_festivals50() -> void:
 		bar.show_percentage = false
 		right_body.add_child(bar)
 		_line(right_body,tx("The season is evaluated automatically when the next one begins.","La estación se evalúa al empezar la siguiente."),12,MUTED)
+	elif farm.season_goal_selection_open():
+		_caption(right_body,tx("Choose one seasonal objective","Elige un objetivo para esta estación"),
+			tx("Optional: choose by day 3. Your choice is locked for the season; targets and rewards scale with your farm. No penalty for passing.","Opcional: elige antes del día 4. Tu elección queda fijada toda la estación; las metas y recompensas se ajustan a tu finca. No hay penalización por no elegir."))
+		for goal in farm.season_goal_options():
+			_line(right_body,World50.localized(goal["name"],language),16,ACCENT)
+			_line(right_body,World50.localized(goal.get("description",{}),language),12,MUTED)
+			_line(right_body,tx("Target: ","Meta: ")+str(goal["target"])+" · EUR "+str(goal["cash"])+" · "+str(goal["xp"])+" XP",12)
+			_button(tx("Choose this goal","Elegir este objetivo"),_direct.bind("chooseSeasonGoal",{"goalId":str(goal["id"])}),right_body)
+	else:
+		_caption(right_body,tx("Seasonal objective","Objetivo de la estación"))
+		_line(right_body,tx("No objective was selected this season. There is no penalty; new choices arrive next season.","No se eligió objetivo esta estación. No hay penalización; habrá nuevas opciones la próxima."),13,MUTED)
 	_caption(right_body,tx("Festival history","Historial de fiestas"))
 	var history: Array = farm.state["world50"]["festival_history"]
 	for index in range(history.size()-1,maxi(-1,history.size()-8),-1):
@@ -3723,7 +3818,18 @@ func _panel_festivals50() -> void:
 	var reports: Array = farm.state["world50"]["season_results"]
 	for index in range(reports.size()-1,maxi(-1,reports.size()-8),-1):
 		var report: Dictionary = reports[index]
-		_line(right_body,tx("Season ","Estación ")+str(int(report["season_key"])+1)+" · "+str(report["progress"])+"/"+str(report["target"])+" · "+(tx("Goal achieved","Objetivo conseguido") if report["completed"] else tx("Goal missed","Objetivo no alcanzado")),13)
+		var report_season: int = int(report["season_key"])
+		var report_goal_id: String = str(report.get("goal_id",""))
+		var report_goal: Dictionary
+		if report.has("goal_id"):
+			report_goal = World50.season_goal(farm.world_catalog,report_season,report_goal_id)
+		else:
+			report_goal = farm.world_catalog.get("season_goals",{}).get(World50.season_id(report_season),{})
+		var report_name: String = World50.localized(report_goal.get("name",{}),language) if not report_goal.is_empty() else tx("No objective selected","Sin objetivo elegido")
+		var report_status: String = tx("Goal achieved","Objetivo conseguido") if bool(report.get("completed",false)) else tx("Goal missed","Objetivo no alcanzado")
+		if report.has("goal_id") and report_goal_id.is_empty():
+			report_status = tx("No goal chosen","No se eligió objetivo")
+		_line(right_body,tx("Season ","Estación ")+str(report_season+1)+" · "+report_name+" · "+str(report["progress"])+"/"+str(report["target"])+" · "+report_status,13)
 
 func _panel_certifications50() -> void:
 	_caption(right_body,tx("Professional qualifications","Acreditaciones profesionales"),
@@ -4078,6 +4184,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.keycode == KEY_ESCAPE:
 		if modal != null:
 			_close_modal()
+		elif world != null and is_instance_valid(world) and world.first_person:
+			_toggle_first_person()
 		return
 	if not game_running or modal != null:
 		return

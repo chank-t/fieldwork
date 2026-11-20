@@ -14,6 +14,10 @@ var desired_size: float = 58.0
 var yaw: float = 0.12
 var pitch: float = 0.88
 var perspective: bool = false
+var first_person: bool = false
+var first_person_yaw: float = PI
+var first_person_pitch: float = -0.08
+var first_person_fov: float = 72.0
 var performance_mode59: String = "balanced"
 var reduced_motion: bool = false
 var reduced_motion59: bool = false
@@ -115,6 +119,13 @@ func _tick(_delta: float) -> void:
 
 func _update_camera(delta: float) -> void:
 	if camera == null: return
+	if first_person:
+		camera.position = camera_target
+		camera.rotation = Vector3(first_person_pitch,first_person_yaw,0.0)
+		camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+		camera.fov = first_person_fov
+		return
+	camera.fov = 42.0
 	var blend: float = 1.0 if reduced_motion or reduced_motion59 else 1.0-exp(-delta*9.0)
 	target = target.lerp(camera_target,blend)
 	camera_size = lerpf(camera_size,desired_size,blend)
@@ -128,9 +139,16 @@ func _update_camera(delta: float) -> void:
 		camera.position = target + (camera.position-target)*maxf(1.0,1.30/aspect)
 
 func change_zoom(amount: float) -> void:
+	if first_person:
+		first_person_fov = clampf(first_person_fov*exp(-amount*0.6),50.0,90.0)
+		return
 	desired_size = clampf(desired_size*exp(-amount*0.6),12.0,110.0)
 
 func reset_camera() -> void:
+	if first_person:
+		first_person_yaw = PI
+		first_person_pitch = -0.08
+		first_person_fov = 72.0
 	camera_target = Vector3(32,0,27)
 	desired_size = 58.0
 	yaw = 0.12
@@ -174,6 +192,10 @@ func _pan(relative: Vector2) -> void:
 	camera_target.x = clampf(camera_target.x,-15.0,80.0)
 	camera_target.z = clampf(camera_target.z,-15.0,70.0)
 
+func _look_first_person(relative: Vector2) -> void:
+	first_person_yaw -= relative.x*0.006
+	first_person_pitch = clampf(first_person_pitch-relative.y*0.004,-1.15,0.65)
+
 func _gui_input(event: InputEvent) -> void:
 	if not controls_enabled: return
 	if event is InputEventMouseButton:
@@ -183,10 +205,15 @@ func _gui_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_LEFT and event.pressed: _pick(event.position)
 		accept_event()
 	elif event is InputEventMouseMotion:
-		if dragging == MOUSE_BUTTON_MIDDLE: _pan(event.relative)
+		if dragging == MOUSE_BUTTON_MIDDLE:
+			if first_person: _look_first_person(event.relative)
+			else: _pan(event.relative)
 		elif dragging == MOUSE_BUTTON_RIGHT:
-			yaw -= event.relative.x*0.006
-			pitch = clampf(pitch+event.relative.y*0.004,0.35,1.35)
+			if first_person:
+				_look_first_person(event.relative)
+			else:
+				yaw -= event.relative.x*0.006
+				pitch = clampf(pitch+event.relative.y*0.004,0.35,1.35)
 		else:
 			hovered = _ray_at(event.position)
 			mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not hovered.is_empty() else Control.CURSOR_ARROW
@@ -212,6 +239,8 @@ func _gui_input(event: InputEvent) -> void:
 				touch_moved = true
 			else:
 				touch_moved = touch_moved or touch_start.distance_to(event.position)>12
-				if touch_moved: _pan(event.relative)
+				if touch_moved:
+					if first_person: _look_first_person(event.relative)
+					else: _pan(event.relative)
 			touch_points[event.index] = event.position
 		accept_event()

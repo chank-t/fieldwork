@@ -23,9 +23,17 @@ Los cultivos tienen siluetas por familia y especie, con fases de crecimiento dif
 
 El agricultor usa pivotes low-poly para balancear brazos y piernas al caminar y adoptar poses distintas al plantar, regar y cosechar. Los vecinos tienen movimiento idle; los animales combinan balanceo, rebote y movimiento de extremidades. Estas animaciones son visuales, no cambian la simulación y respetan la opción de movimiento reducido.
 
+El botón **Primera persona** activa una cámara a la altura de los ojos que sigue al agricultor; el modelo se oculta mientras está activa. WASD, las flechas y los controles táctiles mueven en relación con la vista; arrastrar con el botón derecho o deslizar permite mirar alrededor. La rueda y los controles de zoom ajustan el campo de visión. Escape vuelve a la cámara de mapa y restablece la visibilidad del agricultor. La vista amplia conserva el modo seleccionado. El cambio de cámara no modifica la simulación.
+
+El tutorial interactivo madura al instante el primer cultivo en su lección de crecimiento, sin adelantar el reloj ni afectar a otros cultivos, para que el jugador pueda cosechar sin esperar.
+
+Cada cosecha muestra un informe con producción y almacenamiento, condición del cultivo, indicadores de agua, nutrientes, plagas, enfermedades, rotación y polinización, más una sugerencia para el siguiente ciclo.
+
 La finca diferencia las estaciones con el color de la vegetación y el terreno, y el invierno añade nieve moteada al paisaje. La hora desplaza el sol y cambia gradualmente la luz y el cielo; la lluvia oscurece el suelo, activa gotas y enfría la luz, mientras que el calor aporta un tinte cálido. Los efectos de movimiento y lluvia respetan el ajuste de movimiento reducido y el modo Eco.
 
 Los grupos de animales pueden pastar en parcelas abiertas, vacías y propias con un horario asignado. Cada potrero admite un grupo; el forraje se consume y se recupera con el descanso, la estación, la humedad y la lluvia. El pastoreo reduce la necesidad de pienso y aporta mejoras limitadas de bienestar y producción. Los animales se representan en el potrero durante su franja horaria. La asignación se guarda y se completa con valores seguros al cargar partidas anteriores.
+
+Al comenzar una estación, se puede elegir una de tres metas opcionales de producción, mercado, suelo o ganadería antes del día 4. La meta empieza a contar al seleccionarla; su umbral y recompensa escalan según las parcelas propias, y no hay penalización por no elegir. El objetivo elegido, su progreso y el resultado quedan guardados; las partidas antiguas conservan su meta fija actual hasta terminar esa estación.
 
 ## Correcciones del código original
 
@@ -36,7 +44,7 @@ Los grupos de animales pueden pastar en parcelas abiertas, vacías y propias con
 
 ## Resultado verificado
 
-**Godot 4.6.2 en Windows:** `tests/smoke.gd`, 439 comprobaciones; `tests/campaign.gd`, 42 comprobaciones; 0 fallos en ambas. Las capturas de escenas reales se generaron y revisaron previamente con Godot 4.6.3 en Linux.
+**Godot 4.6.2 en Windows:** `tests/smoke.gd`, 460 comprobaciones; `tests/campaign.gd`, 42 comprobaciones; 0 fallos en ambas. Las capturas de escenas reales se generaron y revisaron previamente con Godot 4.6.3 en Linux.
 
 ## Pruebas reproducibles
 
@@ -60,7 +68,7 @@ godot --audio-driver Dummy --path . --script tests/capture.gd -- all /tmp/fieldw
 
 Las capturas `farm`, `detail`, `valley`, `interior`, `portrait` y `phone` usan una partida de prueba poblada; `new` muestra el inicio real con una sola parcela. La finca del menú es una composición de muestra. Ninguna de estas capturas guarda la partida de muestra.
 
-La integración comprueba transacciones, invariantes, guardado y carga, determinismo tras cargar, prioridades diarias de agua, nutrientes, plagas, enfermedades y contratos, rotación de cultivos, planes y descanso de pastoreo, 24 colisiones de parcelas, capas, calidad, catálogo de modelos, todas las pantallas en inglés y español, apertura y cierre de ventanas, vistas ocultas y tamaños de 440×800, 960×640 y 1440×900.
+La integración comprueba transacciones, invariantes, guardado y carga, determinismo tras cargar, prioridades diarias de agua, nutrientes, plagas, enfermedades, contratos y objetivos estacionales, rotación de cultivos, planes y descanso de pastoreo, 24 colisiones de parcelas, capas, calidad, catálogo de modelos, todas las pantallas en inglés y español, apertura y cierre de ventanas, vistas ocultas y tamaños de 440×800, 960×640 y 1440×900.
 
 `tests/campaign.gd` ejecuta la campaña de Historia con acciones reales de cultivo, venta, expansión, construcción, formación y contratos. También resuelve los eventos generados y guarda/reanuda la partida durante la campaña y al finalizar. La campaña contiene tres capítulos y un epílogo visible en el panel de Historia; los objetivos finales son completar tres edificios y alcanzar 10 puntos de reputación. Al completarla, la finca permanece abierta para seguir jugando. Con la semilla incluida completó en el día 34, con 2956,8 kg cosechados, un contrato entregado y 15 eventos resueltos. Esta prueba cubre la simulación nativa, no la interacción manual ni todos los dispositivos o semillas.
 

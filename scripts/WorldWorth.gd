@@ -22,7 +22,33 @@ static func season_id(season_index: int) -> String:
 static func new_state(day: int, stats: Dictionary) -> Dictionary:
 	return {"npc_chapters":{},"npc_next_hours":{},"npc_history":[],
 		"certifications":[],"festival_history":[],"season_results":[],
-		"season_key":season_key(day),"season_snapshot":stats.duplicate(true),"reputation_rewards":0}
+		"season_key":season_key(day),"season_snapshot":stats.duplicate(true),"reputation_rewards":0,
+		"season_goal_id":"","season_goal_target":0,"season_goal_snapshot":stats.duplicate(true)}
+
+static func ensure_state(state: Dictionary, stats: Dictionary, data: Dictionary) -> Dictionary:
+	var upgraded: Dictionary = state.duplicate(true)
+	var active_season: int = int(upgraded.get("season_key",0))
+	var legacy_goal: Dictionary = data.get("season_goals",{}).get(season_id(active_season),{})
+	if not upgraded.has("season_goal_id"):
+		upgraded["season_goal_id"] = str(legacy_goal.get("id",""))
+	if not upgraded.has("season_goal_target"):
+		upgraded["season_goal_target"] = int(legacy_goal.get("target",0))
+	if not upgraded.has("season_goal_snapshot"):
+		upgraded["season_goal_snapshot"] = upgraded.get("season_snapshot",stats).duplicate(true)
+	return upgraded
+
+static func season_goal_options(data: Dictionary, season_index: int) -> Array:
+	var season: Dictionary = data.get("season_goals",{}).get(season_id(season_index),{})
+	var options: Variant = season.get("options",[])
+	if typeof(options) == TYPE_ARRAY and not options.is_empty():
+		return options.duplicate(true)
+	return [season] if not season.is_empty() else []
+
+static func season_goal(data: Dictionary, season_index: int, goal_id: String) -> Dictionary:
+	for goal in season_goal_options(data,season_index):
+		if typeof(goal) == TYPE_DICTIONARY and str(goal.get("id","")) == goal_id:
+			return goal
+	return {}
 
 static func chapter(data: Dictionary, npc_id: String, chapter_index: int) -> Dictionary:
 	var chapters: Array = data.get("npc_chapters",{}).get(npc_id,[])
@@ -30,11 +56,9 @@ static func chapter(data: Dictionary, npc_id: String, chapter_index: int) -> Dic
 		return {}
 	return chapters[chapter_index]
 
-static func goal_progress(data: Dictionary, life: Dictionary, stats: Dictionary) -> float:
-	var id: String = season_id(int(life.get("season_key",0)))
-	var goal: Dictionary = data.get("season_goals",{}).get(id,{})
+static func goal_progress(goal: Dictionary, snapshot: Dictionary, stats: Dictionary) -> float:
 	var stat_name: String = str(goal.get("stat",""))
-	return maxf(0.0,float(stats.get(stat_name,0.0))-float(life.get("season_snapshot",{}).get(stat_name,0.0)))
+	return maxf(0.0,float(stats.get(stat_name,0.0))-float(snapshot.get(stat_name,0.0)))
 
 static func certificate_ready(data: Dictionary, life: Dictionary, stats: Dictionary, player: Dictionary, progression: Dictionary, id: String) -> bool:
 	var certificate: Dictionary = data.get("certifications",{}).get(id,{})
